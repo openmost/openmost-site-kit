@@ -1,15 +1,15 @@
 <?php
 
 
-require_once MATOMO_SITE_KIT__PLUGIN_DIR . 'inc/archive.php';
-require_once MATOMO_SITE_KIT__PLUGIN_DIR . 'inc/author.php';
-require_once MATOMO_SITE_KIT__PLUGIN_DIR . 'inc/error.php';
-require_once MATOMO_SITE_KIT__PLUGIN_DIR . 'inc/pagination.php';
-require_once MATOMO_SITE_KIT__PLUGIN_DIR . 'inc/search.php';
-require_once MATOMO_SITE_KIT__PLUGIN_DIR . 'inc/single-page.php';
-require_once MATOMO_SITE_KIT__PLUGIN_DIR . 'inc/term.php';
-require_once MATOMO_SITE_KIT__PLUGIN_DIR . 'inc/type.php';
-require_once MATOMO_SITE_KIT__PLUGIN_DIR . 'inc/user.php';
+require_once MATOMOSITEKIT_PLUGIN_DIR . 'inc/archive.php';
+require_once MATOMOSITEKIT_PLUGIN_DIR . 'inc/author.php';
+require_once MATOMOSITEKIT_PLUGIN_DIR . 'inc/error.php';
+require_once MATOMOSITEKIT_PLUGIN_DIR . 'inc/pagination.php';
+require_once MATOMOSITEKIT_PLUGIN_DIR . 'inc/search.php';
+require_once MATOMOSITEKIT_PLUGIN_DIR . 'inc/single-page.php';
+require_once MATOMOSITEKIT_PLUGIN_DIR . 'inc/term.php';
+require_once MATOMOSITEKIT_PLUGIN_DIR . 'inc/type.php';
+require_once MATOMOSITEKIT_PLUGIN_DIR . 'inc/user.php';
 
 add_action( 'wp_head', 'matomo_site_kit_init' );
 function matomo_site_kit_init() {
