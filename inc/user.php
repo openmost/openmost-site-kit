@@ -9,7 +9,6 @@ function msk_get_user_details() {
 		'user_login' => $user->user_login,
 		'user_nicename' => $user->user_nicename,
 		'user_email' => $user->user_email,
-		'user_url' => $user->user_url,
 		'user_registered' => $user->user_registered,
 		'display_name' => $user->display_name,
 		'roles' => $user->roles,

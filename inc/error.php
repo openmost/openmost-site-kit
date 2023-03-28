@@ -2,12 +2,13 @@
 
 function msk_get_error_page_details() {
 
-	$current_url = home_url( $_SERVER['REQUEST_URI'] );
+	global $wp;
 
 	return array(
-		'title'            => wp_get_document_title(),
-		'url'              => $current_url,
 		'type'             => 'error',
+		'title'            => wp_get_document_title(),
+		'url'              => home_url( add_query_arg( array(), $wp->request ) ),
+		'path'             => add_query_arg( array(), $wp->request ),
 		'error_type'       => '404',
 		'http_status_code' => 404,
 	);

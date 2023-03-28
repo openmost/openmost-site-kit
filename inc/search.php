@@ -1,7 +1,18 @@
 <?php
 
+function msk_get_search_page_details() {
 
-function msk_get_search_query_details() {
+	global $wp;
+
+	return array(
+		'type'           => 'search',
+		'title'            => wp_get_document_title(),
+		'url'              => home_url( add_query_arg( array(), $wp->request ) ),
+		'path'             => add_query_arg( array(), $wp->request ),
+	);
+}
+
+function msk_get_search_details() {
 
 	global $wp_query;
 
@@ -15,19 +26,5 @@ function msk_get_search_query_details() {
 		'query'        => get_search_query(),
 		'found_posts'  => $wp_query->found_posts,
 		'post_count'   => $wp_query->post_count,
-	);
-}
-
-function msk_get_search_page_details() {
-
-	global $wp_query;
-
-	return array(
-		'type'           => 'search',
-		'posts_per_page' => $wp_query->query_vars['posts_per_page'],
-		'post_count'     => $wp_query->post_count,
-		'paged'          => is_paged(),
-		'page_number'    => get_query_var( 'paged' ) ?? 1,
-		'max_num_pages'  => $wp_query->max_num_pages,
 	);
 }

@@ -13,8 +13,13 @@ function msk_get_author_details() {
 
 function msk_get_author_page_details() {
 
+	global $wp;
+
 	$details         = msk_get_author_details();
 	$details['type'] = 'author';
+	$details['url']  = home_url( add_query_arg( array(), $wp->request ) );
+	$details['path'] = add_query_arg( array(), $wp->request );
+	$details['title'] = '';
 
 	return $details;
 }
