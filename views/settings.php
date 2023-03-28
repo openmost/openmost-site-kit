@@ -33,8 +33,7 @@
 					<label for="idcontainer">Container id</label>
 				</th>
 				<td>
-					<input type="number" minlength="8" maxlength="8" name="idcontainer" id="idcontainer" class="regular-text"
-					       value="1">
+					<input type="text" minlength="8" maxlength="8" name="idcontainer" id="idcontainer" class="regular-text">
 					<p class="description">How to get my ID Site ?</p>
 				</td>
 			</tr>
