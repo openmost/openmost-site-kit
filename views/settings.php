@@ -40,10 +40,10 @@
 
 			<tr>
 				<th scope="row">
-					<label for="host">API key</label>
+					<label for="token_auth">API key</label>
 				</th>
 				<td>
-					<input type="text" name="host" id="host" class="regular-text">
+					<input type="text" name="token_auth" id="token_auth" class="regular-text">
 					<p class="description">How to get my Matomo API Key ?</p>
 				</td>
 			</tr>
