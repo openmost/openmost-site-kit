@@ -1,6 +1,6 @@
 <?php
 
-function msk_get_user_details() {
+function osk_get_user_details() {
 
 	$user = wp_get_current_user();
 

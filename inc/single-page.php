@@ -1,6 +1,6 @@
 <?php
 
-function msk_get_single_page_details() {
+function osk_get_single_page_details() {
 
 	global $wp;
 	$object = get_queried_object();
@@ -19,7 +19,7 @@ function msk_get_single_page_details() {
 		'post_date_gmt'     => $object->post_date_gmt,
 		'post_modified'     => $object->post_modified,
 		'post_modified_gmt' => $object->post_modified_gmt,
-		'post_type'         => msk_get_post_type_details( get_post_type() ),
+		'post_type'         => osk_get_post_type_details( get_post_type() ),
 		'guid'              => $object->guid,
 		'post_mime_type'    => $object->post_mime_type ?: false,
 
@@ -29,8 +29,8 @@ function msk_get_single_page_details() {
 		'is_home'       => is_home(),
 		'is_front_page' => is_front_page(),
 
-		'author'        => msk_get_author_details(),
-		'taxonomies'    => msk_get_terms_per_tax(),
+		'author'        => osk_get_author_details(),
+		'taxonomies'    => osk_get_terms_per_tax(),
 		'page_template' => esc_html( get_page_template_slug() ),
 	);
 }

@@ -1,6 +1,6 @@
 <?php
 
-function msk_get_error_page_details() {
+function osk_get_error_page_details() {
 
 	global $wp;
 

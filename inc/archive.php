@@ -1,6 +1,6 @@
 <?php
 
-function msk_get_archive_page_details() {
+function osk_get_archive_page_details() {
 
 	global $wp;
 
@@ -9,15 +9,15 @@ function msk_get_archive_page_details() {
 		'title'        => wp_get_document_title(),
 		'url'          => home_url( add_query_arg( array(), $wp->request ) ),
 		'path'         => add_query_arg( array(), $wp->request ),
-		'archive_type' => msk_get_archive_type(),
-		'taxonomy'     => msk_get_archive_taxonomy(),
-		'post_type'    => msk_get_archive_post_type(),
-		'date'         => msk_get_archive_date(),
+		'archive_type' => osk_get_archive_type(),
+		'taxonomy'     => osk_get_archive_taxonomy(),
+		'post_type'    => osk_get_archive_post_type(),
+		'date'         => osk_get_archive_date(),
 	);
 }
 
 
-function msk_get_archive_type() {
+function osk_get_archive_type() {
 	$object = get_queried_object();
 
 	if ( $object instanceof WP_Term ) {
@@ -35,7 +35,7 @@ function msk_get_archive_type() {
 	return 'not supported';
 }
 
-function msk_get_archive_taxonomy() {
+function osk_get_archive_taxonomy() {
 	$object = get_queried_object();
 
 	if ( $object instanceof WP_Term ) {
@@ -45,7 +45,7 @@ function msk_get_archive_taxonomy() {
 	return false;
 }
 
-function msk_get_archive_post_type() {
+function osk_get_archive_post_type() {
 	$object = get_queried_object();
 
 	if ( $object instanceof WP_Term ) {
@@ -60,7 +60,7 @@ function msk_get_archive_post_type() {
 }
 
 
-function msk_get_archive_date() {
+function osk_get_archive_date() {
 
 	$date = array(
 		'year'  => get_query_var( 'year' ) ?: '',
