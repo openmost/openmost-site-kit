@@ -1,7 +1,7 @@
 <?php
 /*
 Plugin Name: Openmost Site Kit
-Plugin URI: https://openmost.io/openmsost-site-kit
+Plugin URI: https://openmost.io/openmost-site-kit
 Description: A site kit plugin for Matomo
 Author: Openmost
 Version: 1.0

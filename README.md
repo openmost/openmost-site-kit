@@ -1,1 +1,0 @@
-# Matomo Site Kit for WordPress
