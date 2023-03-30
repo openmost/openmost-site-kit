@@ -1,13 +1,3 @@
 <div class="wrap">
-    <h1 class="wp-heading-inline">Dashboard</h1>
-
-    <div class="postbox">
-        <div class="postbox-header">
-            Postbox title
-        </div>
-        <div class="inside">
-            Content
-        </div>
-    </div>
-
+	<h1 class="wp-heading-inline"><?php echo esc_html(get_admin_page_title()); ?></h1>
 </div>
