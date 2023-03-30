@@ -20,7 +20,7 @@ define( 'OPENMOSTSITEKIT_WP_MINIMUM', '5.2.0' );
 define( 'OPENMOSTSITEKIT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
 
-require_once MATOMOSITEKIT_PLUGIN_DIR . 'datalayer.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'datalayer.php';
 
 
 add_action( 'admin_menu', 'osk_add_admin_menu' );
@@ -55,13 +55,13 @@ function osk_add_admin_menu() {
 }
 
 function osk_view_settings() {
-	require_once MATOMOSITEKIT_PLUGIN_DIR . 'views/settings.php';
+	require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'views/settings.php';
 }
 
 function osk_view_datalayer() {
-	require_once MATOMOSITEKIT_PLUGIN_DIR . 'views/datalayer.php';
+	require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'views/datalayer.php';
 }
 
 function osk_view_dashboard() {
-	require_once MATOMOSITEKIT_PLUGIN_DIR . 'views/dashboard.php';
+	require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'views/dashboard.php';
 }
