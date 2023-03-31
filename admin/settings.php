@@ -89,22 +89,22 @@ function osk_settings_section_callback() {
 }
 
 function osk_matomo_host_field_callback() {
-	$value = get_matomo_host();
+	$value = osk_get_matomo_host();
 	echo '<input type="url" name="osk-settings[osk-matomo-host-field]" value="' . esc_attr( $value ) . '" class="regular-text" required>';
 }
 
 function osk_matomo_idsite_field_callback() {
-	$value = get_matomo_idsite();
+	$value = osk_get_matomo_idsite();
 	echo '<input type="number" name="osk-settings[osk-matomo-idsite-field]" value="' . esc_attr( $value ) . '" class="regular-text" min="1" step="1" required>';
 }
 
 function osk_matomo_idcontainer_field_callback() {
-	$value = get_matomo_idcontainer();
+	$value = osk_get_matomo_idcontainer();
 	echo '<input type="text" name="osk-settings[osk-matomo-idcontainer-field]" value="' . esc_attr( $value ) . '" class="regular-text" min="1" step="1" required>';
 }
 
 function osk_matomo_token_auth_field_callback() {
-	$value = get_matomo_token_auth();
+	$value = osk_get_matomo_token_auth();
 	echo '<input type="text" name="osk-settings[osk-matomo-token-auth-field]" value="' . esc_attr( $value ) . '" class="regular-text">';
 }
 

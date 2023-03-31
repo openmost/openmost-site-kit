@@ -1,7 +1,7 @@
 <?php
-$data = fetch_matomo_api( '&method=Referrers.getReferrerType&filter_limit=100&filter_truncate=5&format_metrics=1&expanded=1&period=month&date=today' );
+$data = osk_fetch_matomo_api( '&method=Referrers.getReferrerType&filter_limit=100&filter_truncate=5&format_metrics=1&expanded=1&date=yesterday' );
 
-$values  = array();
+$values = array();
 foreach ( $data as $value ) {
 	$values[] = array(
 		'name'  => $value->label,

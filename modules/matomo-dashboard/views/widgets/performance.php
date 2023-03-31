@@ -1,15 +1,25 @@
 <?php
-$data = fetch_matomo_api( '&method=PagePerformance.get&filter_limit=100&format_metrics=0&expanded=1&period=day&date=last30' );
+$data = osk_fetch_matomo_api( '&method=PagePerformance.get&filter_limit=100&format_metrics=0&expanded=1&date=previous30' );
 
 $indexes = array();
 $values  = array();
+
+$metrics = [
+	'avg_time_network',
+	'avg_time_server',
+	'avg_time_transfer',
+	'avg_time_dom_processing',
+	'avg_time_dom_completion',
+	'avg_page_load_time',
+];
 
 
 foreach ( $data as $index => $value ) {
 	$indexes[] = $index;
 
-	foreach ( $value as $i => $val ) {
-		$values[ $i ][] = $val;
+	foreach ( $metrics as $metric ) {
+		$value                       = (array) $value;
+		$values[ $metric ][ $index ] = count( $value ) ? $value[ $metric ] : 0;
 	}
 }
 ?>
@@ -22,7 +32,6 @@ foreach ( $data as $index => $value ) {
     document.addEventListener('DOMContentLoaded', function () {
 
         let el = document.getElementById('performance-chart');
-
         let chart = echarts.init(el);
         chart.setOption({
             xAxis: {
@@ -44,7 +53,7 @@ foreach ( $data as $index => $value ) {
                     emphasis: {
                         focus: 'series'
                     },
-                    data: <?php echo json_encode( $values[ $index ] ); ?>,
+                    data: <?php echo json_encode( array_values( $values[ $index ] ) ); ?>,
                 },
 				<?php endforeach; ?>
             ]

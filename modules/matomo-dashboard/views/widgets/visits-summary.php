@@ -1,5 +1,5 @@
 <?php
-$data = fetch_matomo_api( '&method=VisitsSummary.getVisits&filter_limit=100&format_metrics=1&expanded=1&period=day&date=last30' );
+$data = osk_fetch_matomo_api( '&method=VisitsSummary.getVisits&filter_limit=100&format_metrics=1&expanded=1&date=previous30' );
 
 $indexes = array();
 $values  = array();

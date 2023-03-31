@@ -1,5 +1,5 @@
 <?php
-$data = fetch_matomo_api( '&method=Actions.getPageUrls&period=month&date=today&flat=1&filter_limit=10' );
+$data = osk_fetch_matomo_api( '&method=Actions.getPageUrls&flat=1&filter_limit=10&date=yesterday' );
 
 $values = array();
 foreach ( $data as $value ) {
