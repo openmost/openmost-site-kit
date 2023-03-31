@@ -89,26 +89,22 @@ function osk_settings_section_callback() {
 }
 
 function osk_matomo_host_field_callback() {
-	$options = get_option( 'osk-settings' );
-	$value   = isset( $options['osk-matomo-host-field'] ) ? $options['osk-matomo-host-field'] : '';
+	$value = get_matomo_host();
 	echo '<input type="url" name="osk-settings[osk-matomo-host-field]" value="' . esc_attr( $value ) . '" class="regular-text" required>';
 }
 
 function osk_matomo_idsite_field_callback() {
-	$options = get_option( 'osk-settings' );
-	$value   = isset( $options['osk-matomo-idsite-field'] ) ? $options['osk-matomo-idsite-field'] : '';
+	$value = get_matomo_idsite();
 	echo '<input type="number" name="osk-settings[osk-matomo-idsite-field]" value="' . esc_attr( $value ) . '" class="regular-text" min="1" step="1" required>';
 }
 
 function osk_matomo_idcontainer_field_callback() {
-	$options = get_option( 'osk-settings' );
-	$value   = isset( $options['osk-matomo-idcontainer-field'] ) ? $options['osk-matomo-idcontainer-field'] : '';
+	$value = get_matomo_idcontainer();
 	echo '<input type="text" name="osk-settings[osk-matomo-idcontainer-field]" value="' . esc_attr( $value ) . '" class="regular-text" min="1" step="1" required>';
 }
 
 function osk_matomo_token_auth_field_callback() {
-	$options = get_option( 'osk-settings' );
-	$value   = isset( $options['osk-matomo-token-auth-field'] ) ? $options['osk-matomo-token-auth-field'] : '';
+	$value = get_matomo_token_auth();
 	echo '<input type="text" name="osk-settings[osk-matomo-token-auth-field]" value="' . esc_attr( $value ) . '" class="regular-text">';
 }
 
@@ -117,7 +113,6 @@ function osk_matomo_enable_classic_tracking_code_field_callback() {
 	$value   = isset( $options['osk-matomo-enable-classic-tracking-code-field'] ) ? $options['osk-matomo-enable-classic-tracking-code-field'] : '';
 	echo '<label><input type="checkbox" name="osk-settings[osk-matomo-enable-classic-tracking-code-field]" value="1" ' . checked( 1, $value, false ) . '> Enable classic tracking</label>';
 }
-
 
 function osk_matomo_enable_mtm_tracking_code_field_callback() {
 	$options = get_option( 'osk-settings' );

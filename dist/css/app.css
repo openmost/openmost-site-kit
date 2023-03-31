@@ -1,1 +1,29 @@
+.charts-wrapper {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+.charts-wrapper .chart-wrapper {
+  width: 100%;
+  flex-grow: 1;
+}
+.charts-wrapper .chart-wrapper:nth-child(1) {
+  max-width: calc(66.6% - 12px);
+}
+.charts-wrapper .chart-wrapper:nth-child(2) {
+  max-width: calc(33.3% - 12px);
+}
 
+.osk-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+.osk-table tr th, .osk-table tr td {
+  padding: 0.75rem;
+}
+.osk-table tr th {
+  background-color: #eee;
+}
+.osk-table tr td {
+  border-top: 1px solid #eee;
+}

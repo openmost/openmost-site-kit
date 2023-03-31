@@ -1,0 +1,19 @@
+.charts-wrapper {
+  display: flex;
+  gap: 24px;
+  flex-wrap: wrap;
+
+
+  .chart-wrapper {
+    width: 100%;
+    flex-grow: 1;
+
+    &:nth-child(1){
+      max-width: calc(66.6% - 12px);
+    }
+
+    &:nth-child(2){
+      max-width: calc(33.3% - 12px);
+    }
+  }
+}

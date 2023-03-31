@@ -14,5 +14,5 @@ function osk_dashboard_page() {
 add_action( 'admin_menu', 'osk_dashboard_page' );
 
 function osk_view_dashboard() {
-	require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'views/dashboard.php';
+	require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/matomo-dashboard/views/index.php';
 }
