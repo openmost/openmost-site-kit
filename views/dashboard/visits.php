@@ -4,12 +4,15 @@
 	</div>
     <div class="inside">
 
+
+
         <div id="visits" style="width: 100%; height:300px;"></div>
 
     </div>
 </div>
 
 <?php
+/*
 $response = osk_fetch_matomo_api();
 $indexes  = $values = array();
 foreach ( json_decode( $response ) as $index => $value ) {
@@ -42,3 +45,4 @@ foreach ( json_decode( $response ) as $index => $value ) {
         })
     });
 </script>
+*/ ?>

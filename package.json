@@ -1,0 +1,32 @@
+{
+  "name": "openmost-site-kit",
+  "version": "1.0.0",
+  "description": "=== Openmost Site Kit ===",
+  "scripts": {
+    "dev": "npm run development",
+    "development": "mix",
+    "watch": "mix watch",
+    "watch-poll": "mix watch -- --watch-options-poll=1000",
+    "hot": "mix watch --hot",
+    "prod": "npm run production",
+    "production": "mix --production"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/openmost/openmost-site-kit.git"
+  },
+  "author": "Openmo st",
+  "license": "GPLv3",
+  "bugs": {
+    "url": "https://github.com/openmost/openmost-site-kit/issues"
+  },
+  "homepage": "https://github.com/openmost/openmost-site-kit#readme",
+  "devDependencies": {
+    "laravel-mix": "^6.0.49",
+    "vue-loader": "^16.8.3"
+  },
+  "dependencies": {
+    "echarts": "^5.4.2",
+    "vue": "^3.2.47"
+  }
+}
