@@ -1,9 +1,17 @@
 <template>
   <div class="wrap">
 
-    <h1>Dashboard</h1>
+    <h1 class="wp-heading-inline">Dashboard</h1>
 
-    <VisitsSummary/>
+    <div class="postbox">
+      <div class="postbox-header">
+        <h2>Visits summary</h2>
+      </div>
+      <div class="inner">
+        <VisitsSummary/>
+      </div>
+    </div>
+
 
   </div>
 </template>
