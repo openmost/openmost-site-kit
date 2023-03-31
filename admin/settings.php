@@ -20,6 +20,7 @@ function osk_view_settings() {
 }
 
 function osk_register_settings() {
+
 	add_settings_section(
 		'osk-settings-section', // section ID
 		'General Settings', // section title
@@ -44,6 +45,14 @@ function osk_register_settings() {
 	);
 
 	add_settings_field(
+		'osk-matomo-idcontainer-field', // field ID
+		'ID Container', // field label
+		'osk_matomo_idcontainer_field_callback', // callback function to display the field input
+		'osk-settings', // page slug
+		'osk-settings-section' // section ID
+	);
+
+	add_settings_field(
 		'osk-matomo-token-auth-field', // field ID
 		'Token Auth', // field label
 		'osk_matomo_token_auth_field_callback', // callback function to display the field input
@@ -55,6 +64,14 @@ function osk_register_settings() {
 		'osk-matomo-enable-classic-tracking-code-field', // field ID
 		'Enable classic tracking code', // field label
 		'osk_matomo_enable_classic_tracking_code_field_callback', // callback function to display the field input
+		'osk-settings', // page slug
+		'osk-settings-section' // section ID
+	);
+
+	add_settings_field(
+		'osk-matomo-enable-mtm-tracking-code-field', // field ID
+		'Enable Tag Manager tracking code', // field label
+		'osk_matomo_enable_mtm_tracking_code_field_callback', // callback function to display the field input
 		'osk-settings', // page slug
 		'osk-settings-section' // section ID
 	);
@@ -83,6 +100,12 @@ function osk_matomo_idsite_field_callback() {
 	echo '<input type="number" name="osk-settings[osk-matomo-idsite-field]" value="' . esc_attr( $value ) . '" class="regular-text" min="1" step="1" required>';
 }
 
+function osk_matomo_idcontainer_field_callback() {
+	$options = get_option( 'osk-settings' );
+	$value   = isset( $options['osk-matomo-idcontainer-field'] ) ? $options['osk-matomo-idcontainer-field'] : '';
+	echo '<input type="text" name="osk-settings[osk-matomo-idcontainer-field]" value="' . esc_attr( $value ) . '" class="regular-text" min="1" step="1" required>';
+}
+
 function osk_matomo_token_auth_field_callback() {
 	$options = get_option( 'osk-settings' );
 	$value   = isset( $options['osk-matomo-token-auth-field'] ) ? $options['osk-matomo-token-auth-field'] : '';
@@ -94,3 +117,25 @@ function osk_matomo_enable_classic_tracking_code_field_callback() {
 	$value   = isset( $options['osk-matomo-enable-classic-tracking-code-field'] ) ? $options['osk-matomo-enable-classic-tracking-code-field'] : '';
 	echo '<label><input type="checkbox" name="osk-settings[osk-matomo-enable-classic-tracking-code-field]" value="1" ' . checked( 1, $value, false ) . '> Enable classic tracking</label>';
 }
+
+
+function osk_matomo_enable_mtm_tracking_code_field_callback() {
+	$options = get_option( 'osk-settings' );
+	$value   = isset( $options['osk-matomo-enable-mtm-tracking-code-field'] ) ? $options['osk-matomo-enable-mtm-tracking-code-field'] : '';
+	echo '<label><input type="checkbox" name="osk-settings[osk-matomo-enable-mtm-tracking-code-field]" value="1" ' . checked( 1, $value, false ) . '> Enable Tag Manager tracking</label>';
+}
+
+
+/**
+ * Display errors
+ *
+ * @return void
+ */
+function osk_both_code_deployed_notice() {
+	$options = get_option( 'osk-settings' );
+	if ( isset( $options['osk-matomo-enable-classic-tracking-code-field'] ) && isset( $options['osk-matomo-enable-mtm-tracking-code-field'] ) ) {
+		echo '<div class="notice notice-error"><p>Both Matomo and Matomo Tag Manager codes are deployed, you should use only one of them.</p></div>';
+	}
+}
+
+add_action( 'admin_notices', 'osk_both_code_deployed_notice' );

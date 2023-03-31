@@ -1,4 +1,6 @@
 import {createApp} from 'vue'
 import Dashboard from './pages/Dashboard.vue';
 
-createApp(Dashboard).mount('#osk-dashboard');
+const mountEl = document.querySelector("#osk-dashboard");
+
+createApp(Dashboard, {...mountEl.dataset}).mount('#osk-dashboard');

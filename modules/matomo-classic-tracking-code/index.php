@@ -16,7 +16,7 @@ function osk_add_matomo_classic_tracking_code() {
             _paq.push(['trackPageView']);
             _paq.push(['enableLinkTracking']);
             (function () {
-                var u = "<?php echo esc_attr( $host ); ?>";
+                var u = "<?php echo esc_attr( $host ); ?>/";
                 _paq.push(['setTrackerUrl', u + 'matomo.php']);
                 _paq.push(['setSiteId', '<?php echo esc_attr( $id_site ); ?>']);
                 var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
