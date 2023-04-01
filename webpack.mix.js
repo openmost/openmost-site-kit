@@ -5,4 +5,4 @@ mix
     .js('src/js/app.js', 'js')
     .js('src/js/echarts.js', 'js')
     .vue()
-    .setPublicPath('dist');
+    .setPublicPath('admin');

@@ -35,17 +35,12 @@ function osk_register_menu_option() {
 
 add_action( 'admin_menu', 'osk_register_menu_option' );
 
-// Admin pages
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'inc/assets.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'inc/helpers.php';
-
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'admin/settings.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'admin/datalayer.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'admin/dashboard.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'includes/assets.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'includes/helpers.php';
 
 // Modules
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/settings/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/index.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/matomo-classic-tracking-code/index.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/matomo-tag-manager-tracking-code/index.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/matomo-dashboard/index.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/dashboard/index.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/gdpr/index.php';
 

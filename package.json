@@ -25,11 +25,9 @@
     "laravel-mix": "^6.0.49",
     "resolve-url-loader": "^5.0.0",
     "sass": "^1.60.0",
-    "sass-loader": "^12.1.0",
-    "vue-loader": "^16.8.3"
+    "sass-loader": "^12.1.0"
   },
   "dependencies": {
-    "echarts": "^5.4.2",
-    "vue": "^3.2.47"
+    "echarts": "^5.4.2"
   }
 }

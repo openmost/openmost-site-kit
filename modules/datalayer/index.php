@@ -1,14 +1,16 @@
 <?php
 
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/inc/archive.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/inc/author.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/inc/error.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/inc/pagination.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/inc/search.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/inc/single-page.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/inc/term.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/inc/type.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/inc/user.php';
+require_once plugin_dir_path(__FILE__) . 'admin.php';
+
+require_once plugin_dir_path(__FILE__) . 'inc/archive.php';
+require_once plugin_dir_path(__FILE__) . 'inc/author.php';
+require_once plugin_dir_path(__FILE__) . 'inc/error.php';
+require_once plugin_dir_path(__FILE__) . 'inc/pagination.php';
+require_once plugin_dir_path(__FILE__) . 'inc/search.php';
+require_once plugin_dir_path(__FILE__) . 'inc/single-page.php';
+require_once plugin_dir_path(__FILE__) . 'inc/term.php';
+require_once plugin_dir_path(__FILE__) . 'inc/type.php';
+require_once plugin_dir_path(__FILE__) . 'inc/user.php';
 
 add_action( 'wp_head', 'matomo_site_kit_init', 15 );
 function matomo_site_kit_init() {
