@@ -1,16 +1,19 @@
 <?php
 
-require_once plugin_dir_path(__FILE__) . 'admin.php';
+if ( is_admin() ) {
+	require_once plugin_dir_path( __FILE__ ) . 'admin.php';
+}
 
-require_once plugin_dir_path(__FILE__) . 'inc/archive.php';
-require_once plugin_dir_path(__FILE__) . 'inc/author.php';
-require_once plugin_dir_path(__FILE__) . 'inc/error.php';
-require_once plugin_dir_path(__FILE__) . 'inc/pagination.php';
-require_once plugin_dir_path(__FILE__) . 'inc/search.php';
-require_once plugin_dir_path(__FILE__) . 'inc/single-page.php';
-require_once plugin_dir_path(__FILE__) . 'inc/term.php';
-require_once plugin_dir_path(__FILE__) . 'inc/type.php';
-require_once plugin_dir_path(__FILE__) . 'inc/user.php';
+// Features
+require_once plugin_dir_path( __FILE__ ) . 'inc/archive.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/author.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/error.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/pagination.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/search.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/single-page.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/term.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/type.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/user.php';
 
 add_action( 'wp_head', 'matomo_site_kit_init', 15 );
 function matomo_site_kit_init() {
@@ -26,7 +29,7 @@ function matomo_site_kit_init() {
 		// static homepage
 		$dataLayer['page'] = osk_get_single_page_details();
 
-	} elseif ( is_home()&& isset( $options['osk-enable-blog-page-field'] ) ) {
+	} elseif ( is_home() && isset( $options['osk-enable-blog-page-field'] ) ) {
 		// blog page
 		$dataLayer['page'] = osk_get_single_page_details();
 	}

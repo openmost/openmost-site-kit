@@ -1,6 +1,8 @@
 <?php
 
-require_once plugin_dir_path(__FILE__) . 'admin.php';
+if ( is_admin() ) {
+	require_once plugin_dir_path( __FILE__ ) . 'admin.php';
+}
 
 add_shortcode( 'osk_matomo_opt_out', 'osk_matomo_opt_out_shortcode' );
 function osk_matomo_opt_out_shortcode( $params ) {

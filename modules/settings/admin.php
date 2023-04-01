@@ -6,9 +6,9 @@ function osk_register_settings_options_page() {
 		'General Settings',
 		'General Settings',
 		'manage_options',
-		'openmost-site-kit',
+		'osk-settings',
 		'osk_view_settings',
-		1
+		50
 	);
 }
 

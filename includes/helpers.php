@@ -29,12 +29,16 @@ function osk_get_matomo_period() {
 	return isset( $_GET['period'] ) ? $_GET['period'] : 'day';
 }
 
+function osk_get_matomo_date() {
+	return isset( $_GET['date'] ) ? $_GET['date'] : 'last7';
+}
+
 function osk_fetch_matomo_api( $url ) {
 	$host       = osk_get_matomo_host();
 	$idsite     = osk_get_matomo_idsite();
 	$token_auth = osk_get_matomo_token_auth();
-	$period     = osk_get_matomo_period();
-	$base_url   = "$host/index.php?module=API&format=JSON&idSite=$idsite&token_auth=$token_auth&period=$period";
+	$date       = osk_get_matomo_date();
+	$base_url   = "$host/index.php?module=API&format=JSON&idSite=$idsite&token_auth=$token_auth&date=$date";
 
 	$response = wp_remote_get( "$base_url$url" );
 	$body     = wp_remote_retrieve_body( $response );

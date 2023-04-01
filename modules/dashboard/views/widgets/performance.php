@@ -1,5 +1,5 @@
 <?php
-$data = osk_fetch_matomo_api( '&method=PagePerformance.get&filter_limit=100&format_metrics=0&expanded=1&date=previous30' );
+$data = osk_fetch_matomo_api( '&method=PagePerformance.get&filter_limit=100&format_metrics=0&expanded=1&period=day' );
 
 $indexes = array();
 $values  = array();

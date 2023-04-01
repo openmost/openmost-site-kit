@@ -39,8 +39,8 @@ require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'includes/assets.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'includes/helpers.php';
 
 // Modules
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/settings/index.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/dashboard/index.php';
-require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/gdpr/index.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/index.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/privacy/index.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/settings/index.php';
 

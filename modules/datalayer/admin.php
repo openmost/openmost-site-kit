@@ -6,15 +6,16 @@ function osk_data_layer_options_page() {
 		'Data Layer Settings', // page title
 		'Data Layer', // menu title
 		'manage_options', // capability
-		'osk-data-layer-settings', // menu slug
-		'osk_view_datalayer' // callback function to display the options form
+		'osk-datalayer', // menu slug
+		'osk_view_datalayer', // callback function to display the options form
+		30
 	);
 }
 
 add_action( 'admin_menu', 'osk_data_layer_options_page' );
 
 function osk_view_datalayer() {
-	require_once plugin_dir_path(__FILE__) . 'views/index.php';
+	require_once plugin_dir_path( __FILE__ ) . 'views/index.php';
 }
 
 function osk_register_data_layer_settings() {

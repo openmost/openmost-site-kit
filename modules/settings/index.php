@@ -1,7 +1,10 @@
 <?php
 
-require_once plugin_dir_path( __FILE__ ) . 'admin.php';
+if ( is_admin() ) {
+	require_once plugin_dir_path( __FILE__ ) . 'admin.php';
+}
 
-// require_once plugin_dir_path( __FILE__ ) . 'matomo-classic-tracking-code/index.php';
-// require_once plugin_dir_path( __FILE__ ) . 'matomo-tag-manager-tracking-code/index.php';
+// Features
+require_once plugin_dir_path( __FILE__ ) . 'inc/classic-code.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/tag-manager-code.php';
 
