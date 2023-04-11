@@ -1,24 +1,25 @@
 <?php
+$page_url = get_the_permalink(get_the_ID());
 
-$fetch_url = '&method=VisitsSummary.getVisits';
+$fetch_url = '&method=API.get';
 $fetch_url .= '&period=day';
-$fetch_url .= '&date=' . osk_get_matomo_date();
+$fetch_url .= '&date=last30';
+$fetch_url .= '&showColumns=nb_visits,nb_pageviews';
+$fetch_url .= '&segment=pageUrl==' . $page_url;
 
 $data = osk_fetch_matomo_api( $fetch_url );
 
-$indexes = array();
-$values  = array();
+$indexes      = array();
+$nb_visits    = array();
+$nb_pageviews = array();
 
 foreach ( $data as $index => $value ) {
-	$indexes[] = $index;
-	$values[]  = $value ?? 0;
+	$indexes[]      = $index;
+	$nb_visits[]    = $value->nb_visits ?? 0;
+	$nb_pageviews[] = $value->nb_pageviews ?? 0;
 }
 ?>
-<div class="postbox" style="margin-bottom: 0">
-    <div class="inner">
-        <div id="visits-summary-chart" style="width: 100%; height: 400px;"></div>
-    </div>
-</div>
+<div id="visits-summary-chart" style="width: 1570px; height: 400px;"></div>
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -38,6 +39,7 @@ foreach ( $data as $index => $value ) {
             },
             xAxis: {
                 type: 'category',
+                boundaryGap: false,
                 data: <?php echo json_encode( $indexes ); ?>
             },
             yAxis: {
@@ -46,7 +48,12 @@ foreach ( $data as $index => $value ) {
             series: [
                 {
                     name: '<?php _e('Visits', 'osk'); ?>',
-                    data: <?php echo json_encode( $values ); ?>,
+                    data: <?php echo json_encode( $nb_visits ); ?>,
+                    type: 'line'
+                },
+                {
+                    name: '<?php _e('Pageviews', 'osk'); ?>',
+                    data: <?php echo json_encode( $nb_pageviews ); ?>,
                     type: 'line'
                 }
             ]

@@ -1,5 +1,13 @@
 <?php
-$data = osk_fetch_matomo_api( '&method=PagePerformance.get&filter_limit=100&format_metrics=0&expanded=1&period=day' );
+
+$fetch_url = '&method=PagePerformance.get';
+$fetch_url .= '&filter_limit=100';
+$fetch_url .= '&format_metrics=0';
+$fetch_url .= '&expanded=1';
+$fetch_url .= '&period=day';
+$fetch_url .= '&date=' . osk_get_matomo_date();
+
+$data = osk_fetch_matomo_api( $fetch_url );
 
 $indexes = array();
 $values  = array();
@@ -12,7 +20,6 @@ $metrics = [
 	'avg_time_dom_completion',
 	'avg_page_load_time',
 ];
-
 
 foreach ( $data as $index => $value ) {
 	$indexes[] = $index;
@@ -34,6 +41,16 @@ foreach ( $data as $index => $value ) {
         let el = document.getElementById('performance-chart');
         let chart = echarts.init(el);
         chart.setOption({
+            tooltip: {
+                trigger: 'axis'
+            },
+            grid: {
+                top: '32px',
+                left: '16px',
+                right: '16px',
+                bottom: '16px',
+                containLabel: true
+            },
             xAxis: {
                 type: 'category',
                 data: <?php echo json_encode( $indexes ); ?>

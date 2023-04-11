@@ -1,5 +1,11 @@
 <?php
-$data = osk_fetch_matomo_api( '&method=Actions.getPageUrls&flat=1&filter_limit=10&period=range' );
+$fetch_url = '&method=Actions.getPageUrls';
+$fetch_url .= '&flat=1';
+$fetch_url .= '&filter_limit=10';
+$fetch_url .= '&period=range';
+$fetch_url .= '&date=' . osk_get_matomo_date();
+
+$data = osk_fetch_matomo_api( $fetch_url );
 
 $values = array();
 foreach ( $data as $value ) {

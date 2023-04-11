@@ -43,6 +43,7 @@ require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'includes/helpers.php';
 
 // Modules
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/dashboard/index.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/post-type-charts/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/datalayer/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/privacy/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/settings/index.php';

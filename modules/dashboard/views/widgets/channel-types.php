@@ -1,5 +1,14 @@
 <?php
-$data = osk_fetch_matomo_api( '&method=Referrers.getReferrerType&filter_limit=100&filter_truncate=5&format_metrics=1&expanded=1&period=range' );
+
+$fetch_url = '&method=Referrers.getReferrerType';
+$fetch_url .= '&filter_limit=100';
+$fetch_url .= '&filter_truncate=5';
+$fetch_url .= '&format_metrics=1';
+$fetch_url .= '&expanded=1';
+$fetch_url .= '&period=range';
+$fetch_url .= '&date=' . osk_get_matomo_date();
+
+$data = osk_fetch_matomo_api( $fetch_url);
 
 $values = array();
 foreach ( $data as $value ) {
