@@ -17,11 +17,11 @@ foreach ( $data as $value ) {
         <table class="osk-table">
             <thead>
             <tr>
-                <th>URL</th>
-                <th>Pageviews</th>
-                <th>Unique Pageviews</th>
-                <th>Bounce Rate</th>
-                <th>Session Duration</th>
+                <th><?php _e( 'URL', 'openmost-site-kit' ); ?></th>
+                <th><?php _e( 'Pageviews', 'openmost-site-kit' ); ?></th>
+                <th><?php _e( 'Unique Pageviews', 'openmost-site-kit' ); ?></th>
+                <th><?php _e( 'Bounce Rate', 'openmost-site-kit' ); ?></th>
+                <th><?php _e( 'Session Duration', 'openmost-site-kit' ); ?></th>
             </tr>
             </thead>
             <tbody>

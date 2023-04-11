@@ -1,0 +1,217 @@
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: Openmost Site Kit\n"
+"POT-Creation-Date: 2023-04-11 23:41+0200\n"
+"PO-Revision-Date: 2023-04-11 23:21+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
+"X-Generator: Poedit 3.2.2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: openmost-site-kit.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
+"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
+"X-Poedit-SearchPathExcluded-1: node_modules\n"
+
+#: modules/dashboard/admin.php:6 modules/dashboard/admin.php:7
+msgid "Dashboard"
+msgstr ""
+
+#: modules/dashboard/views/index.php:9
+msgid "Date :"
+msgstr ""
+
+#: modules/dashboard/views/index.php:11
+msgid "Last 7 days"
+msgstr ""
+
+#: modules/dashboard/views/index.php:12
+msgid "Last 14 days"
+msgstr ""
+
+#: modules/dashboard/views/index.php:13
+msgid "Last 28 days"
+msgstr ""
+
+#: modules/dashboard/views/index.php:14
+msgid "Last 90 days"
+msgstr ""
+
+#: modules/dashboard/views/widgets/pages.php:20
+msgid "URL"
+msgstr ""
+
+#: modules/dashboard/views/widgets/pages.php:21
+#: modules/post-type-charts/views/widgets/visits-summary.php:55
+msgid "Pageviews"
+msgstr ""
+
+#: modules/dashboard/views/widgets/pages.php:22
+msgid "Unique Pageviews"
+msgstr ""
+
+#: modules/dashboard/views/widgets/pages.php:23
+msgid "Bounce Rate"
+msgstr ""
+
+#: modules/dashboard/views/widgets/pages.php:24
+msgid "Session Duration"
+msgstr ""
+
+#: modules/dashboard/views/widgets/visits-summary.php:48
+#: modules/post-type-charts/views/widgets/visits-summary.php:50
+msgid "Visits"
+msgstr ""
+
+#: modules/datalayer/admin.php:6 modules/datalayer/admin.php:24
+msgid "Data Layer Settings"
+msgstr ""
+
+#: modules/datalayer/admin.php:7
+msgid "Data Layer"
+msgstr ""
+
+#: modules/datalayer/admin.php:31
+msgid "Home page informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:39
+msgid "Blog page informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:47
+msgid "Page informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:55
+msgid "Single page informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:63
+msgid "Attachment page informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:71
+msgid "Archive page informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:79
+msgid "Author page informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:87
+msgid "Search page informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:95
+msgid "Error page informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:104
+msgid "User informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:112
+msgid "Search informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:120
+msgid "Pagination informations"
+msgstr ""
+
+#: modules/datalayer/admin.php:135
+msgid "Choose what you want to add to the dataLayer :"
+msgstr ""
+
+#: modules/datalayer/admin.php:141 modules/datalayer/admin.php:147
+#: modules/datalayer/admin.php:153 modules/datalayer/admin.php:159
+#: modules/datalayer/admin.php:165 modules/datalayer/admin.php:171
+#: modules/datalayer/admin.php:177 modules/datalayer/admin.php:183
+#: modules/datalayer/admin.php:189 modules/datalayer/admin.php:196
+#: modules/datalayer/admin.php:203 modules/datalayer/admin.php:209
+msgid "Add to"
+msgstr ""
+
+#: modules/post-type-charts/admin.php:10
+msgid "Matomo - Visits Summary"
+msgstr ""
+
+#: modules/privacy/admin.php:6 modules/privacy/admin.php:7
+msgid "Privacy"
+msgstr ""
+
+#: modules/settings/admin.php:6 modules/settings/admin.php:7
+#: modules/settings/admin.php:26
+msgid "General Settings"
+msgstr ""
+
+#: modules/settings/admin.php:33
+msgid "Host URL"
+msgstr ""
+
+#: modules/settings/admin.php:41
+msgid "ID Site"
+msgstr ""
+
+#: modules/settings/admin.php:49
+msgid "ID Container"
+msgstr ""
+
+#: modules/settings/admin.php:57
+msgid "Token Auth"
+msgstr ""
+
+#: modules/settings/admin.php:65
+msgid "Enable classic tracking code"
+msgstr ""
+
+#: modules/settings/admin.php:73
+msgid "Enable Tag Manager tracking code"
+msgstr ""
+
+#: modules/settings/admin.php:114
+msgid "Enable classic tracking"
+msgstr ""
+
+#: modules/settings/admin.php:120
+msgid "Enable Tag Manager tracking"
+msgstr ""
+
+#: modules/settings/admin.php:132
+msgid ""
+"Both Matomo and Matomo Tag Manager codes are deployed, you should use only "
+"one of them."
+msgstr ""
+
+#: openmost-site-kit.php:33 openmost-site-kit.php:34
+msgid "Site Kit"
+msgstr ""
+
+#. Plugin Name of the plugin/theme
+msgid "Openmost Site Kit"
+msgstr ""
+
+#. Plugin URI of the plugin/theme
+msgid "https://openmost.io/openmost-site-kit"
+msgstr ""
+
+#. Description of the plugin/theme
+msgid "A site kit plugin for Matomo"
+msgstr ""
+
+#. Author of the plugin/theme
+msgid "Openmost"
+msgstr ""
+
+#. Author URI of the plugin/theme
+msgid "https://openmost.io"
+msgstr ""

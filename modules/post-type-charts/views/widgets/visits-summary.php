@@ -47,12 +47,12 @@ foreach ( $data as $index => $value ) {
             },
             series: [
                 {
-                    name: '<?php _e('Visits', 'osk'); ?>',
+                    name: '<?php _e('Visits', 'openmost-site-kit'); ?>',
                     data: <?php echo json_encode( $nb_visits ); ?>,
                     type: 'line'
                 },
                 {
-                    name: '<?php _e('Pageviews', 'osk'); ?>',
+                    name: '<?php _e('Pageviews', 'openmost-site-kit'); ?>',
                     data: <?php echo json_encode( $nb_pageviews ); ?>,
                     type: 'line'
                 }

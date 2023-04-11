@@ -3,8 +3,8 @@
 function osk_register_privacy_options_page() {
 	add_submenu_page(
 		'openmost-site-kit',
-		'Privacy',
-		'Privacy',
+		__('Privacy', 'openmost-site-kit'),
+		__('Privacy', 'openmost-site-kit'),
 		'manage_options',
 		'osk-privacy',
 		'osk_view_privacy',

@@ -7,7 +7,7 @@ function osk_add_post_type_charts_box() {
 	foreach ( $screens as $screen ) {
 		add_meta_box(
 			'osk_post_type_charts',
-			__( 'Matomo - Visits Summary', 'osk' ),
+			__( 'Matomo - Visits Summary', 'openmost-site-kit' ),
 			'osk_post_type_charts_box_content',
 			$screen,
 		);

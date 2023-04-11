@@ -3,8 +3,8 @@
 function osk_dashboard_page() {
 	add_submenu_page(
 		'openmost-site-kit', // parent slug
-		'Dashboard', // page title
-		'Dashboard', // menu title
+		__('Dashboard', 'openmost-site-kit'), // page title
+		__('Dashboard', 'openmost-site-kit'), // menu title
 		'manage_options', // capability
 		'openmost-site-kit', // menu slug
 		'osk_view_dashboard', // callback function to display the options form

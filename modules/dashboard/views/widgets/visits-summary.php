@@ -45,7 +45,7 @@ foreach ( $data as $index => $value ) {
             },
             series: [
                 {
-                    name: '<?php _e('Visits', 'osk'); ?>',
+                    name: '<?php _e('Visits', 'openmost-site-kit'); ?>',
                     data: <?php echo json_encode( $values ); ?>,
                     type: 'line'
                 }

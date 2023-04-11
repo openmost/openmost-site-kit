@@ -1,0 +1,219 @@
+msgid ""
+msgstr ""
+"Project-Id-Version: Openmost Site Kit\n"
+"POT-Creation-Date: 2023-04-11 23:41+0200\n"
+"PO-Revision-Date: 2023-04-11 23:41+0200\n"
+"Last-Translator: \n"
+"Language-Team: \n"
+"Language: fr_FR\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n > 1);\n"
+"X-Generator: Poedit 3.2.2\n"
+"X-Poedit-Basepath: ..\n"
+"X-Poedit-Flags-xgettext: --add-comments=translators:\n"
+"X-Poedit-WPHeader: openmost-site-kit.php\n"
+"X-Poedit-SourceCharset: UTF-8\n"
+"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
+"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;"
+"_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-SearchPath-0: .\n"
+"X-Poedit-SearchPathExcluded-0: *.min.js\n"
+"X-Poedit-SearchPathExcluded-1: node_modules\n"
+
+#: modules/dashboard/admin.php:6 modules/dashboard/admin.php:7
+msgid "Dashboard"
+msgstr "Tableau de bord"
+
+#: modules/dashboard/views/index.php:9
+msgid "Date :"
+msgstr "Date :"
+
+#: modules/dashboard/views/index.php:11
+msgid "Last 7 days"
+msgstr "7 derniers jours"
+
+#: modules/dashboard/views/index.php:12
+msgid "Last 14 days"
+msgstr "14 derniers jours"
+
+#: modules/dashboard/views/index.php:13
+msgid "Last 28 days"
+msgstr "28 derniers jours"
+
+#: modules/dashboard/views/index.php:14
+msgid "Last 90 days"
+msgstr "90 derniers jours"
+
+#: modules/dashboard/views/widgets/pages.php:20
+msgid "URL"
+msgstr "URL"
+
+#: modules/dashboard/views/widgets/pages.php:21
+#: modules/post-type-charts/views/widgets/visits-summary.php:55
+msgid "Pageviews"
+msgstr "Pages vues"
+
+#: modules/dashboard/views/widgets/pages.php:22
+msgid "Unique Pageviews"
+msgstr "Pages vues uniques"
+
+#: modules/dashboard/views/widgets/pages.php:23
+msgid "Bounce Rate"
+msgstr "Taux de Rebond"
+
+#: modules/dashboard/views/widgets/pages.php:24
+msgid "Session Duration"
+msgstr "Durée de session"
+
+#: modules/dashboard/views/widgets/visits-summary.php:48
+#: modules/post-type-charts/views/widgets/visits-summary.php:50
+msgid "Visits"
+msgstr "Visites"
+
+#: modules/datalayer/admin.php:6 modules/datalayer/admin.php:24
+msgid "Data Layer Settings"
+msgstr "Paramètres du Data Layer"
+
+#: modules/datalayer/admin.php:7
+msgid "Data Layer"
+msgstr "Data Layer"
+
+#: modules/datalayer/admin.php:31
+msgid "Home page informations"
+msgstr "Informations de la page d’accueil"
+
+#: modules/datalayer/admin.php:39
+msgid "Blog page informations"
+msgstr "Informations de la page du blog"
+
+#: modules/datalayer/admin.php:47
+msgid "Page informations"
+msgstr "Informations de la page"
+
+#: modules/datalayer/admin.php:55
+msgid "Single page informations"
+msgstr "Informations sur page de post type"
+
+#: modules/datalayer/admin.php:63
+msgid "Attachment page informations"
+msgstr "Informations sur page d'attachement"
+
+#: modules/datalayer/admin.php:71
+msgid "Archive page informations"
+msgstr "Informations sur la page d’archive"
+
+#: modules/datalayer/admin.php:79
+msgid "Author page informations"
+msgstr "Informations sur la page de l’auteur"
+
+#: modules/datalayer/admin.php:87
+msgid "Search page informations"
+msgstr "Informations de la page de recherche"
+
+#: modules/datalayer/admin.php:95
+msgid "Error page informations"
+msgstr "Informations sur la page d’erreur"
+
+#: modules/datalayer/admin.php:104
+msgid "User informations"
+msgstr "Informations sur l'utilisateur"
+
+#: modules/datalayer/admin.php:112
+msgid "Search informations"
+msgstr "Informations sur la recherche"
+
+#: modules/datalayer/admin.php:120
+msgid "Pagination informations"
+msgstr "Informations sur la pagination"
+
+#: modules/datalayer/admin.php:135
+msgid "Choose what you want to add to the dataLayer :"
+msgstr "Choisissez ce que vous souhaitez ajouter au dataLayer :"
+
+#: modules/datalayer/admin.php:141 modules/datalayer/admin.php:147
+#: modules/datalayer/admin.php:153 modules/datalayer/admin.php:159
+#: modules/datalayer/admin.php:165 modules/datalayer/admin.php:171
+#: modules/datalayer/admin.php:177 modules/datalayer/admin.php:183
+#: modules/datalayer/admin.php:189 modules/datalayer/admin.php:196
+#: modules/datalayer/admin.php:203 modules/datalayer/admin.php:209
+msgid "Add to"
+msgstr "Ajouter à"
+
+#: modules/post-type-charts/admin.php:10
+msgid "Matomo - Visits Summary"
+msgstr "Matomo - Résumé des visites"
+
+#: modules/privacy/admin.php:6 modules/privacy/admin.php:7
+msgid "Privacy"
+msgstr "Confidentialité"
+
+#: modules/settings/admin.php:6 modules/settings/admin.php:7
+#: modules/settings/admin.php:26
+msgid "General Settings"
+msgstr "Réglages généraux"
+
+#: modules/settings/admin.php:33
+msgid "Host URL"
+msgstr "Host URL"
+
+#: modules/settings/admin.php:41
+msgid "ID Site"
+msgstr "ID Site"
+
+#: modules/settings/admin.php:49
+msgid "ID Container"
+msgstr "ID Container"
+
+#: modules/settings/admin.php:57
+msgid "Token Auth"
+msgstr "Token Auth"
+
+#: modules/settings/admin.php:65
+msgid "Enable classic tracking code"
+msgstr "Activer le code de suivi classique"
+
+#: modules/settings/admin.php:73
+msgid "Enable Tag Manager tracking code"
+msgstr "Activer le code de suivi du Tag Manager"
+
+#: modules/settings/admin.php:114
+msgid "Enable classic tracking"
+msgstr "Activer le suivi classique"
+
+#: modules/settings/admin.php:120
+msgid "Enable Tag Manager tracking"
+msgstr "Activer le suivi avec Tag Manager"
+
+#: modules/settings/admin.php:132
+msgid ""
+"Both Matomo and Matomo Tag Manager codes are deployed, you should use only "
+"one of them."
+msgstr ""
+"Les codes Matomo et Matomo Tag Manager sont déployés, vous ne devez utiliser "
+"qu’un seul d’entre eux."
+
+#: openmost-site-kit.php:33 openmost-site-kit.php:34
+msgid "Site Kit"
+msgstr "Site Kit"
+
+#. Plugin Name of the plugin/theme
+msgid "Openmost Site Kit"
+msgstr "Openmost Site Kit"
+
+#. Plugin URI of the plugin/theme
+msgid "https://openmost.io/openmost-site-kit"
+msgstr "https://openmost.io/openmost-site-kit"
+
+#. Description of the plugin/theme
+msgid "A site kit plugin for Matomo"
+msgstr "Un plugin complet pour Matomo"
+
+#. Author of the plugin/theme
+msgid "Openmost"
+msgstr "Openmost"
+
+#. Author URI of the plugin/theme
+msgid "https://openmost.io"
+msgstr "https://openmost.io"
