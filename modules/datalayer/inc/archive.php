@@ -9,6 +9,7 @@ function osk_get_archive_page_details() {
 		'title'        => wp_get_document_title(),
 		'url'          => home_url( add_query_arg( array(), $wp->request ) ),
 		'path'         => add_query_arg( array(), $wp->request ),
+		'locale'       => get_locale(),
 		'archive_type' => osk_get_archive_type(),
 		'taxonomy'     => osk_get_archive_taxonomy(),
 		'post_type'    => osk_get_archive_post_type(),

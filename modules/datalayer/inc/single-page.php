@@ -10,6 +10,7 @@ function osk_get_single_page_details() {
 		'url'   => home_url( add_query_arg( array(), $wp->request ) ),
 		'path'  => add_query_arg( array(), $wp->request ) ?: '/',
 		'title' => wp_get_document_title(),
+		'locale' => get_locale(),
 
 		'is_home'       => is_home(),
 		'is_front_page' => is_front_page(),

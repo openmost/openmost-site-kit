@@ -6,9 +6,10 @@ function osk_get_search_page_details() {
 
 	return array(
 		'type'           => 'search',
-		'title'            => wp_get_document_title(),
 		'url'              => home_url( add_query_arg( array(), $wp->request ) ),
 		'path'             => add_query_arg( array(), $wp->request ),
+		'title'            => wp_get_document_title(),
+		'locale' => get_locale(),
 	);
 }
 
