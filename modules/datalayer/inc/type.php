@@ -1,6 +1,6 @@
 <?php
 
-function osk_get_post_type_details($post_type)
+function omsk_get_post_type_details($post_type)
 {
     $type = get_post_type_object($post_type);
 

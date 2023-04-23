@@ -4,11 +4,11 @@ if ( is_admin() ) {
 	require_once plugin_dir_path( __FILE__ ) . 'admin.php';
 }
 
-add_shortcode( 'osk_matomo_opt_out', 'osk_matomo_opt_out_shortcode' );
-function osk_matomo_opt_out_shortcode( $params ) {
+add_shortcode( 'omsk_matomo_opt_out', 'omsk_matomo_opt_out_shortcode' );
+function omsk_matomo_opt_out_shortcode( $params ) {
 
 	$html       = '';
-	$host       = osk_get_matomo_host();
+	$host       = omsk_get_matomo_host();
 	$language   = 'auto';
 	$show_intro = '1';
 

@@ -5,9 +5,9 @@ $fetch_url .= '&filter_limit=100';
 $fetch_url .= '&format_metrics=0';
 $fetch_url .= '&expanded=1';
 $fetch_url .= '&period=day';
-$fetch_url .= '&date=' . osk_get_matomo_date();
+$fetch_url .= '&date=' . omsk_get_matomo_date();
 
-$data = osk_fetch_matomo_api( $fetch_url );
+$data = omsk_fetch_matomo_api( $fetch_url );
 
 $indexes = array();
 $values  = array();

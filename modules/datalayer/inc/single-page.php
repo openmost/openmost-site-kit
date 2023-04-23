@@ -1,6 +1,6 @@
 <?php
 
-function osk_get_single_page_details() {
+function omsk_get_single_page_details() {
 
 	global $wp;
 
@@ -26,15 +26,15 @@ function osk_get_single_page_details() {
 			'post_date_gmt'     => $object->post_date_gmt,
 			'post_modified'     => $object->post_modified,
 			'post_modified_gmt' => $object->post_modified_gmt,
-			'post_type'         => osk_get_post_type_details( get_post_type() ),
+			'post_type'         => omsk_get_post_type_details( get_post_type() ),
 			'guid'              => $object->guid,
 			'post_mime_type'    => $object->post_mime_type ?: false,
 
 			'comment_status' => $object->comment_status,
 			'comment_count'  => $object->comment_count,
 
-			'author'     => osk_get_author_details(),
-			'taxonomies' => osk_get_terms_per_tax(),
+			'author'     => omsk_get_author_details(),
+			'taxonomies' => omsk_get_terms_per_tax(),
 
 			'page_template' => esc_html( get_page_template_slug() ),
 		);

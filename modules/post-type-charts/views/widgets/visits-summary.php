@@ -7,7 +7,7 @@ $fetch_url .= '&date=last30';
 $fetch_url .= '&showColumns=nb_visits,nb_pageviews';
 $fetch_url .= '&segment=pageUrl==' . $page_url;
 
-$data = osk_fetch_matomo_api( $fetch_url );
+$data = omsk_fetch_matomo_api( $fetch_url );
 
 $indexes      = array();
 $nb_visits    = array();

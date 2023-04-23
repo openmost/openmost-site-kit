@@ -1,42 +1,42 @@
 <?php
 
 
-function osk_get_matomo_host() {
-	$options = get_option( 'osk-settings' );
+function omsk_get_matomo_host() {
+	$options = get_option( 'omsk-settings' );
 
-	return $options['osk-matomo-host-field'] ?? '';
+	return $options['omsk-matomo-host-field'] ?? '';
 }
 
-function osk_get_matomo_idsite() {
-	$options = get_option( 'osk-settings' );
+function omsk_get_matomo_idsite() {
+	$options = get_option( 'omsk-settings' );
 
-	return $options['osk-matomo-idsite-field'] ?? '';
+	return $options['omsk-matomo-idsite-field'] ?? '';
 }
 
-function osk_get_matomo_idcontainer() {
-	$options = get_option( 'osk-settings' );
+function omsk_get_matomo_idcontainer() {
+	$options = get_option( 'omsk-settings' );
 
-	return $options['osk-matomo-idcontainer-field'] ?? '';
+	return $options['omsk-matomo-idcontainer-field'] ?? '';
 }
 
-function osk_get_matomo_token_auth() {
-	$options = get_option( 'osk-settings' );
+function omsk_get_matomo_token_auth() {
+	$options = get_option( 'omsk-settings' );
 
-	return $options['osk-matomo-token-auth-field'] ?? '';
+	return $options['omsk-matomo-token-auth-field'] ?? '';
 }
 
-function osk_get_matomo_period() {
+function omsk_get_matomo_period() {
 	return isset( $_GET['period'] ) ? $_GET['period'] : 'day';
 }
 
-function osk_get_matomo_date() {
+function omsk_get_matomo_date() {
 	return isset( $_GET['date'] ) ? $_GET['date'] : 'last7';
 }
 
-function osk_fetch_matomo_api( $url ) {
-	$host       = osk_get_matomo_host();
-	$idsite     = osk_get_matomo_idsite();
-	$token_auth = osk_get_matomo_token_auth();
+function omsk_fetch_matomo_api( $url ) {
+	$host       = omsk_get_matomo_host();
+	$idsite     = omsk_get_matomo_idsite();
+	$token_auth = omsk_get_matomo_token_auth();
 
 	$base_url   = "$host/index.php?module=API&format=JSON&idSite=$idsite&token_auth=$token_auth";
 

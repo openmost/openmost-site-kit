@@ -2,9 +2,9 @@
 
 $fetch_url = '&method=VisitsSummary.getVisits';
 $fetch_url .= '&period=day';
-$fetch_url .= '&date=' . osk_get_matomo_date();
+$fetch_url .= '&date=' . omsk_get_matomo_date();
 
-$data = osk_fetch_matomo_api( $fetch_url );
+$data = omsk_fetch_matomo_api( $fetch_url );
 
 $indexes = array();
 $values  = array();

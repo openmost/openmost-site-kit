@@ -15,7 +15,7 @@
     "type": "git",
     "url": "git+https://github.com/openmost/openmost-site-kit.git"
   },
-  "author": "Openmo st",
+  "author": "Openmost",
   "license": "GPLv3",
   "bugs": {
     "url": "https://github.com/openmost/openmost-site-kit/issues"

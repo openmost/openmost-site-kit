@@ -1,6 +1,6 @@
 <?php
 
-function osk_get_search_page_details() {
+function omsk_get_search_page_details() {
 
 	global $wp;
 
@@ -13,7 +13,7 @@ function osk_get_search_page_details() {
 	);
 }
 
-function osk_get_search_details() {
+function omsk_get_search_details() {
 
 	global $wp_query;
 

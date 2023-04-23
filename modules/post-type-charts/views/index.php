@@ -1,4 +1,4 @@
-<?php if ( osk_get_matomo_host() && osk_get_matomo_idsite() && osk_get_matomo_token_auth() ): ?>
+<?php if ( omsk_get_matomo_host() && omsk_get_matomo_idsite() && omsk_get_matomo_token_auth() ): ?>
     <div class="post-type-charts-wrapper">
 
         <div class="chart-wrapper">

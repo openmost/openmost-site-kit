@@ -1,10 +1,10 @@
 <?php
 
-function osk_add_matomo_tag_manager_tracking_code() {
-	$options      = get_option( 'osk-settings' );
-	$enabled      = isset( $options['osk-matomo-enable-mtm-tracking-code-field'] ) ? $options['osk-matomo-enable-mtm-tracking-code-field'] : '';
-	$host         = isset( $options['osk-matomo-host-field'] ) ? $options['osk-matomo-host-field'] : '';
-	$id_container = isset( $options['osk-matomo-idcontainer-field'] ) ? $options['osk-matomo-idcontainer-field'] : '';
+function omsk_add_matomo_tag_manager_tracking_code() {
+	$options      = get_option( 'omsk-settings' );
+	$enabled      = isset( $options['omsk-matomo-enable-mtm-tracking-code-field'] ) ? $options['omsk-matomo-enable-mtm-tracking-code-field'] : '';
+	$host         = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
+	$id_container = isset( $options['omsk-matomo-idcontainer-field'] ) ? $options['omsk-matomo-idcontainer-field'] : '';
 
 	if ( $enabled && $host && $id_container ): ?>
 
@@ -22,4 +22,4 @@ function osk_add_matomo_tag_manager_tracking_code() {
 	<?php endif;
 }
 
-add_action( 'wp_head', 'osk_add_matomo_tag_manager_tracking_code', 17 );
+add_action( 'wp_head', 'omsk_add_matomo_tag_manager_tracking_code', 17 );

@@ -1,10 +1,10 @@
 <?php
 
-function osk_add_matomo_classic_tracking_code() {
-	$options = get_option( 'osk-settings' );
-	$enabled = isset( $options['osk-matomo-enable-classic-tracking-code-field'] ) ? $options['osk-matomo-enable-classic-tracking-code-field'] : '';
-	$host    = isset( $options['osk-matomo-host-field'] ) ? $options['osk-matomo-host-field'] : '';
-	$id_site = isset( $options['osk-matomo-idsite-field'] ) ? $options['osk-matomo-idsite-field'] : '';
+function omsk_add_matomo_classic_tracking_code() {
+	$options = get_option( 'omsk-settings' );
+	$enabled = isset( $options['omsk-matomo-enable-classic-tracking-code-field'] ) ? $options['omsk-matomo-enable-classic-tracking-code-field'] : '';
+	$host    = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
+	$id_site = isset( $options['omsk-matomo-idsite-field'] ) ? $options['omsk-matomo-idsite-field'] : '';
 
 	if ( $enabled && $host && $id_site ): ?>
 
@@ -30,4 +30,4 @@ function osk_add_matomo_classic_tracking_code() {
 	<?php endif;
 }
 
-add_action( 'wp_head', 'osk_add_matomo_classic_tracking_code', 17 );
+add_action( 'wp_head', 'omsk_add_matomo_classic_tracking_code', 17 );

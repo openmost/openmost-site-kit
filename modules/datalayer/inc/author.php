@@ -1,6 +1,6 @@
 <?php
 
-function osk_get_author_details() {
+function omsk_get_author_details() {
 	return array(
 		'id'           => get_the_author_meta( 'ID' ),
 		'nickname'     => get_the_author_meta( 'nickname' ),
@@ -11,11 +11,11 @@ function osk_get_author_details() {
 	);
 }
 
-function osk_get_author_page_details() {
+function omsk_get_author_page_details() {
 
 	global $wp;
 
-	$details         = osk_get_author_details();
+	$details         = omsk_get_author_details();
 	$details['type'] = 'author';
 	$details['url']  = home_url( add_query_arg( array(), $wp->request ) );
 	$details['path'] = add_query_arg( array(), $wp->request );

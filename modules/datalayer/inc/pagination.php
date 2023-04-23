@@ -1,6 +1,6 @@
 <?php
 
-function osk_get_pagination_details() {
+function omsk_get_pagination_details() {
 
 	global $wp_query;
 
