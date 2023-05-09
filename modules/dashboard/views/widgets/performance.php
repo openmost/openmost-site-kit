@@ -61,7 +61,7 @@ foreach ( $data as $index => $value ) {
             series: [
 				<?php foreach ($values as $index => $value): ?>
                 {
-                    name: '<?php echo $index; ?>',
+                    name: '<?php echo esc_js( $index ); ?>',
                     type: 'bar',
                     stack: 'total',
                     label: {

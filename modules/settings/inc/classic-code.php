@@ -2,9 +2,9 @@
 
 function omsk_add_matomo_classic_tracking_code() {
 	$options = get_option( 'omsk-settings' );
-	$enabled = isset( $options['omsk-matomo-enable-classic-tracking-code-field'] ) ? $options['omsk-matomo-enable-classic-tracking-code-field'] : '';
-	$host    = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
-	$id_site = isset( $options['omsk-matomo-idsite-field'] ) ? $options['omsk-matomo-idsite-field'] : '';
+	$enabled = isset( $options['omsk-matomo-enable-classic-tracking-code-field'] ) ? sanitize_text_field($options['omsk-matomo-enable-classic-tracking-code-field']) : '';
+	$host    = isset( $options['omsk-matomo-host-field'] ) ? sanitize_text_field($options['omsk-matomo-host-field']) : '';
+	$id_site = isset( $options['omsk-matomo-idsite-field'] ) ? sanitize_text_field($options['omsk-matomo-idsite-field']) : '';
 
 	if ( $enabled && $host && $id_site ): ?>
 

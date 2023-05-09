@@ -8,7 +8,7 @@ $fetch_url .= '&expanded=1';
 $fetch_url .= '&period=range';
 $fetch_url .= '&date=' . omsk_get_matomo_date();
 
-$data = omsk_fetch_matomo_api( $fetch_url);
+$data = omsk_fetch_matomo_api( $fetch_url );
 
 $values = array();
 foreach ( $data as $value ) {

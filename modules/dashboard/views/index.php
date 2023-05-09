@@ -4,7 +4,7 @@
 	<?php if ( omsk_get_matomo_host() && omsk_get_matomo_idsite() && omsk_get_matomo_token_auth() ): ?>
 
         <form action="?" method="GET" style="float: right">
-            <input type="hidden" name="page" value="<?php echo $_GET['page']; ?>">
+            <input type="hidden" name="page" value="<?php echo esc_attr($_GET['page']); ?>">
 
             <label for="date"><?php _e( 'Date :', 'openmost-site-kit' ); ?></label>
             <select name="date" id="date" onchange="this.parentNode.submit()">

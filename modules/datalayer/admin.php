@@ -126,6 +126,7 @@ function omsk_register_data_layer_settings() {
 	register_setting(
 		'omsk-data-layer-settings-group', // option group
 		'omsk-data-layer-settings' // option name
+
 	);
 }
 

@@ -85,7 +85,7 @@ function omsk_register_settings() {
 add_action( 'admin_init', 'omsk_register_settings' );
 
 function omsk_settings_section_callback() {
-	echo '<p>Configure your Matomo instance:</p>';
+	echo '<p>' . _e( 'Configure your Matomo instance:', 'openmost-site-kit' ) . '</p>';
 }
 
 function omsk_matomo_host_field_callback() {
@@ -110,13 +110,13 @@ function omsk_matomo_token_auth_field_callback() {
 
 function omsk_matomo_enable_classic_tracking_code_field_callback() {
 	$options = get_option( 'omsk-settings' );
-	$value   = isset( $options['omsk-matomo-enable-classic-tracking-code-field'] ) ? $options['omsk-matomo-enable-classic-tracking-code-field'] : '';
+	$value   = isset( $options['omsk-matomo-enable-classic-tracking-code-field'] ) ? sanitize_text_field( $options['omsk-matomo-enable-classic-tracking-code-field'] ) : '';
 	echo '<label><input type="checkbox" name="omsk-settings[omsk-matomo-enable-classic-tracking-code-field]" value="1" ' . checked( 1, $value, false ) . '>' . __( "Enable classic tracking", "omsk" ) . '</label>';
 }
 
 function omsk_matomo_enable_mtm_tracking_code_field_callback() {
 	$options = get_option( 'omsk-settings' );
-	$value   = isset( $options['omsk-matomo-enable-mtm-tracking-code-field'] ) ? $options['omsk-matomo-enable-mtm-tracking-code-field'] : '';
+	$value   = isset( $options['omsk-matomo-enable-mtm-tracking-code-field'] ) ? sanitize_text_field( $options['omsk-matomo-enable-mtm-tracking-code-field'] ) : '';
 	echo '<label><input type="checkbox" name="omsk-settings[omsk-matomo-enable-mtm-tracking-code-field]" value="1" ' . checked( 1, $value, false ) . '>' . __( "Enable Tag Manager tracking", "omsk" ) . '</label>';
 }
 

@@ -27,11 +27,11 @@ foreach ( $data as $value ) {
             <tbody>
 			<?php foreach ( $values as $value ): ?>
                 <tr>
-                    <td><?php echo $value->label ?? '-'; ?></td>
-                    <td><?php echo $value->nb_visits ?? '-'; ?></td>
-                    <td><?php echo $value->nb_visits ?? '-'; ?></td>
-                    <td><?php echo $value->bounce_rate ?? '-'; ?></td>
-                    <td><?php echo $value->nb_visits ?? '-'; ?></td>
+                    <td><?php echo esc_html($value->label) ?? '-'; ?></td>
+                    <td><?php echo esc_html($value->nb_visits) ?? '-'; ?></td>
+                    <td><?php echo esc_html($value->nb_visits) ?? '-'; ?></td>
+                    <td><?php echo esc_html($value->bounce_rate) ?? '-'; ?></td>
+                    <td><?php echo esc_html($value->nb_visits) ?? '-'; ?></td>
                 </tr>
 			<?php endforeach; ?>
             </tbody>
