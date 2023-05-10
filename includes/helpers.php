@@ -26,11 +26,11 @@ function omsk_get_matomo_token_auth() {
 }
 
 function omsk_get_matomo_period() {
-	return isset( $_GET['period'] ) ? esc_html( $_GET['period'] ) : 'day';
+	return isset( $_GET['period'] ) ? sanitize_text_field( $_GET['period'] ) : 'day';
 }
 
 function omsk_get_matomo_date() {
-	return isset( $_GET['date'] ) ? esc_html( $_GET['date'] ) : 'last7';
+	return isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) : 'last7';
 }
 
 function omsk_fetch_matomo_api( $url ) {

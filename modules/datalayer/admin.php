@@ -21,14 +21,14 @@ function omsk_view_datalayer() {
 function omsk_register_data_layer_settings() {
 	add_settings_section(
 		'omsk-data-layer-settings-section', // section ID
-		__( 'Data Layer Settings', 'omsk' ), // section title
+		__( 'Data Layer Settings', 'openmost-site-kit' ), // section title
 		'omsk_data_layer_settings_section_callback', // callback function to display the section description
 		'omsk-data-layer-settings' // page slug
 	);
 
 	add_settings_field(
 		'omsk-enable-home-page-field', // field ID
-		__( 'Home page informations', 'omsk' ), // field label
+		__( 'Home page informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_home_page_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -36,7 +36,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-blog-page-field', // field ID
-		__( 'Blog page informations', 'omsk' ), // field label
+		__( 'Blog page informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_blog_page_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -44,7 +44,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-page-field', // field ID
-		__( 'Page informations', 'omsk' ), // field label
+		__( 'Page informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_page_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -52,7 +52,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-single-page-field', // field ID
-		__( 'Single page informations', 'omsk' ), // field label
+		__( 'Single page informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_single_page_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -60,7 +60,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-attachment-page-field', // field ID
-		__( 'Attachment page informations', 'omsk' ), // field label
+		__( 'Attachment page informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_attachment_page_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -68,7 +68,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-archive-page-field', // field ID
-		__( 'Archive page informations', 'omsk' ), // field label
+		__( 'Archive page informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_archive_page_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -76,7 +76,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-author-page-field', // field ID
-		__( 'Author page informations', 'omsk' ), // field label
+		__( 'Author page informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_author_page_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -84,7 +84,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-search-page-field', // field ID
-		__( 'Search page informations', 'omsk' ), // field label
+		__( 'Search page informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_search_page_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -92,7 +92,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-error-page-field', // field ID
-		__( 'Error page informations', 'omsk' ), // field label
+		__( 'Error page informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_error_page_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -101,7 +101,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-user-field', // field ID
-		__( 'User informations', 'omsk' ), // field label
+		__( 'User informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_user_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -109,7 +109,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-search-field', // field ID
-		__( 'Search informations', 'omsk' ), // field label
+		__( 'Search informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_search_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
@@ -117,7 +117,7 @@ function omsk_register_data_layer_settings() {
 
 	add_settings_field(
 		'omsk-enable-pagination-field', // field ID
-		__( 'Pagination informations', 'omsk' ), // field label
+		__( 'Pagination informations', 'openmost-site-kit' ), // field label
 		'omsk_enable_pagination_field_callback', // callback function to display the field input
 		'omsk-data-layer-settings', // page slug
 		'omsk-data-layer-settings-section' // section ID
