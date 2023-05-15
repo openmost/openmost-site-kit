@@ -76,6 +76,6 @@ function matomo_site_kit_init() {
 
 	if ( ! empty( $dataLayer ) ) {
 		$html = '<script id="matomo-site-kit-datalayer">window._mtm=window._mtm||[];_mtm.push(' . json_encode( $dataLayer ) . ')</script>';
-		echo $html;
+		echo wp_kses( $html, array( 'script' => array( 'id' => array() ) ) );
 	}
 }
