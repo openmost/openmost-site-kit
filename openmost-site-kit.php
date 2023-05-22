@@ -2,11 +2,11 @@
 /**
  *
  * @wordpress-plugin
- * Plugin Name: Openmost Site Kit
+ * Plugin Name: Matomo Site Kit
  * Plugin URI: https://openmost.io/openmost-site-kit
- * Description: A site kit plugin for Matomo
+ * Description: A complete Matomo integration for WordPress with dashboard, data layer and code injection.
  * Author: Openmost
- * Version: 1.0.1
+ * Version: 1.0.2
  * Author URI: https://openmost.io
  */
 
@@ -16,8 +16,8 @@ if ( ! function_exists( 'add_action' ) ) {
 	exit;
 }
 
-// Contant
-define( 'OPENMOSTSITEKIT_VERSION', '1.0.1' );
+// Constant
+define( 'OPENMOSTSITEKIT_VERSION', '1.0.2' );
 define( 'OPENMOSTSITEKIT_PHP_MINIMUM', '5.6.0' );
 define( 'OPENMOSTSITEKIT_WP_MINIMUM', '5.2.0' );
 define( 'OPENMOSTSITEKIT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

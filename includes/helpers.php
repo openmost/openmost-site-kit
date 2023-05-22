@@ -33,15 +33,40 @@ function omsk_get_matomo_date() {
 	return isset( $_GET['date'] ) ? sanitize_text_field( $_GET['date'] ) : 'last7';
 }
 
-function omsk_fetch_matomo_api( $url ) {
+function omsk_get_base_fetch_url($params) {
 	$host       = omsk_get_matomo_host();
 	$idsite     = omsk_get_matomo_idsite();
 	$token_auth = omsk_get_matomo_token_auth();
 
-	$base_url = "$host/index.php?module=API&format=JSON&idSite=$idsite&token_auth=$token_auth";
+	return "$host/index.php?module=API&format=JSON&idSite=$idsite&token_auth=$token_auth$params";
+}
 
-	$response = wp_remote_get( sanitize_url( "$base_url$url" ) );
+function omsk_fetch_matomo_api( $url ) {
+
+	$base_url = omsk_get_base_fetch_url($url);
+
+	$response = wp_remote_get( sanitize_url( "$base_url" ) );
 	$body     = wp_remote_retrieve_body( $response );
 
 	return (array) json_decode( $body );
+}
+
+
+
+
+
+add_action( 'wp_ajax_omsk_handle_fetch_matomo_api', 'omsk_handle_fetch_matomo_api' );
+add_action( 'wp_ajax_nopriv_omsk_handle_fetch_matomo_api', 'omsk_handle_fetch_matomo_api' );
+
+function omsk_handle_fetch_matomo_api() {
+
+	$params = '';
+
+	foreach ( $_POST as $index => $param ) {
+		$params = $params . "&$index=$param";
+	}
+
+	$data = omsk_fetch_matomo_api( $params );
+
+	wp_send_json_success( $data );
 }

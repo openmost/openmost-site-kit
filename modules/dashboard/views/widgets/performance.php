@@ -1,43 +1,57 @@
-<?php
-
-$fetch_url = '&method=PagePerformance.get';
-$fetch_url .= '&filter_limit=100';
-$fetch_url .= '&format_metrics=0';
-$fetch_url .= '&expanded=1';
-$fetch_url .= '&period=day';
-$fetch_url .= '&date=' . omsk_get_matomo_date();
-
-$data = omsk_fetch_matomo_api( $fetch_url );
-
-$indexes = array();
-$values  = array();
-
-$metrics = [
-	'avg_time_network',
-	'avg_time_server',
-	'avg_time_transfer',
-	'avg_time_dom_processing',
-	'avg_time_dom_completion',
-	'avg_page_load_time',
-];
-
-foreach ( $data as $index => $value ) {
-	$indexes[] = $index;
-
-	foreach ( $metrics as $metric ) {
-		$value                       = (array) $value;
-		$values[ $metric ][ $index ] = count( $value ) ? $value[ $metric ] : 0;
-	}
-}
-?>
 <div class="postbox" style="margin-bottom: 0">
     <div class="inner">
         <div id="performance-chart" style="width: 100%; height: 600px;"></div>
     </div>
 </div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
 
+        let response = await fetchMatomoApi({
+            'method': 'PagePerformance.get',
+            'period': 'day',
+            'date': '<?php echo omsk_get_matomo_date(); ?>',
+            'filter_limit': 100,
+            'format_metrics': 0,
+            'expanded': 1,
+
+        }).then(response => response.json());
+
+        let data = {
+            'avg_time_network': [],
+            'avg_time_server': [],
+            'avg_time_transfer': [],
+            'avg_time_dom_processing': [],
+            'avg_time_dom_completion': [],
+            'avg_page_load_time': [],
+            'avg_time_on_load': [],
+        };
+
+        Object.values(response.data).map(item => {
+            Object.keys(item).map((index, value) => {
+                data[index].push(item[index] ?? 0)
+            })
+        });
+
+        delete data.avg_time_on_load;
+
+        let series = [];
+        Object.keys(data).map(i => {
+            series.push({
+                name: i,
+                type: 'bar',
+                stack: 'total',
+                label: {
+                    show: true,
+                },
+                emphasis: {
+                    focus: 'series'
+                },
+                data: data[i] ?? 0,
+            },)
+        })
+
+
+        // Render chart
         let el = document.getElementById('performance-chart');
         let chart = echarts.init(el);
         chart.setOption({
@@ -53,27 +67,13 @@ foreach ( $data as $index => $value ) {
             },
             xAxis: {
                 type: 'category',
-                data: <?php echo json_encode( $indexes ); ?>
+                data: Object.keys(response.data)
             },
             yAxis: {
                 type: 'value'
             },
-            series: [
-				<?php foreach ($values as $index => $value): ?>
-                {
-                    name: '<?php echo esc_js( $index ); ?>',
-                    type: 'bar',
-                    stack: 'total',
-                    label: {
-                        show: true,
-                    },
-                    emphasis: {
-                        focus: 'series'
-                    },
-                    data: <?php echo json_encode( array_values( $values[ $index ] ) ); ?>,
-                },
-				<?php endforeach; ?>
-            ]
+            series: series
         })
-    });
+    })
+    ;
 </script>

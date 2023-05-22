@@ -1,29 +1,20 @@
-<?php
-
-$fetch_url = '&method=VisitsSummary.getVisits';
-$fetch_url .= '&period=day';
-$fetch_url .= '&date=' . omsk_get_matomo_date();
-
-$data = omsk_fetch_matomo_api( $fetch_url );
-
-$indexes = array();
-$values  = array();
-
-foreach ( $data as $index => $value ) {
-	$indexes[] = $index;
-	$values[]  = $value ?? 0;
-}
-?>
 <div class="postbox" style="margin-bottom: 0">
     <div class="inner">
         <div id="visits-summary-chart" style="width: 100%; height: 400px;"></div>
     </div>
 </div>
+
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
+
+        let response = await fetchMatomoApi({
+            'method': 'VisitsSummary.getVisits',
+            'period': '<?php echo omsk_get_matomo_period(); ?>',
+            'date': '<?php echo omsk_get_matomo_date(); ?>',
+        }).then(response => response.json());
+
 
         let el = document.getElementById('visits-summary-chart');
-
         let chart = echarts.init(el);
         chart.setOption({
             tooltip: {
@@ -38,15 +29,15 @@ foreach ( $data as $index => $value ) {
             },
             xAxis: {
                 type: 'category',
-                data: <?php echo json_encode( $indexes ); ?>
+                data: Object.keys(response.data),
             },
             yAxis: {
                 type: 'value'
             },
             series: [
                 {
-                    name: '<?php _e('Visits', 'openmost-site-kit'); ?>',
-                    data: <?php echo json_encode( $values ); ?>,
+                    name: '<?php _e( 'Visits', 'openmost-site-kit' ); ?>',
+                    data: Object.values(response.data),
                     type: 'line'
                 }
             ]
