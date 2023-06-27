@@ -24,7 +24,7 @@ function omsk_dashboard_notice()
 {
     if (get_admin_page_parent() === 'openmost-site-kit') {
 
-        if (omsk_get_matomo_host() || !omsk_get_matomo_idsite() || !omsk_get_matomo_token_auth()) {
+        if (!omsk_get_matomo_host() || !omsk_get_matomo_idsite() || !omsk_get_matomo_token_auth()) {
             echo '<div class="notice notice-error"><p>' . ("You should define a valid host, idsite and token_auth") . '</p></div>';
         }
     }

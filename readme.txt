@@ -2,8 +2,8 @@
 
 Contributors: Openmost
 Requires at least: 5.0
-Tested up to: 6.2.1
-Stable tag: 1.0.1
+Tested up to: 6.2.2
+Stable tag: 1.0.2
 Tags: matomo, piwik, analytics, site, kit, tracking, statistics, stats, analytic
 Requires PHP: 7.2
 License: GPLv3 or later
@@ -44,6 +44,11 @@ This will allow you to view and navigate in the data layer.
 1. Datalayer settings
 
 == Changelog ==
+
+= 1.0.2 =
+Release date: 2023-06-27
+
+Support Matomo Cloud CDN in tracking codes
 
 = 1.0.0 =
 Release date: 2023-05-17

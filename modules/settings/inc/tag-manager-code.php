@@ -19,10 +19,6 @@ function omsk_add_matomo_tag_manager_tracking_code() {
             s.parentNode.insertBefore(g, s);
 		</script>
 		<!-- End Matomo Tag Manager -->
-
-
-    <?php echo omsk_get_matomo_plan(); ?>
-
 	<?php endif;
 }
 

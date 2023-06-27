@@ -12,7 +12,6 @@ function omsk_add_matomo_classic_tracking_code() {
 		<script>
             var _paq = window._paq = window._paq || [];
             /* tracker methods like "setCustomDimension" should be called before "trackPageView" */
-            _paq.push(["setExcludedQueryParams", ["\/.*\/"]]);
             _paq.push(['trackPageView']);
             _paq.push(['enableLinkTracking']);
             (function () {
@@ -21,7 +20,7 @@ function omsk_add_matomo_classic_tracking_code() {
                 _paq.push(['setSiteId', '<?php echo esc_attr( $id_site ); ?>']);
                 var d = document, g = d.createElement('script'), s = d.getElementsByTagName('script')[0];
                 g.async = true;
-                g.src = u + 'matomo.js';
+                g.src = <?php echo omsk_get_matomo_cdn_host(); ?> + '/matomo.js';
                 s.parentNode.insertBefore(g, s);
             })();
 		</script>
