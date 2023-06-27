@@ -1,30 +1,34 @@
-<?php
-$page_url = get_the_permalink(get_the_ID());
+<div class="postbox" style="margin-bottom: 0">
+    <div class="inner">
+        <div id="visits-summary-chart" style="width: 100%; height: 400px;"></div>
+    </div>
+</div>
 
-$fetch_url = '&method=API.get';
-$fetch_url .= '&period=day';
-$fetch_url .= '&date=last30';
-$fetch_url .= '&showColumns=nb_visits,nb_pageviews';
-$fetch_url .= '&segment=pageUrl==' . $page_url;
-
-$data = omsk_fetch_matomo_api( $fetch_url );
-
-$indexes      = array();
-$nb_visits    = array();
-$nb_pageviews = array();
-
-foreach ( $data as $index => $value ) {
-	$indexes[]      = $index;
-	$nb_visits[]    = $value->nb_visits ?? 0;
-	$nb_pageviews[] = $value->nb_pageviews ?? 0;
-}
-?>
-<div id="visits-summary-chart" style="width: 1570px; height: 400px;"></div>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    document.addEventListener('DOMContentLoaded', async function () {
+
+        let response = await fetchMatomoApi({
+            'method': 'API.get',
+            'period': '<?php echo omsk_get_matomo_period(); ?>',
+            'date': '<?php echo omsk_get_matomo_date(); ?>',
+            'showColumns': 'nb_visits,nb_pageviews',
+            'segment': 'pageUrl==<?php echo get_the_permalink(get_the_ID()); ?>',
+        }).then(response => response.json());
+
+        let series = [
+            {
+                name: '<?php _e('Visits', 'openmost-site-kit'); ?>',
+                data: Object.values(response.data).map(d => d.nb_visits),
+                type: 'line'
+            },
+            {
+                name: '<?php _e('Page views', 'openmost-site-kit'); ?>',
+                data: Object.values(response.data).map(d => d.nb_pageviews),
+                type: 'line'
+            }
+        ];
 
         let el = document.getElementById('visits-summary-chart');
-
         let chart = echarts.init(el);
         chart.setOption({
             tooltip: {
@@ -39,24 +43,12 @@ foreach ( $data as $index => $value ) {
             },
             xAxis: {
                 type: 'category',
-                boundaryGap: false,
-                data: <?php echo json_encode( $indexes ); ?>
+                data: Object.keys(response.data),
             },
             yAxis: {
                 type: 'value'
             },
-            series: [
-                {
-                    name: '<?php _e('Visits', 'openmost-site-kit'); ?>',
-                    data: <?php echo json_encode( $nb_visits ); ?>,
-                    type: 'line'
-                },
-                {
-                    name: '<?php _e('Pageviews', 'openmost-site-kit'); ?>',
-                    data: <?php echo json_encode( $nb_pageviews ); ?>,
-                    type: 'line'
-                }
-            ]
+            series: series
         })
     });
 </script>
