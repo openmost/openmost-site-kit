@@ -8,6 +8,7 @@ if ( is_admin() ) {
 require_once plugin_dir_path( __FILE__ ) . 'inc/archive.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/author.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/error.php';
+require_once plugin_dir_path( __FILE__ ) . 'inc/matomo.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/pagination.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/search.php';
 require_once plugin_dir_path( __FILE__ ) . 'inc/single-page.php';
@@ -74,8 +75,13 @@ function matomo_site_kit_init() {
 		$dataLayer['pagination'] = omsk_get_pagination_details();
 	}
 
+	$dataLayer['matomo'] = omsk_get_matomo_details();
+
 	if ( ! empty( $dataLayer ) ) {
 		$html = '<script id="matomo-site-kit-datalayer">window._mtm=window._mtm||[];_mtm.push(' . json_encode( $dataLayer ) . ')</script>';
 		echo wp_kses( $html, array( 'script' => array( 'id' => array() ) ) );
 	}
+
+	$dataLayerSync = '<script id="matomo-site-kit-datalayer-sync">window.dataLayer=window.dataLayer||[];let syncDataLayer=function(array, callback){array.push=function(e){Array.prototype.push.call(array,e);callback(array);};};syncDataLayer(window.dataLayer, function(e){window._mtm.push(dataLayer.at(-1))});</script>';
+	echo wp_kses( $dataLayerSync, array( 'script' => array( 'id' => array() ) ) );
 }
