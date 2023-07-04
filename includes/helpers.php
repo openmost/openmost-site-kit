@@ -5,38 +5,38 @@ function omsk_get_matomo_host()
 {
     $options = get_option('omsk-settings');
 
-    return sanitize_text_field($options['omsk-matomo-host-field']) ?? '';
+    return sanitize_text_field(get_value($options['omsk-matomo-host-field'])) ?? '';
 }
 
 function omsk_get_matomo_idsite()
 {
     $options = get_option('omsk-settings');
 
-    return sanitize_text_field($options['omsk-matomo-idsite-field']) ?? '';
+    return sanitize_text_field(get_value($options['omsk-matomo-idsite-field'])) ?? '';
 }
 
 function omsk_get_matomo_idcontainer()
 {
     $options = get_option('omsk-settings');
 
-    return sanitize_text_field($options['omsk-matomo-idcontainer-field']) ?? '';
+    return sanitize_text_field(get_value($options['omsk-matomo-idcontainer-field'])) ?? '';
 }
 
 function omsk_get_matomo_token_auth()
 {
     $options = get_option('omsk-settings');
 
-    return sanitize_text_field($options['omsk-matomo-token-auth-field']) ?? '';
+    return sanitize_text_field(get_value($options['omsk-matomo-token-auth-field'])) ?? '';
 }
 
 function omsk_get_matomo_period()
 {
-    return isset($_GET['period']) ? sanitize_text_field($_GET['period']) : 'day';
+    return isset($_GET['period']) ? sanitize_text_field(get_value($_GET['period'])) : 'day';
 }
 
 function omsk_get_matomo_date()
 {
-    return isset($_GET['date']) ? sanitize_text_field($_GET['date']) : 'last7';
+    return isset($_GET['date']) ? sanitize_text_field(get_value($_GET['date'])) : 'last7';
 }
 
 function omsk_get_base_fetch_url($params)
