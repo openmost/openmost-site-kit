@@ -17,7 +17,7 @@ if ( ! function_exists( 'add_action' ) ) {
 }
 
 // Constant
-define( 'OPENMOSTSITEKIT_VERSION', '1.0.3' );
+define( 'OPENMOSTSITEKIT_VERSION', '1.1.2' );
 define( 'OPENMOSTSITEKIT_PHP_MINIMUM', '7.2.0' );
 define( 'OPENMOSTSITEKIT_WP_MINIMUM', '6.0.0' );
 define( 'OPENMOSTSITEKIT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );

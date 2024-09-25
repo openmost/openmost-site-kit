@@ -45,7 +45,7 @@ This will allow you to view and navigate in the data layer.
 
 == Changelog ==
 
-= 1.1.1 =
+= 1.1.2 =
 Release date: 2024-09-25
 
 Fix missing function get_value()
