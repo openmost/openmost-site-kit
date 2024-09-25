@@ -1,6 +1,6 @@
 {
   "name": "openmost-site-kit",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "=== Openmost Site Kit ===",
   "scripts": {
     "dev": "npm run development",

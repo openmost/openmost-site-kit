@@ -1,9 +1,9 @@
 === Matomo Site Kit by Openmost ===
 
 Contributors: Openmost
-Requires at least: 5.0
-Tested up to: 6.2.2
-Stable tag: 1.1.0
+Requires at least: 6.0
+Tested up to: 6.6.2
+Stable tag: 1.1.1
 Tags: matomo, piwik, analytics, site, kit, tracking, statistics, stats, analytic
 Requires PHP: 7.2
 License: GPLv3 or later
@@ -44,6 +44,11 @@ This will allow you to view and navigate in the data layer.
 1. Datalayer settings
 
 == Changelog ==
+
+= 1.1.1 =
+Release date: 2024-09-25
+
+Fix missing function get_value()
 
 = 1.1.0 =
 Release date: 2023-06-29
