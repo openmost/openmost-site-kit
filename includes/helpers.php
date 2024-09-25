@@ -79,7 +79,6 @@ function omsk_get_matomo_plan()
 function omsk_get_matomo_cdn_host()
 {
     $cdn = omsk_get_matomo_host();
-    $id_container = omsk_get_matomo_host();
     $plan = omsk_get_matomo_plan();
 
     if($plan === 'cloud'){
