@@ -213,16 +213,16 @@ function omsk_enable_pagination_field_callback() {
 function omsk_activate_plugin() {
 	// Set default values for the omsk data layer settings
 	$default_settings = array(
-		'omsk-enable-page-field'                => 1,
-		'omsk-enable-single-page-field'         => 1,
-		'omsk-enable-attachment-page-field'     => 1,
-		'omsk-enable-archive-page-field'        => 1,
-		'omsk-enable-author-archive-page-field' => 1,
-		'omsk-enable-search-page-field'         => 1,
-		'omsk-enable-error-field'               => 1,
-		'omsk-enable-user-field'                => 1,
-		'omsk-enable-search-field'              => 1,
-		'omsk-enable-pagination-field'          => 1
+		'omsk-enable-page-field'                => 0,
+		'omsk-enable-single-page-field'         => 0,
+		'omsk-enable-attachment-page-field'     => 0,
+		'omsk-enable-archive-page-field'        => 0,
+		'omsk-enable-author-archive-page-field' => 0,
+		'omsk-enable-search-page-field'         => 0,
+		'omsk-enable-error-field'               => 0,
+		'omsk-enable-user-field'                => 0,
+		'omsk-enable-search-field'              => 0,
+		'omsk-enable-pagination-field'          => 0
 	);
 
 	add_option( 'omsk-data-layer-settings', $default_settings );
