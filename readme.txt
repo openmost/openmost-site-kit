@@ -3,7 +3,7 @@
 Contributors: Openmost
 Requires at least: 6.0
 Tested up to: 6.6.2
-Stable tag: 1.1.1
+Stable tag: 1.1.2
 Tags: matomo, piwik, analytics, site, kit, tracking, statistics, stats, analytic
 Requires PHP: 7.2
 License: GPLv3 or later
