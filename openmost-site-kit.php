@@ -48,14 +48,3 @@ require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/dashboard/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/post-type-charts/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/privacy/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/settings/index.php';
-
-
-
-add_action( 'plugins_loaded', 'omsk_load_textdomain' );
-
-function omsk_load_textdomain() {
-
-	$domain = 'openmost-site-kit';
-	load_plugin_textdomain( $domain, false, dirname( __FILE__ ) . '/languages/' );
-
-}
