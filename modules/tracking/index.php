@@ -57,7 +57,7 @@ function omsk_inject_mtm_code($cdnHost, $idContainer)
 
     // Build script URL based on plan type
     if ($plan === 'cloud') {
-        $scriptUrl = $cdnHost . '/js/container_' . $idContainer . '.js';
+        $scriptUrl = $cdnHost . '/container_' . $idContainer . '.js';
     } else {
         $scriptUrl = $cdnHost . '/js/container_' . $idContainer . '.js';
     }
