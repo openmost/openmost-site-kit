@@ -2,17 +2,17 @@
 
 Contributors: Openmost
 Requires at least: 6.0
-Tested up to: 6.6.2
-Stable tag: 1.1.2
+Tested up to: 6.8.3
+Stable tag: 2.0.0
 Tags: matomo, piwik, analytics, site, kit, tracking, statistics, stats, analytic
-Requires PHP: 7.2
+Requires PHP: 8.2
 License: GPLv3 or later
 License URI: https://www.gnu.org/licenses/gpl-3.0.html
 
 == Description ==
 
-Openmost Site Kit allow you website to expose a DataLayer ready to use for your Matomo instance.
-You can easly provide Matomo or Matomo Tag Manager tracking code. Expose a full data layer with contextual data.
+Openmost Site Kit allow your WordPress instance to connect with Matomo Cloud or OnPremise.
+You can easly provide Matomo or Matomo Tag Manager tracking code.
 Get in touch with the dashboard and respect the law with GDPR script easy deployment.
 
 
@@ -41,9 +41,18 @@ This will allow you to view and navigate in the data layer.
 
 == Screenshots ==
 
-1. Datalayer settings
+1. Dashboard
+
+2. Settings
+
+3. Privacy
 
 == Changelog ==
+
+= 2.0.0 =
+Release date: 2025-11-2021
+
+Refactor using React and WP components
 
 = 1.1.2 =
 Release date: 2024-09-25
