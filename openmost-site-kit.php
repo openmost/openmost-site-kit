@@ -6,7 +6,7 @@
  * Plugin URI: https://openmost.io/openmost-site-kit
  * Description: A complete Matomo integration for WordPress with dashboard, data layer and code injection.
  * Author: Openmost
- * Version: 2.0.0
+ * Version: 2.0.1
  * Author URI: https://openmost.io
  */
 
