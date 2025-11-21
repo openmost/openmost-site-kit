@@ -16,5 +16,5 @@ add_action( 'admin_menu', 'omsk_register_privacy_options_page' );
 
 
 function omsk_view_privacy() {
-	require_once plugin_dir_path(__FILE__) . 'views/index.php';
+	echo '<div class="wrap"><div id="omsk-privacy-root"></div></div>';
 }

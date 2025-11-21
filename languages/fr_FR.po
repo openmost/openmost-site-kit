@@ -217,3 +217,128 @@ msgstr "Openmost"
 #. Author URI of the plugin/theme
 msgid "https://openmost.io"
 msgstr "https://openmost.io"
+# Nouvelles chaînes des composants React - Ajouté le 21/01/2025
+
+#: src/components/KPICards.js
+msgid "Page Views"
+msgstr "Pages vues"
+
+#: src/pages/Dashboard/index.js
+msgid "Take a look at your data."
+msgstr "Consultez vos données."
+
+#: src/pages/Dashboard/index.js
+msgid "You should define a valid host, site ID, and auth token in the settings."
+msgstr "Vous devez définir un hôte valide, un ID de site et un jeton d'authentification dans les paramètres."
+
+#: src/pages/Dashboard/index.js
+msgid "Date Range"
+msgstr "Période"
+
+#: src/pages/Dashboard/index.js
+msgid "Visits Overview"
+msgstr "Aperçu des visites"
+
+#: src/pages/Dashboard/index.js
+msgid "Channel Types"
+msgstr "Types de canaux"
+
+#: src/pages/Dashboard/index.js
+msgid "Top Pages"
+msgstr "Pages principales"
+
+#: src/pages/Dashboard/index.js
+msgid "Events"
+msgstr "Événements"
+
+#: src/pages/Dashboard/index.js
+msgid "Page Performance"
+msgstr "Performance des pages"
+
+#: src/components/VisitsOverviewChart.js
+msgid "No data available"
+msgstr "Aucune donnée disponible"
+
+#: src/components/ChannelTypesChart.js
+msgid "Search Engines"
+msgstr "Moteurs de recherche"
+
+#: src/components/ChannelTypesChart.js
+msgid "Social Networks"
+msgstr "Réseaux sociaux"
+
+#: src/components/ChannelTypesChart.js
+msgid "Direct Entry"
+msgstr "Accès direct"
+
+#: src/components/ChannelTypesChart.js
+msgid "Websites"
+msgstr "Sites web"
+
+#: src/components/ChannelTypesChart.js
+msgid "Campaigns"
+msgstr "Campagnes"
+
+#: src/components/TopPagesChart.js
+msgid "Page URL"
+msgstr "URL de la page"
+
+#: src/components/TopPagesChart.js
+msgid "No pages data available"
+msgstr "Aucune donnée de page disponible"
+
+#: src/components/EventsChart.js
+msgid "Event Name"
+msgstr "Nom de l'événement"
+
+#: src/components/EventsChart.js
+msgid "Unique"
+msgstr "Uniques"
+
+#: src/components/EventsChart.js
+msgid "No events data available"
+msgstr "Aucune donnée d'événement disponible"
+
+#: src/components/PerformanceChart.js
+msgid "No performance data available. Enable PagePerformance tracking in your Matomo instance."
+msgstr "Aucune donnée de performance disponible. Activez le suivi PagePerformance dans votre instance Matomo."
+
+#: src/components/PerformanceChart.js
+msgid "Network Time"
+msgstr "Temps réseau"
+
+#: src/components/PerformanceChart.js
+msgid "Server Response"
+msgstr "Réponse du serveur"
+
+#: src/components/PerformanceChart.js
+msgid "Transfer Time"
+msgstr "Temps de transfert"
+
+#: src/components/PerformanceChart.js
+msgid "DOM Processing"
+msgstr "Traitement du DOM"
+
+#: src/components/PerformanceChart.js
+msgid "DOM Completion"
+msgstr "Complétion du DOM"
+
+#: src/components/PerformanceChart.js
+msgid "OnLoad Events"
+msgstr "Événements OnLoad"
+
+#: src/components/PerformanceChart.js
+msgid "Time (seconds)"
+msgstr "Temps (secondes)"
+
+#: src/pages/Dashboard/index.js
+msgid "The dashboard requires Matomo configuration to display analytics data."
+msgstr "Le tableau de bord nécessite une configuration Matomo pour afficher les données analytiques."
+
+#: src/pages/Dashboard/index.js
+msgid "Please configure your Matomo host, site ID, and auth token in the Settings page."
+msgstr "Veuillez configurer votre hôte Matomo, ID de site et jeton d'authentification dans la page Paramètres."
+
+#: src/pages/Dashboard/index.js
+msgid "Please contact your site administrator to configure Matomo settings."
+msgstr "Veuillez contacter l'administrateur du site pour configurer les paramètres Matomo."

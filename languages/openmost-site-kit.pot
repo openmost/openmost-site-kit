@@ -215,3 +215,128 @@ msgstr ""
 #. Author URI of the plugin/theme
 msgid "https://openmost.io"
 msgstr ""
+# New React component strings - Added 2025-01-21
+
+#: src/components/KPICards.js
+msgid "Page Views"
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "Take a look at your data."
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "You should define a valid host, site ID, and auth token in the settings."
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "Date Range"
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "Visits Overview"
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "Channel Types"
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "Top Pages"
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "Events"
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "Page Performance"
+msgstr ""
+
+#: src/components/VisitsOverviewChart.js  
+msgid "No data available"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js
+msgid "Search Engines"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js
+msgid "Social Networks"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js
+msgid "Direct Entry"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js
+msgid "Websites"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js
+msgid "Campaigns"
+msgstr ""
+
+#: src/components/TopPagesChart.js
+msgid "Page URL"
+msgstr ""
+
+#: src/components/TopPagesChart.js
+msgid "No pages data available"
+msgstr ""
+
+#: src/components/EventsChart.js
+msgid "Event Name"
+msgstr ""
+
+#: src/components/EventsChart.js
+msgid "Unique"
+msgstr ""
+
+#: src/components/EventsChart.js
+msgid "No events data available"
+msgstr ""
+
+#: src/components/PerformanceChart.js
+msgid "No performance data available. Enable PagePerformance tracking in your Matomo instance."
+msgstr ""
+
+#: src/components/PerformanceChart.js
+msgid "Network Time"
+msgstr ""
+
+#: src/components/PerformanceChart.js
+msgid "Server Response"
+msgstr ""
+
+#: src/components/PerformanceChart.js
+msgid "Transfer Time"
+msgstr ""
+
+#: src/components/PerformanceChart.js
+msgid "DOM Processing"
+msgstr ""
+
+#: src/components/PerformanceChart.js
+msgid "DOM Completion"
+msgstr ""
+
+#: src/components/PerformanceChart.js
+msgid "OnLoad Events"
+msgstr ""
+
+#: src/components/PerformanceChart.js
+msgid "Time (seconds)"
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "The dashboard requires Matomo configuration to display analytics data."
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "Please configure your Matomo host, site ID, and auth token in the Settings page."
+msgstr ""
+
+#: src/pages/Dashboard/index.js
+msgid "Please contact your site administrator to configure Matomo settings."
+msgstr ""

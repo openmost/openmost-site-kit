@@ -44,23 +44,39 @@ function omsk_get_matomo_date()
     return isset($_GET['date']) ? sanitize_text_field(omsk_get_value($_GET['date'])) : 'last7';
 }
 
-function omsk_get_base_fetch_url($params)
+function omsk_fetch_matomo_api($param_string)
 {
     $host = omsk_get_matomo_host();
     $idsite = omsk_get_matomo_idsite();
     $token_auth = omsk_get_matomo_token_auth();
 
-    return "$host/index.php?module=API&format=JSON&idSite=$idsite&token_auth=$token_auth$params";
-}
+    // Parse parameter string into array
+    $params = array();
+    parse_str(ltrim($param_string, '&'), $params);
 
-function omsk_fetch_matomo_api($url)
-{
+    // Build POST body with all parameters
+    $body_params = array_merge(array(
+        'module' => 'API',
+        'format' => 'JSON',
+        'idSite' => $idsite,
+        'token_auth' => $token_auth,
+    ), $params);
 
-    $base_url = omsk_get_base_fetch_url($url);
+    // Make POST request with token in body AND as Bearer token
+    $response = wp_remote_post("$host/index.php", array(
+        'timeout' => 15,
+        'headers' => array(
+            'Content-Type' => 'application/x-www-form-urlencoded',
+            'Authorization' => 'Bearer ' . $token_auth,
+        ),
+        'body' => $body_params,
+    ));
 
-    $response = wp_remote_get(sanitize_url("$base_url"));
+    if (is_wp_error($response)) {
+        return $response;
+    }
+
     $body = wp_remote_retrieve_body($response);
-
     return (array)json_decode($body);
 }
 
@@ -89,19 +105,5 @@ function omsk_get_matomo_cdn_host()
 }
 
 
-add_action('wp_ajax_omsk_handle_fetch_matomo_api', 'omsk_handle_fetch_matomo_api');
-add_action('wp_ajax_nopriv_omsk_handle_fetch_matomo_api', 'omsk_handle_fetch_matomo_api');
-
-function omsk_handle_fetch_matomo_api()
-{
-
-    $params = '';
-
-    foreach ($_POST as $index => $param) {
-        $params = $params . "&$index=$param";
-    }
-
-    $data = omsk_fetch_matomo_api($params);
-
-    wp_send_json_success($data);
-}
+// Legacy AJAX handler removed - now using REST API
+// See includes/rest-api.php for the new implementation

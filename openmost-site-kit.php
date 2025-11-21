@@ -6,7 +6,7 @@
  * Plugin URI: https://openmost.io/openmost-site-kit
  * Description: A complete Matomo integration for WordPress with dashboard, data layer and code injection.
  * Author: Openmost
- * Version: 1.1.0
+ * Version: 2.0.0
  * Author URI: https://openmost.io
  */
 
@@ -17,11 +17,16 @@ if ( ! function_exists( 'add_action' ) ) {
 }
 
 // Constant
-define( 'OPENMOSTSITEKIT_VERSION', '1.1.2' );
-define( 'OPENMOSTSITEKIT_PHP_MINIMUM', '7.2.0' );
+define( 'OPENMOSTSITEKIT_VERSION', '2.0.0' );
+define( 'OPENMOSTSITEKIT_PHP_MINIMUM', '8.2.0' );
 define( 'OPENMOSTSITEKIT_WP_MINIMUM', '6.0.0' );
 define( 'OPENMOSTSITEKIT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
+// Load translations
+function omsk_load_textdomain() {
+	load_plugin_textdomain( 'openmost-site-kit', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
+}
+add_action( 'plugins_loaded', 'omsk_load_textdomain' );
 
 function omsk_register_menu_option() {
 
@@ -30,7 +35,7 @@ function omsk_register_menu_option() {
 	add_menu_page(
 		__( 'Site Kit', 'openmost-site-kit' ),
 		__( 'Site Kit', 'openmost-site-kit' ),
-		'manage_options',
+		'edit_posts', // Allow editors and above to see the menu
 		'openmost-site-kit',
 		false,
 		'data:image/svg+xml;base64,' . $icon_base64,
@@ -42,9 +47,11 @@ add_action( 'admin_menu', 'omsk_register_menu_option' );
 
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'includes/assets.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'includes/helpers.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'includes/rest-api.php';
 
 // Modules
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/dashboard/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/post-type-charts/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/privacy/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/settings/index.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/tracking/index.php';
