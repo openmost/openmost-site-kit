@@ -19,6 +19,44 @@ if (!defined('ABSPATH')) {
  */
 add_action('wp_head', 'omsk_inject_tracking_code', 10);
 
+/**
+ * Inject noscript image tracker at the beginning of body
+ */
+add_action('wp_body_open', 'omsk_inject_noscript_tracker', 1);
+
+function omsk_inject_noscript_tracker()
+{
+    $options = get_option('omsk-settings');
+
+    if (!$options) {
+        return;
+    }
+
+    $host = isset($options['omsk-matomo-host-field']) ? $options['omsk-matomo-host-field'] : '';
+    $idSite = isset($options['omsk-matomo-idsite-field']) ? $options['omsk-matomo-idsite-field'] : '';
+    $enableClassic = isset($options['omsk-matomo-enable-classic-tracking-code-field']) ? $options['omsk-matomo-enable-classic-tracking-code-field'] : false;
+    $enableMtm = isset($options['omsk-matomo-enable-mtm-tracking-code-field']) ? $options['omsk-matomo-enable-mtm-tracking-code-field'] : false;
+    $idContainer = isset($options['omsk-matomo-idcontainer-field']) ? $options['omsk-matomo-idcontainer-field'] : '';
+    $excludedRoles = isset($options['omsk-matomo-excluded-roles-field']) ? (array) $options['omsk-matomo-excluded-roles-field'] : array();
+
+    if (!$host || !$idSite) {
+        return;
+    }
+
+    // Check if any tracking is enabled
+    $trackingEnabled = ($enableMtm && $idContainer) || ($enableClassic && !$enableMtm);
+    if (!$trackingEnabled) {
+        return;
+    }
+
+    // Check if current user should be excluded from tracking
+    if (omsk_should_exclude_user($excludedRoles)) {
+        return;
+    }
+
+    echo omsk_get_noscript_tracker($host, $idSite);
+}
+
 function omsk_inject_tracking_code()
 {
     $options = get_option('omsk-settings');
@@ -223,6 +261,44 @@ function omsk_inject_classic_code($host, $idSite, $plan, $consentMode = 'disable
     </script>
     <!-- End Matomo Code -->
     <?php
+}
+
+/**
+ * Generate noscript image tracker for users with JavaScript disabled
+ *
+ * @param string $host Matomo host URL
+ * @param string $idSite Site ID
+ * @return string HTML noscript block with image tracker
+ */
+function omsk_get_noscript_tracker($host, $idSite)
+{
+    // Build image tracker URL with parameters
+    $tracker_params = array(
+        'idsite'      => $idSite,
+        'rec'         => 1,
+        'action_name' => wp_get_document_title(),
+        'url'         => home_url(add_query_arg(array())),
+        'apiv'        => 1,
+        'rand'        => wp_rand(100000, 999999),
+    );
+
+    // Add referrer if available
+    if (!empty($_SERVER['HTTP_REFERER'])) {
+        $tracker_params['urlref'] = esc_url_raw(wp_unslash($_SERVER['HTTP_REFERER']));
+    }
+
+    $tracker_url = add_query_arg($tracker_params, trailingslashit($host) . 'matomo.php');
+
+    $html = '<!-- Matomo Image Tracker -->' . "\n";
+    $html .= '<noscript>' . "\n";
+    $html .= sprintf(
+        '<img referrerpolicy="no-referrer-when-downgrade" src="%s" style="border:0;position:absolute;left:-9999px;" alt="" />',
+        esc_url($tracker_url)
+    ) . "\n";
+    $html .= '</noscript>' . "\n";
+    $html .= '<!-- End Matomo Image Tracker -->';
+
+    return $html;
 }
 
 /**

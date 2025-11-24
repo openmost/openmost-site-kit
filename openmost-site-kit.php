@@ -6,8 +6,11 @@
  * Plugin URI: https://openmost.io/openmost-site-kit
  * Description: A complete Matomo integration for WordPress with dashboard, data layer and code injection.
  * Author: Openmost
- * Version: 2.0.1
+ * Version: 2.1.0
  * Author URI: https://openmost.io
+ * License: GPL-2.0-or-later
+ * License URI: https://www.gnu.org/licenses/gpl-2.0.html
+ * Text Domain: openmost-site-kit
  */
 
 // Make sure we don't expose any info if called directly
@@ -17,16 +20,11 @@ if ( ! function_exists( 'add_action' ) ) {
 }
 
 // Constant
-define( 'OPENMOSTSITEKIT_VERSION', '2.0.0' );
+define( 'OPENMOSTSITEKIT_VERSION', '2.1.0' );
 define( 'OPENMOSTSITEKIT_PHP_MINIMUM', '8.2.0' );
 define( 'OPENMOSTSITEKIT_WP_MINIMUM', '6.0.0' );
 define( 'OPENMOSTSITEKIT_PLUGIN_DIR', plugin_dir_path( __FILE__ ) );
 
-// Load translations
-function omsk_load_textdomain() {
-	load_plugin_textdomain( 'openmost-site-kit', false, dirname( plugin_basename( __FILE__ ) ) . '/languages' );
-}
-add_action( 'plugins_loaded', 'omsk_load_textdomain' );
 
 function omsk_register_menu_option() {
 

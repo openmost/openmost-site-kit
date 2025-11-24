@@ -19,6 +19,7 @@ add_shortcode('omsk_matomo_opt_out', 'omsk_matomo_opt_out_shortcode');
 
 /**
  * Render opt-out shortcode
+ * Uses iframe approach to comply with WordPress coding standards
  *
  * @param array $params Shortcode attributes
  * @return string HTML output
@@ -43,46 +44,36 @@ function omsk_matomo_opt_out_shortcode($params)
         'font_family'      => '',
     ), $params);
 
-    $language = esc_attr($atts['language']);
-    $show_intro = esc_attr($atts['show_intro']);
-
-    // Generate unique ID for multiple opt-out forms on same page
-    $unique_id = 'matomo-opt-out-' . uniqid();
-
-    // Build opt-out script URL
-    $script_params = array(
+    // Build opt-out iframe URL (using optOut action for iframe embedding)
+    $iframe_params = array(
         'module'    => 'CoreAdminHome',
-        'action'    => 'optOutJS',
-        'divId'     => $unique_id,
-        'language'  => $language,
-        'showIntro' => $show_intro,
+        'action'    => 'optOut',
+        'language'  => esc_attr($atts['language']),
+        'showIntro' => esc_attr($atts['show_intro']),
     );
 
     // Add optional style parameters if provided
     if (!empty($atts['background_color'])) {
-        $script_params['backgroundColor'] = omsk_sanitize_hex_color_no_hash($atts['background_color']);
+        $iframe_params['backgroundColor'] = omsk_sanitize_hex_color_no_hash($atts['background_color']);
     }
     if (!empty($atts['font_color'])) {
-        $script_params['fontColor'] = omsk_sanitize_hex_color_no_hash($atts['font_color']);
+        $iframe_params['fontColor'] = omsk_sanitize_hex_color_no_hash($atts['font_color']);
     }
     if (!empty($atts['font_size'])) {
-        $script_params['fontSize'] = esc_attr($atts['font_size']);
+        $iframe_params['fontSize'] = esc_attr($atts['font_size']);
     }
     if (!empty($atts['font_family'])) {
-        $script_params['fontFamily'] = esc_attr($atts['font_family']);
+        $iframe_params['fontFamily'] = esc_attr($atts['font_family']);
     }
 
-    $script_url = add_query_arg($script_params, trailingslashit($host) . 'index.php');
+    $iframe_url = add_query_arg($iframe_params, trailingslashit($host) . 'index.php');
 
     $html = sprintf(
-        '<div id="%s" style="width: %s; min-height: %s;"></div>',
-        esc_attr($unique_id),
+        '<iframe src="%s" style="border: 0; width: %s; height: %s;" title="%s"></iframe>',
+        esc_url($iframe_url),
         esc_attr($atts['width']),
-        esc_attr($atts['height'])
-    );
-    $html .= sprintf(
-        '<script src="%s"></script>',
-        esc_url($script_url)
+        esc_attr($atts['height']),
+        esc_attr__('Matomo Opt-Out', 'openmost-site-kit')
     );
 
     return $html;
