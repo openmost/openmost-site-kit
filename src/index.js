@@ -1,12 +1,11 @@
 /**
  * Main entry point for Openmost Site Kit
- * This file registers Settings, Dashboard, Privacy, and Post Analytics React apps
+ * This file registers Settings, Dashboard, and Post Analytics React apps
  */
 
 import { render } from '@wordpress/element';
 import Settings from './pages/Settings';
 import Dashboard from './pages/Dashboard';
-import Privacy from './pages/Privacy';
 import PostAnalytics from './components/PostAnalytics';
 import './scss/app.scss';
 
@@ -20,12 +19,6 @@ if (settingsRoot) {
 const dashboardRoot = document.getElementById('omsk-dashboard-root');
 if (dashboardRoot) {
     render(<Dashboard />, dashboardRoot);
-}
-
-// Initialize Privacy page
-const privacyRoot = document.getElementById('omsk-privacy-root');
-if (privacyRoot) {
-    render(<Privacy />, privacyRoot);
 }
 
 // Initialize Post Analytics metaboxes (can be multiple on the page)

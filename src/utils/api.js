@@ -52,3 +52,13 @@ export const fetchMatomoData = async (method, params = {}) => {
         data: params,
     });
 };
+
+/**
+ * Get WordPress user roles
+ */
+export const getRoles = async () => {
+    return await apiFetch({
+        path: `${API_NAMESPACE}/roles`,
+        method: 'GET',
+    });
+};

@@ -126,6 +126,13 @@ function omsk_register_rest_routes() {
             ),
         ),
     ));
+
+    // Roles endpoint
+    register_rest_route('openmost-site-kit/v1', '/roles', array(
+        'methods'             => 'GET',
+        'callback'            => 'omsk_rest_get_roles',
+        'permission_callback' => 'omsk_rest_permission_check',
+    ));
 }
 
 /**
@@ -155,6 +162,7 @@ function omsk_rest_get_settings() {
         'tokenAuth'              => isset($options['omsk-matomo-token-auth-field']) ? $options['omsk-matomo-token-auth-field'] : '',
         'enableClassicTracking'  => isset($options['omsk-matomo-enable-classic-tracking-code-field']) ? (bool) $options['omsk-matomo-enable-classic-tracking-code-field'] : false,
         'enableMtmTracking'      => isset($options['omsk-matomo-enable-mtm-tracking-code-field']) ? (bool) $options['omsk-matomo-enable-mtm-tracking-code-field'] : false,
+        'excludedRoles'          => isset($options['omsk-matomo-excluded-roles-field']) ? (array) $options['omsk-matomo-excluded-roles-field'] : array(),
         'plan'                   => omsk_get_matomo_plan(),
     ));
 }
@@ -163,6 +171,19 @@ function omsk_rest_get_settings() {
  * Update settings
  */
 function omsk_rest_update_settings($request) {
+    // Sanitize excluded roles - only allow valid role keys
+    $excluded_roles = $request->get_param('excludedRoles');
+    $valid_roles = array_keys(wp_roles()->roles);
+    $sanitized_excluded_roles = array();
+
+    if (is_array($excluded_roles)) {
+        foreach ($excluded_roles as $role) {
+            if (in_array($role, $valid_roles, true)) {
+                $sanitized_excluded_roles[] = sanitize_text_field($role);
+            }
+        }
+    }
+
     $options = array(
         'omsk-matomo-host-field'                        => $request->get_param('host'),
         'omsk-matomo-idsite-field'                      => $request->get_param('idSite'),
@@ -170,6 +191,7 @@ function omsk_rest_update_settings($request) {
         'omsk-matomo-token-auth-field'                  => $request->get_param('tokenAuth'),
         'omsk-matomo-enable-classic-tracking-code-field' => $request->get_param('enableClassicTracking') ? 1 : 0,
         'omsk-matomo-enable-mtm-tracking-code-field'     => $request->get_param('enableMtmTracking') ? 1 : 0,
+        'omsk-matomo-excluded-roles-field'              => $sanitized_excluded_roles,
     );
 
     update_option('omsk-settings', $options);
@@ -178,6 +200,23 @@ function omsk_rest_update_settings($request) {
         'success' => true,
         'message' => __('Settings saved successfully', 'openmost-site-kit'),
     ));
+}
+
+/**
+ * Get WordPress user roles
+ */
+function omsk_rest_get_roles() {
+    $wp_roles = wp_roles();
+    $roles = array();
+
+    foreach ($wp_roles->roles as $key => $role) {
+        $roles[] = array(
+            'key'  => $key,
+            'name' => translate_user_role($role['name']),
+        );
+    }
+
+    return rest_ensure_response($roles);
 }
 
 /**

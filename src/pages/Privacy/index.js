@@ -2,7 +2,7 @@
  * Privacy Page Component - Shortcode Builder
  */
 
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
     Card,
@@ -25,46 +25,85 @@ import { getSettings } from '../../utils/api';
 /**
  * OptOut Preview Component
  * Dynamically loads Matomo opt-out script
+ * Uses a stable container ID and refs to avoid React DOM conflicts
+ *
+ * IMPORTANT: The Matomo script modifies DOM directly, so we must:
+ * 1. Never render React children inside the container Matomo modifies
+ * 2. Use a wrapper div for React state (loading spinner) separate from Matomo's target
  */
-const OptOutPreview = ({ url, width, height, previewId }) => {
-    const containerId = `matomo-opt-out-preview-${previewId}`;
+const OptOutPreview = ({ url, width, height }) => {
+    const containerRef = useRef(null);
+    const scriptRef = useRef(null);
+    const [isLoading, setIsLoading] = useState(true);
+    // Use a stable ID that doesn't change on every render
+    const stableId = useRef(`matomo-opt-out-preview-${Date.now()}`);
 
     useEffect(() => {
-        if (!url) return;
+        if (!url || !containerRef.current) return;
 
-        // Clean up existing Matomo opt-out scripts
-        const existingScripts = document.querySelectorAll('script[src*="optOutJS"]');
-        existingScripts.forEach(script => {
-            if (script.parentNode) {
-                script.parentNode.removeChild(script);
-            }
-        });
+        const containerId = stableId.current;
+        setIsLoading(true);
 
-        // Wait a bit for cleanup
-        const timer = setTimeout(() => {
-            // Create new script element
-            const script = document.createElement('script');
-            script.src = url;
-            script.async = true;
+        // Remove previous script if exists
+        if (scriptRef.current && scriptRef.current.parentNode) {
+            scriptRef.current.parentNode.removeChild(scriptRef.current);
+            scriptRef.current = null;
+        }
 
-            // Append script to document
-            document.body.appendChild(script);
-        }, 100);
+        // Clear container content manually (outside React's control)
+        while (containerRef.current.firstChild) {
+            containerRef.current.removeChild(containerRef.current.firstChild);
+        }
 
-        // Cleanup function
+        // Set the ID on the container
+        containerRef.current.id = containerId;
+
+        // Parse URL and update the divId parameter
+        const scriptUrl = new URL(url);
+        scriptUrl.searchParams.set('divId', containerId);
+
+        // Create and load script
+        const script = document.createElement('script');
+        script.src = scriptUrl.toString();
+        script.async = true;
+        script.onload = () => setIsLoading(false);
+        script.onerror = () => setIsLoading(false);
+        scriptRef.current = script;
+
+        document.body.appendChild(script);
+
+        // Cleanup on unmount
         return () => {
-            clearTimeout(timer);
+            if (scriptRef.current && scriptRef.current.parentNode) {
+                scriptRef.current.parentNode.removeChild(scriptRef.current);
+                scriptRef.current = null;
+            }
         };
     }, [url]);
 
+    // Wrapper div for React to control, with Matomo container as empty ref
+    // The Spinner is a SIBLING to the Matomo container, not a child
     return (
-        <div
-            id={containerId}
-            style={{
-                width: width === '100%' ? '100%' : width,
-                minHeight: height,
-            }}
-        />
+        <div style={{ position: 'relative', width: width === '100%' ? '100%' : width, minHeight: height }}>
+            {isLoading && (
+                <div style={{
+                    position: 'absolute',
+                    top: 0,
+                    left: 0,
+                    right: 0,
+                    bottom: 0,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    backgroundColor: 'rgba(255,255,255,0.8)',
+                    zIndex: 1
+                }}>
+                    <Spinner />
+                </div>
+            )}
+            {/* This div is controlled entirely by Matomo - NO React children */}
+            <div ref={containerRef} />
+        </div>
     );
 };
 
@@ -72,7 +111,8 @@ const Privacy = () => {
     const [loading, setLoading] = useState(true);
     const [settings, setSettings] = useState(null);
     const [copied, setCopied] = useState(false);
-    const [previewKey, setPreviewKey] = useState(0);
+    // Debounced URL for preview - only updates after user stops changing config
+    const [debouncedUrl, setDebouncedUrl] = useState('');
 
     // Shortcode configuration
     const [config, setConfig] = useState({
@@ -86,12 +126,20 @@ const Privacy = () => {
         loadSettings();
     }, []);
 
-    // Reload preview when config changes
+    // Debounce URL updates to avoid rapid script reloads
     useEffect(() => {
-        if (settings?.host) {
-            // Force re-render of preview by changing key
-            setPreviewKey(prev => prev + 1);
-        }
+        if (!settings?.host) return;
+
+        const timer = setTimeout(() => {
+            const url = new URL(`${settings.host}/index.php`);
+            url.searchParams.set('module', 'CoreAdminHome');
+            url.searchParams.set('action', 'optOutJS');
+            url.searchParams.set('language', config.language);
+            url.searchParams.set('showIntro', config.showIntro ? '1' : '0');
+            setDebouncedUrl(url.toString());
+        }, 500);
+
+        return () => clearTimeout(timer);
     }, [config, settings]);
 
     const loadSettings = async () => {
@@ -139,19 +187,6 @@ const Privacy = () => {
         }
     };
 
-    const buildOptOutUrl = () => {
-        if (!settings?.host) return '';
-
-        const url = new URL(`${settings.host}/index.php`);
-        url.searchParams.set('module', 'CoreAdminHome');
-        url.searchParams.set('action', 'optOutJS');
-        url.searchParams.set('divId', `matomo-opt-out-preview-${previewKey}`);
-        url.searchParams.set('language', config.language);
-        url.searchParams.set('showIntro', config.showIntro ? '1' : '0');
-
-        return url.toString();
-    };
-
     if (loading) {
         return (
             <div style={{ padding: '20px', textAlign: 'center' }}>
@@ -162,7 +197,6 @@ const Privacy = () => {
 
     const isConfigured = settings?.host;
     const shortcode = buildShortcode();
-    const optOutUrl = buildOptOutUrl();
 
     return (
         <div className="omsk-privacy">
@@ -287,9 +321,7 @@ const Privacy = () => {
                                     minHeight: config.height,
                                 }}>
                                     <OptOutPreview
-                                        key={previewKey}
-                                        previewId={previewKey}
-                                        url={optOutUrl}
+                                        url={debouncedUrl}
                                         width={config.width}
                                         height={config.height}
                                     />

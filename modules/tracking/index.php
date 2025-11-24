@@ -27,8 +27,14 @@ function omsk_inject_tracking_code()
     $idContainer = isset($options['omsk-matomo-idcontainer-field']) ? $options['omsk-matomo-idcontainer-field'] : '';
     $enableClassic = isset($options['omsk-matomo-enable-classic-tracking-code-field']) ? $options['omsk-matomo-enable-classic-tracking-code-field'] : false;
     $enableMtm = isset($options['omsk-matomo-enable-mtm-tracking-code-field']) ? $options['omsk-matomo-enable-mtm-tracking-code-field'] : false;
+    $excludedRoles = isset($options['omsk-matomo-excluded-roles-field']) ? (array) $options['omsk-matomo-excluded-roles-field'] : array();
 
     if (!$host || !$idSite) {
+        return;
+    }
+
+    // Check if current user should be excluded from tracking
+    if (omsk_should_exclude_user($excludedRoles)) {
         return;
     }
 
@@ -109,4 +115,35 @@ function omsk_inject_classic_code($host, $idSite, $plan)
     </script>
     <!-- End Matomo Code -->
     <?php
+}
+
+/**
+ * Check if current user should be excluded from tracking
+ *
+ * @param array $excluded_roles Array of role keys to exclude
+ * @return bool True if user should be excluded, false otherwise
+ */
+function omsk_should_exclude_user($excluded_roles)
+{
+    // If no roles to exclude, don't exclude anyone
+    if (empty($excluded_roles)) {
+        return false;
+    }
+
+    // If user is not logged in, don't exclude
+    if (!is_user_logged_in()) {
+        return false;
+    }
+
+    // Get current user
+    $user = wp_get_current_user();
+
+    // Check if any of the user's roles are in the excluded list
+    foreach ($user->roles as $role) {
+        if (in_array($role, $excluded_roles, true)) {
+            return true;
+        }
+    }
+
+    return false;
 }
