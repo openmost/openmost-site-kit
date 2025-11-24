@@ -74,14 +74,26 @@ const ColorPickerButton = ({ label, color, onChange }) => {
  * OptOut Preview Component
  * Dynamically loads Matomo opt-out script
  * Uses a stable container ID and ensures DOM is ready before script loads
+ *
+ * Key fix: Track mounted state to prevent script operations after unmount
  */
 const OptOutPreview = ({ url }) => {
     const containerRef = useRef(null);
     const scriptRef = useRef(null);
+    const timerRef = useRef(null);
+    const mountedRef = useRef(true);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
     // Use a stable ID that persists across renders
     const stableId = useRef(`matomo-opt-out-preview-${Math.random().toString(36).substr(2, 9)}`);
+
+    // Track mounted state
+    useEffect(() => {
+        mountedRef.current = true;
+        return () => {
+            mountedRef.current = false;
+        };
+    }, []);
 
     useEffect(() => {
         if (!url) return;
@@ -89,6 +101,12 @@ const OptOutPreview = ({ url }) => {
         const containerId = stableId.current;
         setIsLoading(true);
         setError(null);
+
+        // Clear any pending timer
+        if (timerRef.current) {
+            clearTimeout(timerRef.current);
+            timerRef.current = null;
+        }
 
         // Remove previous script if exists
         if (scriptRef.current && scriptRef.current.parentNode) {
@@ -110,12 +128,17 @@ const OptOutPreview = ({ url }) => {
         scriptUrl.searchParams.set('divId', containerId);
 
         // Use setTimeout to ensure DOM has updated with the new ID
-        const timer = setTimeout(() => {
+        timerRef.current = setTimeout(() => {
+            // Check if still mounted
+            if (!mountedRef.current) return;
+
             // Double-check the container exists with the correct ID
             const container = document.getElementById(containerId);
             if (!container) {
-                setError('Container not ready');
-                setIsLoading(false);
+                if (mountedRef.current) {
+                    setError('Container not ready');
+                    setIsLoading(false);
+                }
                 return;
             }
 
@@ -123,18 +146,27 @@ const OptOutPreview = ({ url }) => {
             const script = document.createElement('script');
             script.src = scriptUrl.toString();
             script.async = true;
-            script.onload = () => setIsLoading(false);
+            script.onload = () => {
+                if (mountedRef.current) setIsLoading(false);
+            };
             script.onerror = () => {
-                setError('Failed to load script');
-                setIsLoading(false);
+                if (mountedRef.current) {
+                    setError('Failed to load script');
+                    setIsLoading(false);
+                }
             };
             scriptRef.current = script;
 
             document.body.appendChild(script);
-        }, 100);
+        }, 150);
 
         return () => {
-            clearTimeout(timer);
+            // Clear timer first
+            if (timerRef.current) {
+                clearTimeout(timerRef.current);
+                timerRef.current = null;
+            }
+            // Remove script
             if (scriptRef.current && scriptRef.current.parentNode) {
                 scriptRef.current.parentNode.removeChild(scriptRef.current);
                 scriptRef.current = null;
@@ -346,6 +378,7 @@ const PrivacyTab = ({ settings }) => {
     const [config, setConfig] = useState({
         language: 'auto',
         showIntro: true,
+        customDesign: false,
         backgroundColor: 'FFFFFF',
         fontColor: '000000',
         fontSize: '14px',
@@ -362,10 +395,13 @@ const PrivacyTab = ({ settings }) => {
             url.searchParams.set('action', 'optOutJS');
             url.searchParams.set('language', config.language);
             url.searchParams.set('showIntro', config.showIntro ? '1' : '0');
-            url.searchParams.set('backgroundColor', config.backgroundColor);
-            url.searchParams.set('fontColor', config.fontColor);
-            url.searchParams.set('fontSize', config.fontSize);
-            url.searchParams.set('fontFamily', config.fontFamily);
+            // Only add style params if custom design is enabled
+            if (config.customDesign) {
+                url.searchParams.set('backgroundColor', config.backgroundColor);
+                url.searchParams.set('fontColor', config.fontColor);
+                url.searchParams.set('fontSize', config.fontSize);
+                url.searchParams.set('fontFamily', config.fontFamily);
+            }
             setDebouncedUrl(url.toString());
         }, 500);
 
@@ -376,10 +412,13 @@ const PrivacyTab = ({ settings }) => {
         const parts = ['[matomo_opt_out'];
         if (config.language !== 'auto') parts.push(` language="${config.language}"`);
         if (!config.showIntro) parts.push(' show_intro="0"');
-        if (config.backgroundColor !== 'FFFFFF') parts.push(` background_color="${config.backgroundColor}"`);
-        if (config.fontColor !== '000000') parts.push(` font_color="${config.fontColor}"`);
-        if (config.fontSize !== '14px') parts.push(` font_size="${config.fontSize}"`);
-        if (config.fontFamily !== 'Arial') parts.push(` font_family="${config.fontFamily}"`);
+        // Only add style params if custom design is enabled
+        if (config.customDesign) {
+            if (config.backgroundColor !== 'FFFFFF') parts.push(` background_color="${config.backgroundColor}"`);
+            if (config.fontColor !== '000000') parts.push(` font_color="${config.fontColor}"`);
+            if (config.fontSize !== '14px') parts.push(` font_size="${config.fontSize}"`);
+            if (config.fontFamily !== 'Arial') parts.push(` font_family="${config.fontFamily}"`);
+        }
         parts.push(']');
         return parts.join('');
     };
@@ -438,7 +477,7 @@ const PrivacyTab = ({ settings }) => {
                             __next40pxDefaultSize
                         />
 
-                        <div style={{ marginTop: '16px', marginBottom: '16px' }}>
+                        <div style={{ marginTop: '16px' }}>
                             <ToggleControl
                                 label={__('Show introduction text', 'openmost-site-kit')}
                                 checked={config.showIntro}
@@ -448,47 +487,61 @@ const PrivacyTab = ({ settings }) => {
                             />
                         </div>
 
-                        <Divider />
-
-                        <h3 style={{ marginTop: '20px', marginBottom: '15px' }}>
-                            {__('Style Options', 'openmost-site-kit')}
-                        </h3>
-
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '16px' }}>
-                            <ColorPickerButton
-                                label={__('Background Color', 'openmost-site-kit')}
-                                color={config.backgroundColor}
-                                onChange={(value) => setConfig({ ...config, backgroundColor: value })}
-                            />
-
-                            <ColorPickerButton
-                                label={__('Font Color', 'openmost-site-kit')}
-                                color={config.fontColor}
-                                onChange={(value) => setConfig({ ...config, fontColor: value })}
+                        <div style={{ marginTop: '16px' }}>
+                            <ToggleControl
+                                label={__('Custom design', 'openmost-site-kit')}
+                                checked={config.customDesign}
+                                onChange={(value) => setConfig({ ...config, customDesign: value })}
+                                help={__('Customize colors and fonts of the opt-out form', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
                             />
                         </div>
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-                            <TextControl
-                                label={__('Font Size', 'openmost-site-kit')}
-                                value={config.fontSize}
-                                onChange={(value) => setConfig({ ...config, fontSize: value })}
-                                placeholder="14px"
-                                help={__('e.g., 12px, 14px, 1rem', 'openmost-site-kit')}
-                                __nextHasNoMarginBottom
-                                __next40pxDefaultSize
-                            />
+                        {config.customDesign && (
+                            <div style={{
+                                marginTop: '16px',
+                                padding: '16px',
+                                backgroundColor: '#f9f9f9',
+                                borderRadius: '4px',
+                                border: '1px solid #e0e0e0'
+                            }}>
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px', marginBottom: '16px' }}>
+                                    <ColorPickerButton
+                                        label={__('Background Color', 'openmost-site-kit')}
+                                        color={config.backgroundColor}
+                                        onChange={(value) => setConfig({ ...config, backgroundColor: value })}
+                                    />
 
-                            <TextControl
-                                label={__('Font Family', 'openmost-site-kit')}
-                                value={config.fontFamily}
-                                onChange={(value) => setConfig({ ...config, fontFamily: value })}
-                                placeholder="Arial"
-                                help={__('e.g., Arial, Helvetica, inherit', 'openmost-site-kit')}
-                                __nextHasNoMarginBottom
-                                __next40pxDefaultSize
-                            />
-                        </div>
+                                    <ColorPickerButton
+                                        label={__('Font Color', 'openmost-site-kit')}
+                                        color={config.fontColor}
+                                        onChange={(value) => setConfig({ ...config, fontColor: value })}
+                                    />
+                                </div>
+
+                                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+                                    <TextControl
+                                        label={__('Font Size', 'openmost-site-kit')}
+                                        value={config.fontSize}
+                                        onChange={(value) => setConfig({ ...config, fontSize: value })}
+                                        placeholder="14px"
+                                        help={__('e.g., 12px, 14px, 1rem', 'openmost-site-kit')}
+                                        __nextHasNoMarginBottom
+                                        __next40pxDefaultSize
+                                    />
+
+                                    <TextControl
+                                        label={__('Font Family', 'openmost-site-kit')}
+                                        value={config.fontFamily}
+                                        onChange={(value) => setConfig({ ...config, fontFamily: value })}
+                                        placeholder="Arial"
+                                        help={__('e.g., Arial, Helvetica, inherit', 'openmost-site-kit')}
+                                        __nextHasNoMarginBottom
+                                        __next40pxDefaultSize
+                                    />
+                                </div>
+                            </div>
+                        )}
 
                         <Divider style={{ marginTop: '20px' }} />
 
@@ -539,7 +592,7 @@ const PrivacyTab = ({ settings }) => {
                                     border: '1px solid #ddd',
                                     borderRadius: '4px',
                                     padding: '20px',
-                                    backgroundColor: `#${config.backgroundColor}`,
+                                    backgroundColor: config.customDesign ? `#${config.backgroundColor}` : '#ffffff',
                                 }}>
                                     <OptOutPreview url={debouncedUrl} />
                                 </div>

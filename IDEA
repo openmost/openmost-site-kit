@@ -1,0 +1,8 @@
+Add theses features to the plugin :
+1. WordPress Dashboard Widget - High visibility, moderate effort
+2. Admin Bar Quick Stats - High visibility, low effort
+3. Form Plugin Integration (CF7, WPForms) - High value, moderate effort
+4. Consent Mode/Cookie Control - GDPR compliance, moderate effort
+5. Key Metrics Selection - Better UX, moderate effort
+7. Per CPT visit/pageview chart in postbox (update existing wich actually do not work, restart from fresh code)
+6. Setup Wizard - Better onboarding, higher effort
