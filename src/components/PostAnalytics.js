@@ -1,18 +1,16 @@
 /**
  * Post Analytics Metabox Component
- * Displays analytics for a specific post/page with multiple metrics
+ * Displays analytics for a specific post/page
+ * Rewritten for better reliability and cleaner design
  */
 
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useCallback } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
-    Card,
-    CardBody,
     SelectControl,
     Spinner,
     Notice,
-    Flex,
-    FlexBlock,
+    Button,
 } from '@wordpress/components';
 import apiFetch from '@wordpress/api-fetch';
 import ReactECharts from 'echarts-for-react';
@@ -20,276 +18,175 @@ import ReactECharts from 'echarts-for-react';
 const PostAnalytics = ({ postId }) => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [stats, setStats] = useState(null);
-    const [dateRange, setDateRange] = useState('last7');
-    const [period, setPeriod] = useState('day');
+    const [data, setData] = useState(null);
+    const [dateRange, setDateRange] = useState('last28');
 
-    useEffect(() => {
-        if (postId) {
-            loadStats();
-        }
-    }, [postId, dateRange, period]);
+    const loadStats = useCallback(async () => {
+        if (!postId) return;
 
-    const loadStats = async () => {
         setLoading(true);
         setError(null);
 
         try {
-            const data = await apiFetch({
-                path: `/openmost-site-kit/v1/post-stats/${postId}?period=${period}&date=${dateRange}`,
+            const response = await apiFetch({
+                path: `/openmost-site-kit/v1/post-stats/${postId}?period=day&date=${dateRange}`,
             });
-            setStats(data);
+            setData(response);
         } catch (err) {
+            console.error('[PostAnalytics] Error:', err);
             setError(err.message || __('Failed to load analytics', 'openmost-site-kit'));
         } finally {
             setLoading(false);
         }
+    }, [postId, dateRange]);
+
+    useEffect(() => {
+        loadStats();
+    }, [loadStats]);
+
+    const formatNumber = (num) => {
+        if (num === undefined || num === null) return '0';
+        return new Intl.NumberFormat().format(parseInt(num) || 0);
+    };
+
+    const formatDuration = (seconds) => {
+        if (!seconds) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
+    };
+
+    // Parse data for display
+    const parseStats = (responseData) => {
+        if (!responseData || !responseData.current) {
+            return null;
+        }
+
+        const current = responseData.current;
+        const comparison = responseData.comparison;
+
+        // Handle both array and object responses from Matomo
+        let totals = {
+            visits: 0,
+            uniqueVisitors: 0,
+            pageviews: 0,
+            bounceRate: 0,
+            avgTimeOnPage: 0,
+        };
+
+        let chartData = {
+            dates: [],
+            visits: [],
+            pageviews: [],
+        };
+
+        let count = 0;
+
+        // Process current data
+        if (typeof current === 'object') {
+            // If it's an object with date keys
+            const entries = Array.isArray(current) ? current : Object.entries(current);
+
+            entries.forEach((entry) => {
+                let date, values;
+
+                if (Array.isArray(entry)) {
+                    [date, values] = entry;
+                } else if (typeof entry === 'object') {
+                    date = entry.date || '';
+                    values = entry;
+                }
+
+                if (values && typeof values === 'object') {
+                    // For charts
+                    if (date) {
+                        chartData.dates.push(date);
+                        chartData.visits.push(parseInt(values.nb_visits || 0));
+                        chartData.pageviews.push(parseInt(values.nb_pageviews || 0));
+                    }
+
+                    // For totals
+                    totals.visits += parseInt(values.nb_visits || 0);
+                    totals.uniqueVisitors += parseInt(values.nb_uniq_visitors || 0);
+                    totals.pageviews += parseInt(values.nb_pageviews || 0);
+                    totals.bounceRate += parseFloat(values.bounce_rate || 0);
+                    totals.avgTimeOnPage += parseFloat(values.avg_time_on_page || 0);
+                    count++;
+                }
+            });
+
+            // Average out rates
+            if (count > 0) {
+                totals.bounceRate = totals.bounceRate / count;
+                totals.avgTimeOnPage = totals.avgTimeOnPage / count;
+            }
+        } else if (current.nb_visits !== undefined) {
+            // Single aggregated response
+            totals.visits = parseInt(current.nb_visits || 0);
+            totals.uniqueVisitors = parseInt(current.nb_uniq_visitors || 0);
+            totals.pageviews = parseInt(current.nb_pageviews || 0);
+            totals.bounceRate = parseFloat(current.bounce_rate || 0);
+            totals.avgTimeOnPage = parseFloat(current.avg_time_on_page || 0);
+        }
+
+        // Process comparison for trend
+        let comparisonTotals = null;
+        if (comparison && typeof comparison === 'object') {
+            comparisonTotals = {
+                visits: 0,
+                uniqueVisitors: 0,
+                pageviews: 0,
+            };
+
+            const compEntries = Array.isArray(comparison) ? comparison : Object.values(comparison);
+            compEntries.forEach((values) => {
+                if (values && typeof values === 'object') {
+                    comparisonTotals.visits += parseInt(values.nb_visits || 0);
+                    comparisonTotals.uniqueVisitors += parseInt(values.nb_uniq_visitors || 0);
+                    comparisonTotals.pageviews += parseInt(values.nb_pageviews || 0);
+                }
+            });
+        }
+
+        return { totals, chartData, comparisonTotals, postUrl: responseData.post_url };
     };
 
     const calculateTrend = (current, previous) => {
         if (!previous || previous === 0) return null;
-        const change = ((current - previous) / previous) * 100;
-        return change.toFixed(1);
-    };
-
-    const formatNumber = (num) => {
-        if (!num) return '0';
-        return new Intl.NumberFormat().format(num);
-    };
-
-    const formatDuration = (seconds) => {
-        if (!seconds) return '0s';
-        const mins = Math.floor(seconds / 60);
-        const secs = Math.floor(seconds % 60);
-        return mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+        return ((current - previous) / previous * 100).toFixed(1);
     };
 
     if (loading) {
         return (
-            <div style={{ padding: '20px', textAlign: 'center' }}>
+            <div className="omsk-post-analytics-loading">
                 <Spinner />
-                <p style={{ marginTop: '10px', color: '#757575' }}>
-                    {__('Loading analytics...', 'openmost-site-kit')}
-                </p>
+                <span>{__('Loading analytics...', 'openmost-site-kit')}</span>
             </div>
         );
     }
 
     if (error) {
         return (
-            <Notice status="error" isDismissible={false}>
-                {error}
-            </Notice>
-        );
-    }
-
-    if (!stats || !stats.current) {
-        return (
-            <Notice status="info" isDismissible={false}>
-                {__('No analytics data available for this page yet.', 'openmost-site-kit')}
-            </Notice>
-        );
-    }
-
-    // Aggregate data across date range
-    const aggregateData = (data) => {
-        if (!data) return null;
-
-        const result = {
-            nb_visits: 0,
-            nb_uniq_visitors: 0,
-            nb_pageviews: 0,
-            nb_actions: 0,
-            bounce_rate: 0,
-            avg_time_on_page: 0,
-        };
-
-        const dataArray = Array.isArray(data) ? data : Object.values(data);
-        let count = 0;
-
-        dataArray.forEach(item => {
-            if (item && typeof item === 'object') {
-                result.nb_visits += parseInt(item.nb_visits || 0);
-                result.nb_uniq_visitors += parseInt(item.nb_uniq_visitors || 0);
-                result.nb_pageviews += parseInt(item.nb_pageviews || 0);
-                result.nb_actions += parseInt(item.nb_actions || 0);
-                result.bounce_rate += parseFloat(item.bounce_rate || 0);
-                result.avg_time_on_page += parseFloat(item.avg_time_on_page || 0);
-                count++;
-            }
-        });
-
-        if (count > 0) {
-            result.bounce_rate = result.bounce_rate / count;
-            result.avg_time_on_page = result.avg_time_on_page / count;
-        }
-
-        return result;
-    };
-
-    const currentData = aggregateData(stats.current);
-    const comparisonData = stats.comparison ? aggregateData(stats.comparison) : null;
-
-    // Prepare chart data
-    const prepareChartData = () => {
-        const dataArray = Array.isArray(stats.current) ? stats.current : Object.entries(stats.current);
-        const dates = [];
-        const visits = [];
-        const pageviews = [];
-        const actions = [];
-        const uniqueVisitors = [];
-
-        dataArray.forEach(item => {
-            let date, values;
-            if (Array.isArray(item)) {
-                [date, values] = item;
-            } else {
-                date = item.date || '';
-                values = item;
-            }
-
-            dates.push(date);
-            visits.push(parseInt(values.nb_visits || 0));
-            pageviews.push(parseInt(values.nb_pageviews || 0));
-            actions.push(parseInt(values.nb_actions || 0));
-            uniqueVisitors.push(parseInt(values.nb_uniq_visitors || 0));
-        });
-
-        return { dates, visits, pageviews, actions, uniqueVisitors };
-    };
-
-    const chartData = prepareChartData();
-
-    const MetricCard = ({ title, value, previous, icon, color = '#3858e9' }) => {
-        const trend = previous ? calculateTrend(value, previous) : null;
-        const isPositive = trend > 0;
-        const isNeutral = trend === 0;
-
-        return (
-            <div style={{
-                backgroundColor: 'white',
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                padding: '20px',
-                flex: 1,
-                minWidth: '200px',
-            }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                    <div>
-                        <div style={{ color: '#757575', fontSize: '14px', marginBottom: '8px' }}>
-                            {title}
-                        </div>
-                        <div style={{ fontSize: '28px', fontWeight: '600', color: '#1e1e1e' }}>
-                            {typeof value === 'string' ? value : formatNumber(value)}
-                        </div>
-                        {trend !== null && (
-                            <div style={{
-                                marginTop: '8px',
-                                fontSize: '12px',
-                                color: isNeutral ? '#757575' : (isPositive ? '#10a37f' : '#ef4444'),
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px',
-                            }}>
-                                <span>{isNeutral ? '→' : (isPositive ? '↑' : '↓')}</span>
-                                <span>{Math.abs(trend)}%</span>
-                                <span style={{ color: '#757575' }}>vs previous</span>
-                            </div>
-                        )}
-                    </div>
-                    <div style={{
-                        width: '40px',
-                        height: '40px',
-                        borderRadius: '8px',
-                        backgroundColor: `${color}15`,
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        fontSize: '20px',
-                    }}>
-                        {icon}
-                    </div>
-                </div>
+            <div className="omsk-post-analytics-error">
+                <Notice status="error" isDismissible={false}>
+                    {error}
+                </Notice>
+                <Button variant="secondary" onClick={loadStats} style={{ marginTop: '10px' }}>
+                    {__('Retry', 'openmost-site-kit')}
+                </Button>
             </div>
         );
-    };
+    }
 
-    const chartOption = {
-        tooltip: {
-            trigger: 'axis',
-            axisPointer: {
-                type: 'cross',
-            },
-        },
-        legend: {
-            data: [
-                __('Visits', 'openmost-site-kit'),
-                __('Page Views', 'openmost-site-kit'),
-                __('Actions', 'openmost-site-kit'),
-                __('Unique Visitors', 'openmost-site-kit'),
-            ],
-            top: 10,
-        },
-        grid: {
-            top: 60,
-            left: 50,
-            right: 50,
-            bottom: 30,
-            containLabel: true,
-        },
-        xAxis: {
-            type: 'category',
-            data: chartData.dates,
-            boundaryGap: false,
-        },
-        yAxis: {
-            type: 'value',
-        },
-        series: [
-            {
-                name: __('Visits', 'openmost-site-kit'),
-                type: 'line',
-                smooth: true,
-                data: chartData.visits,
-                itemStyle: { color: '#3858e9' },
-                areaStyle: { opacity: 0.1 },
-            },
-            {
-                name: __('Page Views', 'openmost-site-kit'),
-                type: 'line',
-                smooth: true,
-                data: chartData.pageviews,
-                itemStyle: { color: '#10a37f' },
-                areaStyle: { opacity: 0.1 },
-            },
-            {
-                name: __('Actions', 'openmost-site-kit'),
-                type: 'line',
-                smooth: true,
-                data: chartData.actions,
-                itemStyle: { color: '#f59e0b' },
-                areaStyle: { opacity: 0.1 },
-            },
-            {
-                name: __('Unique Visitors', 'openmost-site-kit'),
-                type: 'line',
-                smooth: true,
-                data: chartData.uniqueVisitors,
-                itemStyle: { color: '#8b5cf6' },
-                areaStyle: { opacity: 0.1 },
-            },
-        ],
-    };
+    const parsedData = parseStats(data);
 
-    return (
-        <div className="omsk-post-analytics">
-            <Flex justify="space-between" style={{ marginBottom: '20px' }}>
-                <FlexBlock>
-                    <h3 style={{ margin: 0, fontSize: '16px', fontWeight: '600' }}>
-                        {__('Analytics Overview', 'openmost-site-kit')}
-                    </h3>
-                </FlexBlock>
-                <FlexBlock style={{ maxWidth: '200px' }}>
+    if (!parsedData || (parsedData.totals.visits === 0 && parsedData.totals.pageviews === 0)) {
+        return (
+            <div className="omsk-post-analytics">
+                <div className="omsk-post-analytics-header">
+                    <span className="omsk-post-analytics-title">
+                        {__('Analytics', 'openmost-site-kit')}
+                    </span>
                     <SelectControl
                         value={dateRange}
                         options={[
@@ -300,71 +197,167 @@ const PostAnalytics = ({ postId }) => {
                         ]}
                         onChange={setDateRange}
                         __nextHasNoMarginBottom
+                        __next40pxDefaultSize
                     />
-                </FlexBlock>
-            </Flex>
+                </div>
+                <Notice status="info" isDismissible={false}>
+                    {__('No analytics data available for this page yet. Make sure tracking is enabled and the page has been visited.', 'openmost-site-kit')}
+                </Notice>
+            </div>
+        );
+    }
 
-            {/* Key Metrics Cards */}
-            <div style={{
-                display: 'grid',
-                gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-                gap: '16px',
-                marginBottom: '20px',
-            }}>
-                <MetricCard
-                    title={__('Visits', 'openmost-site-kit')}
-                    value={currentData.nb_visits}
-                    previous={comparisonData?.nb_visits}
-                    icon="👁"
-                    color="#3858e9"
-                />
-                <MetricCard
-                    title={__('Unique Visitors', 'openmost-site-kit')}
-                    value={currentData.nb_uniq_visitors}
-                    previous={comparisonData?.nb_uniq_visitors}
-                    icon="👤"
-                    color="#8b5cf6"
-                />
-                <MetricCard
-                    title={__('Page Views', 'openmost-site-kit')}
-                    value={currentData.nb_pageviews}
-                    previous={comparisonData?.nb_pageviews}
-                    icon="📄"
-                    color="#10a37f"
-                />
-                <MetricCard
-                    title={__('Actions', 'openmost-site-kit')}
-                    value={currentData.nb_actions}
-                    previous={comparisonData?.nb_actions}
-                    icon="⚡"
-                    color="#f59e0b"
-                />
-                <MetricCard
-                    title={__('Bounce Rate', 'openmost-site-kit')}
-                    value={`${currentData.bounce_rate.toFixed(1)}%`}
-                    icon="🎯"
-                    color="#ef4444"
-                />
-                <MetricCard
-                    title={__('Avg. Time on Page', 'openmost-site-kit')}
-                    value={formatDuration(currentData.avg_time_on_page)}
-                    icon="⏱"
-                    color="#06b6d4"
+    const { totals, chartData, comparisonTotals } = parsedData;
+
+    // Chart configuration
+    const chartOption = {
+        tooltip: {
+            trigger: 'axis',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)',
+            borderColor: '#e0e0e0',
+            borderWidth: 1,
+            textStyle: { color: '#1e1e1e' },
+        },
+        legend: {
+            data: [__('Visits', 'openmost-site-kit'), __('Page Views', 'openmost-site-kit')],
+            bottom: 0,
+            itemWidth: 12,
+            itemHeight: 12,
+        },
+        grid: {
+            top: 20,
+            left: 40,
+            right: 20,
+            bottom: 50,
+        },
+        xAxis: {
+            type: 'category',
+            data: chartData.dates,
+            axisLine: { lineStyle: { color: '#e0e0e0' } },
+            axisLabel: {
+                color: '#646970',
+                fontSize: 11,
+                formatter: (value) => {
+                    const parts = value.split('-');
+                    return parts.length === 3 ? `${parts[1]}/${parts[2]}` : value;
+                },
+            },
+        },
+        yAxis: {
+            type: 'value',
+            axisLine: { show: false },
+            axisTick: { show: false },
+            axisLabel: { color: '#646970', fontSize: 11 },
+            splitLine: { lineStyle: { color: '#f0f0f1' } },
+        },
+        series: [
+            {
+                name: __('Visits', 'openmost-site-kit'),
+                type: 'line',
+                data: chartData.visits,
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 6,
+                itemStyle: { color: '#3858e9' },
+                lineStyle: { width: 2 },
+                areaStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: 'rgba(56, 88, 233, 0.2)' },
+                            { offset: 1, color: 'rgba(56, 88, 233, 0)' },
+                        ],
+                    },
+                },
+            },
+            {
+                name: __('Page Views', 'openmost-site-kit'),
+                type: 'line',
+                data: chartData.pageviews,
+                smooth: true,
+                symbol: 'circle',
+                symbolSize: 6,
+                itemStyle: { color: '#10a37f' },
+                lineStyle: { width: 2 },
+                areaStyle: {
+                    color: {
+                        type: 'linear',
+                        x: 0, y: 0, x2: 0, y2: 1,
+                        colorStops: [
+                            { offset: 0, color: 'rgba(16, 163, 127, 0.2)' },
+                            { offset: 1, color: 'rgba(16, 163, 127, 0)' },
+                        ],
+                    },
+                },
+            },
+        ],
+    };
+
+    const TrendIndicator = ({ current, previous }) => {
+        const trend = calculateTrend(current, previous);
+        if (trend === null) return null;
+
+        const isPositive = parseFloat(trend) > 0;
+        const isNeutral = parseFloat(trend) === 0;
+
+        return (
+            <span className={`omsk-trend ${isNeutral ? 'neutral' : (isPositive ? 'positive' : 'negative')}`}>
+                {isNeutral ? '→' : (isPositive ? '↑' : '↓')} {Math.abs(parseFloat(trend))}%
+            </span>
+        );
+    };
+
+    return (
+        <div className="omsk-post-analytics">
+            <div className="omsk-post-analytics-header">
+                <span className="omsk-post-analytics-title">
+                    {__('Analytics', 'openmost-site-kit')}
+                </span>
+                <SelectControl
+                    value={dateRange}
+                    options={[
+                        { label: __('Last 7 days', 'openmost-site-kit'), value: 'last7' },
+                        { label: __('Last 14 days', 'openmost-site-kit'), value: 'last14' },
+                        { label: __('Last 28 days', 'openmost-site-kit'), value: 'last28' },
+                        { label: __('Last 90 days', 'openmost-site-kit'), value: 'last90' },
+                    ]}
+                    onChange={setDateRange}
+                    __nextHasNoMarginBottom
+                    __next40pxDefaultSize
                 />
             </div>
 
-            {/* Trend Chart */}
-            <div style={{
-                backgroundColor: 'white',
-                border: '1px solid #e0e0e0',
-                borderRadius: '8px',
-                padding: '20px',
-            }}>
-                <h4 style={{ marginTop: 0, marginBottom: '20px', fontSize: '14px', fontWeight: '600' }}>
-                    {__('Trend Analysis', 'openmost-site-kit')}
-                </h4>
-                <ReactECharts option={chartOption} style={{ height: '300px' }} />
+            <div className="omsk-post-analytics-metrics">
+                <div className="omsk-metric">
+                    <span className="omsk-metric-value">{formatNumber(totals.visits)}</span>
+                    <span className="omsk-metric-label">{__('Visits', 'openmost-site-kit')}</span>
+                    <TrendIndicator current={totals.visits} previous={comparisonTotals?.visits} />
+                </div>
+                <div className="omsk-metric">
+                    <span className="omsk-metric-value">{formatNumber(totals.pageviews)}</span>
+                    <span className="omsk-metric-label">{__('Page Views', 'openmost-site-kit')}</span>
+                    <TrendIndicator current={totals.pageviews} previous={comparisonTotals?.pageviews} />
+                </div>
+                <div className="omsk-metric">
+                    <span className="omsk-metric-value">{totals.bounceRate.toFixed(0)}%</span>
+                    <span className="omsk-metric-label">{__('Bounce Rate', 'openmost-site-kit')}</span>
+                </div>
+                <div className="omsk-metric">
+                    <span className="omsk-metric-value">{formatDuration(totals.avgTimeOnPage)}</span>
+                    <span className="omsk-metric-label">{__('Avg. Time', 'openmost-site-kit')}</span>
+                </div>
             </div>
+
+            {chartData.dates.length > 0 && (
+                <div className="omsk-post-analytics-chart">
+                    <ReactECharts
+                        option={chartOption}
+                        style={{ height: '200px' }}
+                        opts={{ renderer: 'svg' }}
+                    />
+                </div>
+            )}
         </div>
     );
 };

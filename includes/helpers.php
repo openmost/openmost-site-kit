@@ -34,15 +34,6 @@ function omsk_get_matomo_token_auth()
     return sanitize_text_field(omsk_get_value($options['omsk-matomo-token-auth-field'])) ?? '';
 }
 
-function omsk_get_matomo_period()
-{
-    return isset($_GET['period']) ? sanitize_text_field(omsk_get_value($_GET['period'])) : 'day';
-}
-
-function omsk_get_matomo_date()
-{
-    return isset($_GET['date']) ? sanitize_text_field(omsk_get_value($_GET['date'])) : 'last7';
-}
 
 function omsk_fetch_matomo_api($param_string)
 {
@@ -103,7 +94,3 @@ function omsk_get_matomo_cdn_host()
 
     return $cdn;
 }
-
-
-// Legacy AJAX handler removed - now using REST API
-// See includes/rest-api.php for the new implementation

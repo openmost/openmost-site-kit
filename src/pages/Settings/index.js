@@ -2,7 +2,7 @@
  * Settings Page Component with Tabs
  */
 
-import { useState, useEffect, useRef, useCallback } from '@wordpress/element';
+import { useState, useEffect, useRef, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
     Card,
@@ -57,7 +57,6 @@ const ColorPickerButton = ({ label, color, onChange }) => {
                         <ColorPicker
                             color={`#${color}`}
                             onChange={(newColor) => {
-                                // Remove # from hex
                                 const hex = newColor.replace('#', '').toUpperCase();
                                 onChange(hex);
                             }}
@@ -71,111 +70,36 @@ const ColorPickerButton = ({ label, color, onChange }) => {
 };
 
 /**
- * OptOut Preview Component
- * Dynamically loads Matomo opt-out script
- * Uses a stable container ID and ensures DOM is ready before script loads
- *
- * Key fix: Track mounted state to prevent script operations after unmount
+ * OptOut Preview Component - Uses iframe with optOut action (not optOutJS)
  */
 const OptOutPreview = ({ url }) => {
-    const containerRef = useRef(null);
-    const scriptRef = useRef(null);
-    const timerRef = useRef(null);
-    const mountedRef = useRef(true);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    // Use a stable ID that persists across renders
-    const stableId = useRef(`matomo-opt-out-preview-${Math.random().toString(36).substr(2, 9)}`);
 
-    // Track mounted state
-    useEffect(() => {
-        mountedRef.current = true;
-        return () => {
-            mountedRef.current = false;
-        };
-    }, []);
-
-    useEffect(() => {
-        if (!url) return;
-
-        const containerId = stableId.current;
-        setIsLoading(true);
-        setError(null);
-
-        // Clear any pending timer
-        if (timerRef.current) {
-            clearTimeout(timerRef.current);
-            timerRef.current = null;
+    // Build iframe URL - convert optOutJS to optOut for iframe embedding
+    const iframeUrl = useMemo(() => {
+        if (!url) return null;
+        try {
+            const scriptUrl = new URL(url);
+            // Change action from optOutJS to optOut for iframe
+            scriptUrl.searchParams.set('action', 'optOut');
+            scriptUrl.searchParams.delete('divId');
+            return scriptUrl.toString();
+        } catch {
+            return null;
         }
-
-        // Remove previous script if exists
-        if (scriptRef.current && scriptRef.current.parentNode) {
-            scriptRef.current.parentNode.removeChild(scriptRef.current);
-            scriptRef.current = null;
-        }
-
-        // Clear container content
-        if (containerRef.current) {
-            while (containerRef.current.firstChild) {
-                containerRef.current.removeChild(containerRef.current.firstChild);
-            }
-            // Set the ID immediately
-            containerRef.current.id = containerId;
-        }
-
-        // Build script URL with our container ID
-        const scriptUrl = new URL(url);
-        scriptUrl.searchParams.set('divId', containerId);
-
-        // Use setTimeout to ensure DOM has updated with the new ID
-        timerRef.current = setTimeout(() => {
-            // Check if still mounted
-            if (!mountedRef.current) return;
-
-            // Double-check the container exists with the correct ID
-            const container = document.getElementById(containerId);
-            if (!container) {
-                if (mountedRef.current) {
-                    setError('Container not ready');
-                    setIsLoading(false);
-                }
-                return;
-            }
-
-            // Create and load script
-            const script = document.createElement('script');
-            script.src = scriptUrl.toString();
-            script.async = true;
-            script.onload = () => {
-                if (mountedRef.current) setIsLoading(false);
-            };
-            script.onerror = () => {
-                if (mountedRef.current) {
-                    setError('Failed to load script');
-                    setIsLoading(false);
-                }
-            };
-            scriptRef.current = script;
-
-            document.body.appendChild(script);
-        }, 150);
-
-        return () => {
-            // Clear timer first
-            if (timerRef.current) {
-                clearTimeout(timerRef.current);
-                timerRef.current = null;
-            }
-            // Remove script
-            if (scriptRef.current && scriptRef.current.parentNode) {
-                scriptRef.current.parentNode.removeChild(scriptRef.current);
-                scriptRef.current = null;
-            }
-        };
     }, [url]);
 
+    if (!iframeUrl) {
+        return (
+            <Notice status="warning" isDismissible={false}>
+                {__('Configure Matomo to see the preview', 'openmost-site-kit')}
+            </Notice>
+        );
+    }
+
     return (
-        <div style={{ position: 'relative', minHeight: '100px' }}>
+        <div style={{ position: 'relative', minHeight: '120px' }}>
             {isLoading && (
                 <div style={{
                     position: 'absolute',
@@ -197,29 +121,45 @@ const OptOutPreview = ({ url }) => {
                     {error}
                 </Notice>
             )}
-            <div ref={containerRef} id={stableId.current} />
+            <iframe
+                src={iframeUrl}
+                style={{
+                    width: '100%',
+                    minHeight: '120px',
+                    border: 'none',
+                    borderRadius: '4px',
+                    background: '#fff',
+                }}
+                onLoad={() => setIsLoading(false)}
+                onError={() => {
+                    setError(__('Failed to load preview', 'openmost-site-kit'));
+                    setIsLoading(false);
+                }}
+                title={__('Opt-out Preview', 'openmost-site-kit')}
+            />
         </div>
     );
 };
 
 /**
- * General Tab Content
+ * Form field wrapper with consistent vertical spacing
  */
-const GeneralTab = ({ settings, roles, onSettingsChange, onSave, onTestConnection, saving, testing, notice }) => {
+const FormField = ({ children, marginBottom = '24px' }) => (
+    <div style={{ marginBottom }}>
+        {children}
+    </div>
+);
+
+/**
+ * General Tab Content - Matomo Configuration
+ */
+const GeneralTab = ({ settings, onSettingsChange, onSave, saving, notice }) => {
     const handleChange = (field, value) => {
         onSettingsChange({ ...settings, [field]: value });
     };
 
-    const handleRoleToggle = (roleKey, checked) => {
-        const excludedRoles = settings.excludedRoles || [];
-        if (checked) {
-            onSettingsChange({ ...settings, excludedRoles: [...excludedRoles, roleKey] });
-        } else {
-            onSettingsChange({ ...settings, excludedRoles: excludedRoles.filter(r => r !== roleKey) });
-        }
-    };
-
-    const bothTrackingCodesEnabled = settings.enableClassicTracking && settings.enableMtmTracking;
+    const noTrackingEnabled = !settings.enableClassicTracking && !settings.enableMtmTracking;
+    const hasBasicConfig = settings.host && settings.idSite;
 
     return (
         <>
@@ -234,9 +174,13 @@ const GeneralTab = ({ settings, roles, onSettingsChange, onSave, onTestConnectio
                 </Notice>
             )}
 
-            {bothTrackingCodesEnabled && (
-                <Notice status="error" isDismissible={false} style={{ marginBottom: '20px' }}>
-                    {__('Both Matomo and Matomo Tag Manager codes are deployed. You should use only one of them.', 'openmost-site-kit')}
+            {noTrackingEnabled && hasBasicConfig && (
+                <Notice
+                    status="error"
+                    isDismissible={false}
+                    style={{ marginBottom: '20px' }}
+                >
+                    {__('No tracking method is enabled. Go to the Tracking tab to enable Classic or Tag Manager tracking, otherwise no analytics data will be collected.', 'openmost-site-kit')}
                 </Notice>
             )}
 
@@ -245,113 +189,65 @@ const GeneralTab = ({ settings, roles, onSettingsChange, onSave, onTestConnectio
                     <h2>{__('Matomo Configuration', 'openmost-site-kit')}</h2>
                 </CardHeader>
                 <CardBody>
-                    <TextControl
-                        label={__('Host URL', 'openmost-site-kit')}
-                        value={settings.host}
-                        onChange={(value) => handleChange('host', value)}
-                        type="url"
-                        required
-                        help={__('Your Matomo instance URL (e.g., https://matomo.example.com or https://example.matomo.cloud)', 'openmost-site-kit')}
-                        __nextHasNoMarginBottom
-                        __next40pxDefaultSize
-                    />
-
-                    <TextControl
-                        label={__('Site ID', 'openmost-site-kit')}
-                        value={settings.idSite}
-                        onChange={(value) => handleChange('idSite', value)}
-                        type="number"
-                        min="1"
-                        required
-                        help={__('Your site ID in Matomo', 'openmost-site-kit')}
-                        __nextHasNoMarginBottom
-                        __next40pxDefaultSize
-                    />
-
-                    <TextControl
-                        label={__('Container ID', 'openmost-site-kit')}
-                        value={settings.idContainer}
-                        onChange={(value) => handleChange('idContainer', value)}
-                        help={__('Tag Manager container ID (optional)', 'openmost-site-kit')}
-                        __nextHasNoMarginBottom
-                        __next40pxDefaultSize
-                    />
-
-                    <TextControl
-                        label={__('Auth Token', 'openmost-site-kit')}
-                        value={settings.tokenAuth}
-                        onChange={(value) => handleChange('tokenAuth', value)}
-                        type="password"
-                        help={__('API authentication token for dashboard access', 'openmost-site-kit')}
-                        __nextHasNoMarginBottom
-                        __next40pxDefaultSize
-                    />
-
-                    <Flex style={{ marginTop: '20px' }}>
-                        <FlexItem>
-                            <Button
-                                variant="secondary"
-                                onClick={onTestConnection}
-                                isBusy={testing}
-                                disabled={!settings.host || !settings.idSite || saving}
-                            >
-                                {testing ? __('Testing...', 'openmost-site-kit') : __('Test Connection', 'openmost-site-kit')}
-                            </Button>
-                        </FlexItem>
-                    </Flex>
-                </CardBody>
-            </Card>
-
-            <Card style={{ marginTop: '20px' }}>
-                <CardHeader>
-                    <h2>{__('Tracking Code', 'openmost-site-kit')}</h2>
-                </CardHeader>
-                <CardBody>
-                    <CheckboxControl
-                        label={__('Enable classic tracking code', 'openmost-site-kit')}
-                        help={__('Not recommended if you use Tag Manager', 'openmost-site-kit')}
-                        checked={settings.enableClassicTracking}
-                        onChange={(value) => handleChange('enableClassicTracking', value)}
-                        __nextHasNoMarginBottom
-                    />
-
-                    <CheckboxControl
-                        label={__('Enable Tag Manager tracking code', 'openmost-site-kit')}
-                        help={__('Recommended - provides more flexibility', 'openmost-site-kit')}
-                        checked={settings.enableMtmTracking}
-                        onChange={(value) => handleChange('enableMtmTracking', value)}
-                        __nextHasNoMarginBottom
-                    />
-
-                    <Divider style={{ marginTop: '20px', marginBottom: '20px' }} />
-
-                    <h3>{__('Exclude Tracking by User Role', 'openmost-site-kit')}</h3>
-                    <p className="description" style={{ marginBottom: '15px' }}>
-                        {__('Select user roles that should not be tracked. This is useful to exclude administrators and editors from your analytics.', 'openmost-site-kit')}
+                    <p className="description" style={{ marginBottom: '20px' }}>
+                        {__('Configure your Matomo instance connection settings.', 'openmost-site-kit')}
                     </p>
 
-                    {roles.length > 0 ? (
-                        <div style={{
-                            display: 'grid',
-                            gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))',
-                            gap: '10px',
-                            padding: '15px',
-                            backgroundColor: '#f0f0f1',
-                            borderRadius: '4px'
-                        }}>
-                            {roles.map((role) => (
-                                <CheckboxControl
-                                    key={role.key}
-                                    label={role.name}
-                                    checked={(settings.excludedRoles || []).includes(role.key)}
-                                    onChange={(checked) => handleRoleToggle(role.key, checked)}
-                                    __nextHasNoMarginBottom
-                                />
-                            ))}
-                        </div>
-                    ) : (
-                        <Spinner />
-                    )}
+                    <FormField>
+                        <TextControl
+                            label={
+                                <>
+                                    {__('Host URL', 'openmost-site-kit')}
+                                    <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                </>
+                            }
+                            value={settings.host}
+                            onChange={(value) => handleChange('host', value)}
+                            type="url"
+                            placeholder="https://example.matomo.cloud"
+                            help={__('Your Matomo instance URL (e.g., https://matomo.example.com or https://example.matomo.cloud)', 'openmost-site-kit')}
+                            __nextHasNoMarginBottom
+                            __next40pxDefaultSize
+                        />
+                    </FormField>
+
+                    <FormField>
+                        <TextControl
+                            label={
+                                <>
+                                    {__('Site ID', 'openmost-site-kit')}
+                                    <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                </>
+                            }
+                            value={settings.idSite}
+                            onChange={(value) => handleChange('idSite', value)}
+                            type="number"
+                            min="1"
+                            placeholder="1"
+                            help={__('Your site ID in Matomo. Find this in Matomo under Administration > Websites > Manage.', 'openmost-site-kit')}
+                            __nextHasNoMarginBottom
+                            __next40pxDefaultSize
+                        />
+                    </FormField>
+
+                    <FormField marginBottom="0">
+                        <TextControl
+                            label={
+                                <>
+                                    {__('Container ID', 'openmost-site-kit')}
+                                    <span style={{ color: '#dba617', marginLeft: '4px', fontSize: '12px', fontWeight: 'normal' }}>
+                                        ({__('recommended', 'openmost-site-kit')})
+                                    </span>
+                                </>
+                            }
+                            value={settings.idContainer}
+                            onChange={(value) => handleChange('idContainer', value)}
+                            placeholder="abc123xy"
+                            help={__('Tag Manager container ID. Required if using Tag Manager tracking method.', 'openmost-site-kit')}
+                            __nextHasNoMarginBottom
+                            __next40pxDefaultSize
+                        />
+                    </FormField>
                 </CardBody>
             </Card>
 
@@ -360,7 +256,436 @@ const GeneralTab = ({ settings, roles, onSettingsChange, onSave, onTestConnectio
                     variant="primary"
                     onClick={onSave}
                     isBusy={saving}
-                    disabled={saving || testing}
+                    disabled={saving || !settings.host || !settings.idSite}
+                >
+                    {saving ? __('Saving...', 'openmost-site-kit') : __('Save Settings', 'openmost-site-kit')}
+                </Button>
+            </div>
+        </>
+    );
+};
+
+/**
+ * Tracking Method Selector Component
+ */
+const TrackingMethodSelector = ({ value, onChange }) => {
+    const methods = [
+        {
+            id: 'none',
+            title: __('Disabled', 'openmost-site-kit'),
+            description: __('No tracking code injected', 'openmost-site-kit'),
+            icon: (
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.42 0-8-3.58-8-8 0-1.85.63-3.55 1.69-4.9L16.9 18.31C15.55 19.37 13.85 20 12 20zm6.31-3.1L7.1 5.69C8.45 4.63 10.15 4 12 4c4.42 0 8 3.58 8 8 0 1.85-.63 3.55-1.69 4.9z"/>
+                </svg>
+            ),
+        },
+        {
+            id: 'classic',
+            title: __('Classic Tracking', 'openmost-site-kit'),
+            description: __('Standard Matomo JavaScript tracker', 'openmost-site-kit'),
+            icon: (
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                    <path d="M9.4 16.6L4.8 12l4.6-4.6L8 6l-6 6 6 6 1.4-1.4zm5.2 0l4.6-4.6-4.6-4.6L16 6l6 6-6 6-1.4-1.4z"/>
+                </svg>
+            ),
+        },
+        {
+            id: 'mtm',
+            title: __('Tag Manager', 'openmost-site-kit'),
+            description: __('Matomo Tag Manager (MTM)', 'openmost-site-kit'),
+            badge: __('Recommended', 'openmost-site-kit'),
+            icon: (
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                    <path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16zM16 17H5V7h11l3.55 5L16 17z"/>
+                </svg>
+            ),
+        },
+    ];
+
+    return (
+        <div className="omsk-tracking-selector">
+            {methods.map((method) => (
+                <div
+                    key={method.id}
+                    className={`omsk-tracking-option ${value === method.id ? 'selected' : ''}`}
+                    onClick={() => onChange(method.id)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyPress={(e) => e.key === 'Enter' && onChange(method.id)}
+                >
+                    <div className="omsk-tracking-option-icon">{method.icon}</div>
+                    <div className="omsk-tracking-option-content">
+                        <div className="omsk-tracking-option-header">
+                            <span className="omsk-tracking-option-title">{method.title}</span>
+                            {method.badge && (
+                                <span className="omsk-tracking-option-badge">{method.badge}</span>
+                            )}
+                        </div>
+                        <span className="omsk-tracking-option-description">{method.description}</span>
+                    </div>
+                    <div className="omsk-tracking-option-radio">
+                        <div className={`omsk-radio ${value === method.id ? 'checked' : ''}`} />
+                    </div>
+                </div>
+            ))}
+        </div>
+    );
+};
+
+/**
+ * Tracking Tab Content
+ */
+const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice }) => {
+    const handleChange = (field, value) => {
+        onSettingsChange({ ...settings, [field]: value });
+    };
+
+    const handleRoleToggle = (roleKey, checked) => {
+        const excludedRoles = settings.excludedRoles || [];
+        if (checked) {
+            onSettingsChange({ ...settings, excludedRoles: [...excludedRoles, roleKey] });
+        } else {
+            onSettingsChange({ ...settings, excludedRoles: excludedRoles.filter(r => r !== roleKey) });
+        }
+    };
+
+    // Determine current tracking method
+    const getTrackingMethod = () => {
+        if (settings.enableMtmTracking) return 'mtm';
+        if (settings.enableClassicTracking) return 'classic';
+        return 'none';
+    };
+
+    const handleTrackingMethodChange = (method) => {
+        onSettingsChange({
+            ...settings,
+            enableClassicTracking: method === 'classic',
+            enableMtmTracking: method === 'mtm',
+        });
+    };
+
+    const trackingMethod = getTrackingMethod();
+    const consentModeEnabled = settings.consentMode && settings.consentMode !== 'disabled';
+
+    return (
+        <>
+            {notice && (
+                <Notice
+                    status={notice.type}
+                    onRemove={() => {}}
+                    isDismissible={false}
+                    style={{ marginBottom: '20px' }}
+                >
+                    {notice.message}
+                </Notice>
+            )}
+
+            <Card>
+                <CardHeader>
+                    <h2>{__('Tracking Method', 'openmost-site-kit')}</h2>
+                </CardHeader>
+                <CardBody>
+                    <p className="description" style={{ marginBottom: '20px' }}>
+                        {__('Choose how you want to inject Matomo tracking code on your site.', 'openmost-site-kit')}
+                    </p>
+
+                    <TrackingMethodSelector
+                        value={trackingMethod}
+                        onChange={handleTrackingMethodChange}
+                    />
+                </CardBody>
+            </Card>
+
+            {/* Classic tracking options */}
+            {trackingMethod === 'classic' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('Classic Tracking Options', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <h3>{__('Consent Mode (GDPR)', 'openmost-site-kit')}</h3>
+                        <p className="description" style={{ marginBottom: '15px' }}>
+                            {__('Configure how the tracking code handles user consent for GDPR compliance.', 'openmost-site-kit')}
+                        </p>
+
+                        <FormField>
+                            <SelectControl
+                                label={__('Consent Mode', 'openmost-site-kit')}
+                                value={settings.consentMode || 'disabled'}
+                                onChange={(value) => handleChange('consentMode', value)}
+                                options={[
+                                    { label: __('Disabled - Track all visitors', 'openmost-site-kit'), value: 'disabled' },
+                                    { label: __('Require Consent - Wait for consent before tracking', 'openmost-site-kit'), value: 'require_consent' },
+                                    { label: __('Require Cookie Consent - Wait for cookie consent', 'openmost-site-kit'), value: 'require_cookie_consent' },
+                                ]}
+                                help={__('Select how to handle user consent before tracking', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                                __next40pxDefaultSize
+                            />
+                        </FormField>
+
+                        {consentModeEnabled && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                <p><strong>{__('How to use consent mode:', 'openmost-site-kit')}</strong></p>
+                                <p>{__('When consent is given, call:', 'openmost-site-kit')}</p>
+                                <code style={{ display: 'block', padding: '10px', backgroundColor: '#f6f7f7', marginTop: '10px', borderRadius: '4px' }}>
+                                    {settings.consentMode === 'require_cookie_consent'
+                                        ? "_paq.push(['rememberCookieConsentGiven']);"
+                                        : "_paq.push(['rememberConsentGiven']);"}
+                                </code>
+                            </Notice>
+                        )}
+
+                        <Divider style={{ marginTop: '20px', marginBottom: '20px' }} />
+
+                        <h3>{__('Accurate Time Measurement', 'openmost-site-kit')}</h3>
+                        <p className="description" style={{ marginBottom: '15px' }}>
+                            {__('Enable heartbeat timer to accurately measure time spent on page.', 'openmost-site-kit')}
+                        </p>
+
+                        <FormField>
+                            <ToggleControl
+                                label={__('Enable Heartbeat Timer', 'openmost-site-kit')}
+                                checked={settings.enableHeartBeatTimer || false}
+                                onChange={(value) => handleChange('enableHeartBeatTimer', value)}
+                                help={__('Sends periodic pings to Matomo to track actual time on page.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableHeartBeatTimer && (
+                            <FormField>
+                                <TextControl
+                                    label={__('Heartbeat Delay (seconds)', 'openmost-site-kit')}
+                                    type="number"
+                                    min="5"
+                                    max="60"
+                                    value={settings.heartBeatTimerDelay || 15}
+                                    onChange={(value) => handleChange('heartBeatTimerDelay', parseInt(value) || 15)}
+                                    help={__('Time between heartbeat pings (default: 15 seconds)', 'openmost-site-kit')}
+                                    __nextHasNoMarginBottom
+                                    __next40pxDefaultSize
+                                />
+                            </FormField>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* Tag Manager options */}
+            {trackingMethod === 'mtm' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('Tag Manager Options', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        {/* Container ID missing warning with inline form */}
+                        {!settings.idContainer && (
+                            <Notice status="warning" isDismissible={false} style={{ marginBottom: '20px' }}>
+                                <p style={{ marginBottom: '12px' }}>
+                                    <strong>{__('Container ID Required', 'openmost-site-kit')}</strong><br />
+                                    {__('Tag Manager tracking requires a Container ID to function. Please enter your Container ID below or configure it in the General tab.', 'openmost-site-kit')}
+                                </p>
+                                <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
+                                    <TextControl
+                                        label={__('Container ID', 'openmost-site-kit')}
+                                        value={settings.idContainer || ''}
+                                        onChange={(value) => handleChange('idContainer', value)}
+                                        placeholder="abc123xy"
+                                        style={{ marginBottom: 0 }}
+                                        __nextHasNoMarginBottom
+                                        __next40pxDefaultSize
+                                    />
+                                </div>
+                            </Notice>
+                        )}
+
+                        <p className="description" style={{ marginBottom: '15px' }}>
+                            {__('GDPR consent options are managed directly in the Matomo Tag Manager UI.', 'openmost-site-kit')}
+                        </p>
+
+                        <FormField>
+                            <ToggleControl
+                                label={__('Push context to dataLayer', 'openmost-site-kit')}
+                                checked={settings.enableMtmDataLayer !== false}
+                                onChange={(value) => handleChange('enableMtmDataLayer', value)}
+                                help={__('Adds Matomo configuration to the dataLayer for use in MTM triggers.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                            <p><strong>{__('Available dataLayer variables:', 'openmost-site-kit')}</strong></p>
+                            <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+                                <li><code>matomo.host</code> - {__('Your Matomo instance URL', 'openmost-site-kit')}</li>
+                                <li><code>matomo.site_id</code> - {__('Your site ID', 'openmost-site-kit')}</li>
+                                <li><code>matomo.container_id</code> - {__('Your container ID', 'openmost-site-kit')}</li>
+                                <li><code>wordpress.environment</code> - {__('WordPress environment', 'openmost-site-kit')}</li>
+                                <li><code>wordpress.user_id</code> - {__('SHA256 hashed user email (if enabled)', 'openmost-site-kit')}</li>
+                            </ul>
+                        </Notice>
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* User ID Tracking - available for both methods */}
+            {trackingMethod !== 'none' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('User ID Tracking', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <FormField>
+                            <ToggleControl
+                                label={__('Enable User ID tracking', 'openmost-site-kit')}
+                                checked={settings.enableUserIdTracking || false}
+                                onChange={(value) => handleChange('enableUserIdTracking', value)}
+                                help={__('Track logged-in users with a SHA256 hash of their email address.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableUserIdTracking && (
+                            <Notice status="warning" isDismissible={false} style={{ marginTop: '15px' }}>
+                                <p><strong>{__('Cookie consent required', 'openmost-site-kit')}</strong></p>
+                                <p>
+                                    {__('User ID tracking requires cookie consent from your visitors. Ensure your consent management solution is configured to obtain consent before enabling this feature.', 'openmost-site-kit')}
+                                </p>
+                                {trackingMethod === 'mtm' && (
+                                    <p style={{ marginTop: '10px' }}>
+                                        {__('The user ID will be available in the dataLayer as', 'openmost-site-kit')} <code>wordpress.user_id</code>.
+                                    </p>
+                                )}
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* Exclude by Role */}
+            {trackingMethod !== 'none' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('Exclude Tracking by User Role', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <p className="description" style={{ marginBottom: '15px' }}>
+                            {__('Select user roles that should not be tracked.', 'openmost-site-kit')}
+                        </p>
+
+                        {roles.length > 0 ? (
+                            <div style={{
+                                display: 'flex',
+                                flexDirection: 'column',
+                                gap: '8px',
+                                padding: '15px',
+                                backgroundColor: '#f0f0f1',
+                                borderRadius: '4px'
+                            }}>
+                                {roles.map((role) => (
+                                    <CheckboxControl
+                                        key={role.key}
+                                        label={role.name}
+                                        checked={(settings.excludedRoles || []).includes(role.key)}
+                                        onChange={(checked) => handleRoleToggle(role.key, checked)}
+                                        __nextHasNoMarginBottom
+                                    />
+                                ))}
+                            </div>
+                        ) : (
+                            <Spinner />
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            <div style={{ marginTop: '20px' }}>
+                <Button
+                    variant="primary"
+                    onClick={onSave}
+                    isBusy={saving}
+                    disabled={saving}
+                >
+                    {saving ? __('Saving...', 'openmost-site-kit') : __('Save Settings', 'openmost-site-kit')}
+                </Button>
+            </div>
+        </>
+    );
+};
+
+/**
+ * Dashboard Tab Content - API Configuration
+ */
+const DashboardTab = ({ settings, onSettingsChange, onSave, onTestConnection, saving, testing, notice }) => {
+    const handleChange = (field, value) => {
+        onSettingsChange({ ...settings, [field]: value });
+    };
+
+    const hasBasicConfig = settings.host && settings.idSite;
+
+    return (
+        <>
+            {notice && (
+                <Notice
+                    status={notice.type}
+                    onRemove={() => {}}
+                    isDismissible={false}
+                    style={{ marginBottom: '20px' }}
+                >
+                    {notice.message}
+                </Notice>
+            )}
+
+            {!hasBasicConfig && (
+                <Notice status="warning" isDismissible={false} style={{ marginBottom: '20px' }}>
+                    {__('Please configure your Matomo Host URL and Site ID in the General tab first.', 'openmost-site-kit')}
+                </Notice>
+            )}
+
+            <Card>
+                <CardHeader>
+                    <h2>{__('API Configuration', 'openmost-site-kit')}</h2>
+                </CardHeader>
+                <CardBody>
+                    <p className="description" style={{ marginBottom: '20px' }}>
+                        {__('Add your API token to enable the analytics dashboard and access your Matomo data.', 'openmost-site-kit')}
+                    </p>
+
+                    <FormField marginBottom="0">
+                        <TextControl
+                            label={__('Auth Token', 'openmost-site-kit')}
+                            value={settings.tokenAuth}
+                            onChange={(value) => handleChange('tokenAuth', value)}
+                            type="password"
+                            disabled={!hasBasicConfig}
+                            help={__('Find this in Matomo under Administration > Personal > Security > Auth tokens.', 'openmost-site-kit')}
+                            __nextHasNoMarginBottom
+                            __next40pxDefaultSize
+                        />
+                    </FormField>
+
+                    <Flex style={{ marginTop: '24px' }}>
+                        <FlexItem>
+                            <Button
+                                variant="secondary"
+                                onClick={onTestConnection}
+                                isBusy={testing}
+                                disabled={!hasBasicConfig || saving}
+                            >
+                                {testing ? __('Testing...', 'openmost-site-kit') : __('Test Connection', 'openmost-site-kit')}
+                            </Button>
+                        </FlexItem>
+                    </Flex>
+                </CardBody>
+            </Card>
+
+            <div style={{ marginTop: '20px' }}>
+                <Button
+                    variant="primary"
+                    onClick={onSave}
+                    isBusy={saving}
+                    disabled={saving || testing || !hasBasicConfig}
                 >
                     {saving ? __('Saving...', 'openmost-site-kit') : __('Save Settings', 'openmost-site-kit')}
                 </Button>
@@ -385,7 +710,6 @@ const PrivacyTab = ({ settings }) => {
         fontFamily: 'Arial',
     });
 
-    // Build URL for preview with debounce
     useEffect(() => {
         if (!settings?.host) return;
 
@@ -395,7 +719,6 @@ const PrivacyTab = ({ settings }) => {
             url.searchParams.set('action', 'optOutJS');
             url.searchParams.set('language', config.language);
             url.searchParams.set('showIntro', config.showIntro ? '1' : '0');
-            // Only add style params if custom design is enabled
             if (config.customDesign) {
                 url.searchParams.set('backgroundColor', config.backgroundColor);
                 url.searchParams.set('fontColor', config.fontColor);
@@ -412,7 +735,6 @@ const PrivacyTab = ({ settings }) => {
         const parts = ['[matomo_opt_out'];
         if (config.language !== 'auto') parts.push(` language="${config.language}"`);
         if (!config.showIntro) parts.push(' show_intro="0"');
-        // Only add style params if custom design is enabled
         if (config.customDesign) {
             if (config.backgroundColor !== 'FFFFFF') parts.push(` background_color="${config.backgroundColor}"`);
             if (config.fontColor !== '000000') parts.push(` font_color="${config.fontColor}"`);
@@ -438,10 +760,6 @@ const PrivacyTab = ({ settings }) => {
 
     return (
         <>
-            <p className="description" style={{ marginBottom: '20px' }}>
-                {__('Allow your visitors to opt-out of Matomo tracking to respect their privacy preferences.', 'openmost-site-kit')}
-            </p>
-
             {!isConfigured && (
                 <Notice status="warning" isDismissible={false} style={{ marginBottom: '20px' }}>
                     {__('Matomo is not configured. Please configure your Matomo instance in the General tab first.', 'openmost-site-kit')}
@@ -458,26 +776,28 @@ const PrivacyTab = ({ settings }) => {
                             {__('Configure your opt-out form and generate the shortcode to add to your privacy policy page.', 'openmost-site-kit')}
                         </p>
 
-                        <SelectControl
-                            label={__('Language', 'openmost-site-kit')}
-                            value={config.language}
-                            onChange={(value) => setConfig({ ...config, language: value })}
-                            options={[
-                                { label: __('Auto (detect from Matomo)', 'openmost-site-kit'), value: 'auto' },
-                                { label: __('English', 'openmost-site-kit'), value: 'en' },
-                                { label: __('French', 'openmost-site-kit'), value: 'fr' },
-                                { label: __('German', 'openmost-site-kit'), value: 'de' },
-                                { label: __('Spanish', 'openmost-site-kit'), value: 'es' },
-                                { label: __('Italian', 'openmost-site-kit'), value: 'it' },
-                                { label: __('Portuguese', 'openmost-site-kit'), value: 'pt' },
-                                { label: __('Dutch', 'openmost-site-kit'), value: 'nl' },
-                            ]}
-                            help={__('Language for the opt-out form text', 'openmost-site-kit')}
-                            __nextHasNoMarginBottom
-                            __next40pxDefaultSize
-                        />
+                        <FormField>
+                            <SelectControl
+                                label={__('Language', 'openmost-site-kit')}
+                                value={config.language}
+                                onChange={(value) => setConfig({ ...config, language: value })}
+                                options={[
+                                    { label: __('Auto (detect from Matomo)', 'openmost-site-kit'), value: 'auto' },
+                                    { label: __('English', 'openmost-site-kit'), value: 'en' },
+                                    { label: __('French', 'openmost-site-kit'), value: 'fr' },
+                                    { label: __('German', 'openmost-site-kit'), value: 'de' },
+                                    { label: __('Spanish', 'openmost-site-kit'), value: 'es' },
+                                    { label: __('Italian', 'openmost-site-kit'), value: 'it' },
+                                    { label: __('Portuguese', 'openmost-site-kit'), value: 'pt' },
+                                    { label: __('Dutch', 'openmost-site-kit'), value: 'nl' },
+                                ]}
+                                help={__('Language for the opt-out form text', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                                __next40pxDefaultSize
+                            />
+                        </FormField>
 
-                        <div style={{ marginTop: '16px' }}>
+                        <FormField>
                             <ToggleControl
                                 label={__('Show introduction text', 'openmost-site-kit')}
                                 checked={config.showIntro}
@@ -485,9 +805,9 @@ const PrivacyTab = ({ settings }) => {
                                 help={__('Display explanatory text before the opt-out checkbox', 'openmost-site-kit')}
                                 __nextHasNoMarginBottom
                             />
-                        </div>
+                        </FormField>
 
-                        <div style={{ marginTop: '16px' }}>
+                        <FormField>
                             <ToggleControl
                                 label={__('Custom design', 'openmost-site-kit')}
                                 checked={config.customDesign}
@@ -495,7 +815,7 @@ const PrivacyTab = ({ settings }) => {
                                 help={__('Customize colors and fonts of the opt-out form', 'openmost-site-kit')}
                                 __nextHasNoMarginBottom
                             />
-                        </div>
+                        </FormField>
 
                         {config.customDesign && (
                             <div style={{
@@ -511,7 +831,6 @@ const PrivacyTab = ({ settings }) => {
                                         color={config.backgroundColor}
                                         onChange={(value) => setConfig({ ...config, backgroundColor: value })}
                                     />
-
                                     <ColorPickerButton
                                         label={__('Font Color', 'openmost-site-kit')}
                                         color={config.fontColor}
@@ -529,7 +848,6 @@ const PrivacyTab = ({ settings }) => {
                                         __nextHasNoMarginBottom
                                         __next40pxDefaultSize
                                     />
-
                                     <TextControl
                                         label={__('Font Family', 'openmost-site-kit')}
                                         value={config.fontFamily}
@@ -550,6 +868,7 @@ const PrivacyTab = ({ settings }) => {
                                 <strong>{__('Generated Shortcode:', 'openmost-site-kit')}</strong>
                                 <Button
                                     icon={copied ? check : copy}
+                                    iconSize={16}
                                     label={copied ? __('Copied!', 'openmost-site-kit') : __('Copy to clipboard', 'openmost-site-kit')}
                                     onClick={handleCopy}
                                     variant="secondary"
@@ -612,20 +931,9 @@ const PrivacyTab = ({ settings }) => {
 
             <Card style={{ marginTop: '20px' }}>
                 <CardHeader>
-                    <h2>{__('Additional Information', 'openmost-site-kit')}</h2>
+                    <h2>{__('Shortcode Parameters', 'openmost-site-kit')}</h2>
                 </CardHeader>
                 <CardBody>
-                    <h3>{__('Available Shortcodes', 'openmost-site-kit')}</h3>
-                    <ul style={{ marginLeft: '20px' }}>
-                        <li>
-                            <code>[matomo_opt_out]</code> - {__('Standard opt-out form', 'openmost-site-kit')}
-                        </li>
-                        <li>
-                            <code>[omsk_matomo_opt_out]</code> - {__('Legacy shortcode (backward compatible)', 'openmost-site-kit')}
-                        </li>
-                    </ul>
-
-                    <h3 style={{ marginTop: '20px' }}>{__('Shortcode Parameters', 'openmost-site-kit')}</h3>
                     <table className="widefat" style={{ marginTop: '10px' }}>
                         <thead>
                             <tr>
@@ -660,27 +968,8 @@ const PrivacyTab = ({ settings }) => {
                                 <td><code>000000</code></td>
                                 <td><code>font_color="333333"</code></td>
                             </tr>
-                            <tr>
-                                <td><code>font_size</code></td>
-                                <td>{__('Font size', 'openmost-site-kit')}</td>
-                                <td><code>14px</code></td>
-                                <td><code>font_size="16px"</code></td>
-                            </tr>
-                            <tr>
-                                <td><code>font_family</code></td>
-                                <td>{__('Font family', 'openmost-site-kit')}</td>
-                                <td><code>Arial</code></td>
-                                <td><code>font_family="Helvetica"</code></td>
-                            </tr>
                         </tbody>
                     </table>
-
-                    <Notice status="info" isDismissible={false} style={{ marginTop: '20px' }}>
-                        <p>
-                            <strong>{__('GDPR Compliance:', 'openmost-site-kit')}</strong><br />
-                            {__('Adding an opt-out form to your privacy policy page helps you comply with GDPR and other privacy regulations by giving users control over their data.', 'openmost-site-kit')}
-                        </p>
-                    </Notice>
                 </CardBody>
             </Card>
         </>
@@ -703,7 +992,9 @@ const Settings = () => {
         tokenAuth: '',
         enableClassicTracking: false,
         enableMtmTracking: false,
+        enableMtmDataLayer: true,
         excludedRoles: [],
+        consentMode: 'disabled',
     });
 
     useEffect(() => {
@@ -716,7 +1007,7 @@ const Settings = () => {
                 getSettings(),
                 getRoles(),
             ]);
-            setSettings(settingsData);
+            setSettings({ ...settings, ...settingsData });
             setRoles(rolesData);
         } catch (error) {
             setNotice({
@@ -780,17 +1071,32 @@ const Settings = () => {
         );
     }
 
+    const hasBasicConfig = settings.host && settings.idSite;
+
     const tabs = [
         {
             name: 'general',
             title: __('General', 'openmost-site-kit'),
             className: 'omsk-tab-general',
         },
-        {
-            name: 'privacy',
-            title: __('Privacy', 'openmost-site-kit'),
-            className: 'omsk-tab-privacy',
-        },
+        // Only show other tabs if host and site ID are configured
+        ...(hasBasicConfig ? [
+            {
+                name: 'tracking',
+                title: __('Tracking', 'openmost-site-kit'),
+                className: 'omsk-tab-tracking',
+            },
+            {
+                name: 'dashboard',
+                title: __('Dashboard', 'openmost-site-kit'),
+                className: 'omsk-tab-dashboard',
+            },
+            {
+                name: 'privacy',
+                title: __('Privacy', 'openmost-site-kit'),
+                className: 'omsk-tab-privacy',
+            },
+        ] : []),
     ];
 
     return (
@@ -807,7 +1113,25 @@ const Settings = () => {
                         {tab.name === 'general' && (
                             <GeneralTab
                                 settings={settings}
+                                onSettingsChange={setSettings}
+                                onSave={handleSave}
+                                saving={saving}
+                                notice={notice}
+                            />
+                        )}
+                        {tab.name === 'tracking' && (
+                            <TrackingTab
+                                settings={settings}
                                 roles={roles}
+                                onSettingsChange={setSettings}
+                                onSave={handleSave}
+                                saving={saving}
+                                notice={notice}
+                            />
+                        )}
+                        {tab.name === 'dashboard' && (
+                            <DashboardTab
+                                settings={settings}
                                 onSettingsChange={setSettings}
                                 onSave={handleSave}
                                 onTestConnection={handleTestConnection}

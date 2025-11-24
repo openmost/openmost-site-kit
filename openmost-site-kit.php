@@ -55,3 +55,4 @@ require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/post-type-charts/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/privacy/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/settings/index.php';
 require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/tracking/index.php';
+require_once OPENMOSTSITEKIT_PLUGIN_DIR . 'modules/wp-dashboard-widget/index.php';

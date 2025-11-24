@@ -1,12 +1,13 @@
 /**
  * Main entry point for Openmost Site Kit
- * This file registers Settings, Dashboard, and Post Analytics React apps
+ * This file registers Settings, Dashboard, Post Analytics, and WP Dashboard Widget React apps
  */
 
 import { render } from '@wordpress/element';
 import Settings from './pages/Settings';
 import Dashboard from './pages/Dashboard';
 import PostAnalytics from './components/PostAnalytics';
+import WPDashboardWidget from './components/WPDashboardWidget';
 import './scss/app.scss';
 
 // Initialize Settings page
@@ -28,3 +29,9 @@ document.querySelectorAll('[id^="omsk-post-analytics-root-"]').forEach(root => {
         render(<PostAnalytics postId={parseInt(postId)} />, root);
     }
 });
+
+// Initialize WordPress Dashboard Widget
+const wpDashboardWidgetRoot = document.getElementById('omsk-wp-dashboard-widget-root');
+if (wpDashboardWidgetRoot) {
+    render(<WPDashboardWidget />, wpDashboardWidgetRoot);
+}

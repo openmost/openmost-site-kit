@@ -2,8 +2,18 @@
 
 add_action( 'admin_enqueue_scripts', 'omsk_admin_enqueue_scripts' );
 function omsk_admin_enqueue_scripts( $hook ) {
-	// Only load on our plugin pages
-	if ( strpos( $hook, 'openmost-site-kit' ) === false && strpos( $hook, 'omsk-' ) === false ) {
+	// Load on our plugin pages, main dashboard, and post edit screens
+	$load_on_pages = array(
+		'index.php',      // Main WordPress dashboard
+		'post.php',       // Post edit screen
+		'post-new.php',   // New post screen
+	);
+
+	$should_load = in_array( $hook, $load_on_pages, true )
+		|| strpos( $hook, 'openmost-site-kit' ) !== false
+		|| strpos( $hook, 'omsk-' ) !== false;
+
+	if ( ! $should_load ) {
 		return;
 	}
 

@@ -432,27 +432,104 @@
 
 // Post Analytics Metabox
 .omsk-post-analytics {
-  .components-select-control__input {
+  .omsk-post-analytics-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #f0f0f1;
+
+    .omsk-post-analytics-title {
+      font-weight: 600;
+      font-size: 14px;
+      color: #1e1e1e;
+    }
+
+    .components-select-control {
+      margin-bottom: 0;
+      min-width: 140px;
+    }
+  }
+
+  .omsk-post-analytics-metrics {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 16px;
+
+    @media (max-width: 782px) {
+      grid-template-columns: repeat(2, 1fr);
+    }
+  }
+
+  .omsk-metric {
+    text-align: center;
+    padding: 12px 8px;
+    background: #f9f9f9;
+    border-radius: 6px;
+
+    .omsk-metric-value {
+      display: block;
+      font-size: 20px;
+      font-weight: 600;
+      color: #1e1e1e;
+      line-height: 1.2;
+    }
+
+    .omsk-metric-label {
+      display: block;
+      font-size: 11px;
+      color: #646970;
+      margin-top: 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .omsk-trend {
+      display: block;
+      font-size: 11px;
+      margin-top: 4px;
+
+      &.positive {
+        color: #10a37f;
+      }
+
+      &.negative {
+        color: #ef4444;
+      }
+
+      &.neutral {
+        color: #646970;
+      }
+    }
+  }
+
+  .omsk-post-analytics-chart {
+    background: #fff;
+    border: 1px solid #f0f0f1;
+    border-radius: 6px;
+    padding: 12px;
+  }
+
+  .components-notice {
+    margin-top: 0;
     margin-bottom: 0;
   }
+}
 
-  h3, h4 {
-    color: #1e1e1e;
-  }
+.omsk-post-analytics-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 20px;
+  color: #646970;
+}
 
-  // Notice spacing in metabox
-  .components-notice {
-    margin-top: 1rem;
-    margin-bottom: 1rem;
-
-    &:first-child {
-      margin-top: 0;
-    }
-
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
+.omsk-post-analytics-error {
+  text-align: center;
+  padding: 12px;
 }
 
 // Metabox specific styles
@@ -528,6 +605,472 @@
 
     &:last-child {
       margin-bottom: 0;
+    }
+  }
+}
+
+// WordPress Dashboard Widget
+.omsk-wp-widget {
+  .omsk-wp-widget-period {
+    font-size: 11px;
+    color: #646970;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 500;
+  }
+
+  // KPI Grid - 3 columns, responsive
+  .omsk-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+
+    // Stack on narrow widgets
+    @media (max-width: 480px) {
+      grid-template-columns: 1fr;
+    }
+  }
+
+  // KPI Card - Compact design
+  .omsk-kpi-card {
+    padding: 10px 12px;
+    background: #f9f9f9;
+    border-radius: 6px;
+    position: relative;
+    min-width: 0;
+
+    .omsk-kpi-content {
+      .omsk-kpi-value {
+        font-size: 20px;
+        font-weight: 600;
+        line-height: 1.2;
+      }
+
+      .omsk-kpi-title {
+        font-size: 10px;
+        color: #646970;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
+
+    .omsk-kpi-trend {
+      position: absolute;
+      top: 6px;
+      right: 6px;
+      font-size: 9px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 1px;
+      padding: 2px 4px;
+      border-radius: 3px;
+
+      &.positive {
+        color: #10a37f;
+        background: rgba(16, 163, 127, 0.1);
+      }
+
+      &.negative {
+        color: #ef4444;
+        background: rgba(239, 68, 68, 0.1);
+      }
+
+      .trend-icon {
+        font-size: 8px;
+      }
+    }
+  }
+
+  // Stats Row (Bounce Rate, Avg Time)
+  .omsk-stats-row {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 16px;
+    padding: 10px 12px;
+    background: #f6f7f7;
+    border-radius: 6px;
+    margin-bottom: 12px;
+    flex-wrap: wrap;
+
+    .omsk-stat-item {
+      text-align: center;
+      flex: 1;
+      min-width: 60px;
+
+      .omsk-stat-label {
+        display: block;
+        font-size: 9px;
+        color: #646970;
+        text-transform: uppercase;
+        letter-spacing: 0.3px;
+        margin-bottom: 2px;
+      }
+
+      .omsk-stat-value {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #1e1e1e;
+      }
+    }
+
+    .omsk-stat-divider {
+      width: 1px;
+      height: 24px;
+      background: #dcdcde;
+      flex-shrink: 0;
+    }
+  }
+
+  .omsk-wp-widget-footer {
+    text-align: right;
+    padding-top: 10px;
+    border-top: 1px solid #f0f0f1;
+
+    .components-button {
+      font-size: 12px;
+    }
+  }
+}
+
+.omsk-wp-widget-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 40px 20px;
+  color: #646970;
+}
+
+.omsk-wp-widget-error {
+  text-align: center;
+  padding: 24px 16px;
+  color: #646970;
+
+  p {
+    margin-bottom: 12px;
+  }
+}
+
+// Tracking Method Selector
+.omsk-tracking-selector {
+  display: flex;
+  flex-direction: row;
+  gap: 12px;
+
+  @media (max-width: 900px) {
+    flex-direction: column;
+  }
+}
+
+.omsk-tracking-option {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 12px;
+  padding: 20px 16px;
+  background: #fff;
+  border: 2px solid #dcdcde;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex: 1;
+  min-width: 0;
+
+  &:hover {
+    border-color: #b4b9be;
+    background: #f9f9f9;
+  }
+
+  &.selected {
+    border-color: #3858e9;
+    background: rgba(56, 88, 233, 0.04);
+  }
+
+  .omsk-tracking-option-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f0f0f1;
+    border-radius: 8px;
+    color: #646970;
+    flex-shrink: 0;
+
+    .selected & {
+      background: rgba(56, 88, 233, 0.1);
+      color: #3858e9;
+    }
+  }
+
+  .omsk-tracking-option-content {
+    flex: 1;
+
+    .omsk-tracking-option-header {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 4px;
+      flex-wrap: wrap;
+    }
+
+    .omsk-tracking-option-title {
+      font-weight: 600;
+      font-size: 15px;
+      color: #1e1e1e;
+    }
+
+    .omsk-tracking-option-badge {
+      font-size: 10px;
+      padding: 2px 8px;
+      background: #10a37f;
+      color: #fff;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+      font-weight: 500;
+    }
+
+    .omsk-tracking-option-description {
+      font-size: 12px;
+      color: #646970;
+    }
+  }
+
+  .omsk-tracking-option-radio {
+    flex-shrink: 0;
+
+    .omsk-radio {
+      width: 20px;
+      height: 20px;
+      border: 2px solid #dcdcde;
+      border-radius: 50%;
+      position: relative;
+      transition: all 0.2s ease;
+
+      &.checked {
+        border-color: #3858e9;
+
+        &::after {
+          content: '';
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: 10px;
+          height: 10px;
+          background: #3858e9;
+          border-radius: 50%;
+        }
+      }
+    }
+  }
+}
+
+// Setup Wizard
+.omsk-wizard-wrap {
+  background: #f0f0f1;
+  margin: -20px 0 0 -20px;
+  padding: 20px;
+  min-height: calc(100vh - 32px);
+}
+
+.omsk-wizard {
+  max-width: 640px;
+  margin: 40px auto;
+
+  .omsk-wizard-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+  }
+
+  .omsk-wizard-logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 18px;
+    font-weight: 600;
+    color: #1e1e1e;
+
+    svg {
+      display: block;
+    }
+  }
+
+  .omsk-wizard-progress {
+    display: flex;
+    gap: 8px;
+  }
+
+  .omsk-wizard-progress-step {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #dcdcde;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 14px;
+    font-weight: 500;
+    color: #646970;
+    transition: all 0.2s ease;
+
+    &.active {
+      background: #3858e9;
+      border-color: #3858e9;
+      color: #fff;
+    }
+
+    &.current {
+      border-color: #3858e9;
+      box-shadow: 0 0 0 3px rgba(56, 88, 233, 0.2);
+    }
+  }
+
+  .omsk-wizard-card {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+    .components-card__body {
+      padding: 32px;
+    }
+
+    h2 {
+      margin: 0 0 8px;
+      font-size: 24px;
+      font-weight: 600;
+      color: #1e1e1e;
+    }
+
+    .omsk-wizard-description {
+      color: #646970;
+      font-size: 14px;
+      margin-bottom: 24px;
+    }
+
+    .components-text-control__input {
+      margin-bottom: 16px;
+    }
+  }
+
+  .omsk-wizard-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .omsk-wizard-option {
+    padding: 16px;
+    border: 2px solid #dcdcde;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+
+    &:hover {
+      border-color: #b4b9be;
+    }
+
+    &.selected {
+      border-color: #3858e9;
+      background: rgba(56, 88, 233, 0.05);
+    }
+
+    .omsk-wizard-option-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 4px;
+    }
+
+    .omsk-wizard-option-title {
+      font-weight: 600;
+      color: #1e1e1e;
+    }
+
+    .omsk-wizard-option-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      background: #10a37f;
+      color: #fff;
+      border-radius: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .omsk-wizard-option-description {
+      font-size: 13px;
+      color: #646970;
+      margin: 0;
+    }
+  }
+
+  .omsk-wizard-complete {
+    text-align: center;
+    padding: 20px 0;
+
+    .omsk-wizard-complete-icon {
+      margin-bottom: 16px;
+    }
+
+    h2 {
+      margin-bottom: 8px;
+    }
+  }
+
+  .omsk-wizard-summary {
+    margin-top: 24px;
+    padding: 16px;
+    background: #f9f9f9;
+    border-radius: 8px;
+    text-align: left;
+
+    .omsk-wizard-summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e0e0e0;
+
+      &:last-child {
+        border-bottom: none;
+      }
+
+      .label {
+        color: #646970;
+      }
+
+      .value {
+        font-weight: 500;
+        color: #1e1e1e;
+      }
+    }
+  }
+
+  .omsk-wizard-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 24px;
+    padding-top: 24px;
+
+    .omsk-wizard-actions-left,
+    .omsk-wizard-actions-right {
+      display: flex;
+      gap: 12px;
+      align-items: center;
     }
   }
 }

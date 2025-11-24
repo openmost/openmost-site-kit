@@ -162,7 +162,16 @@ function omsk_rest_get_settings() {
         'tokenAuth'              => isset($options['omsk-matomo-token-auth-field']) ? $options['omsk-matomo-token-auth-field'] : '',
         'enableClassicTracking'  => isset($options['omsk-matomo-enable-classic-tracking-code-field']) ? (bool) $options['omsk-matomo-enable-classic-tracking-code-field'] : false,
         'enableMtmTracking'      => isset($options['omsk-matomo-enable-mtm-tracking-code-field']) ? (bool) $options['omsk-matomo-enable-mtm-tracking-code-field'] : false,
+        'enableMtmDataLayer'     => isset($options['omsk-matomo-enable-mtm-datalayer-field']) ? (bool) $options['omsk-matomo-enable-mtm-datalayer-field'] : true,
         'excludedRoles'          => isset($options['omsk-matomo-excluded-roles-field']) ? (array) $options['omsk-matomo-excluded-roles-field'] : array(),
+        'consentMode'            => isset($options['omsk-matomo-consent-mode-field']) ? $options['omsk-matomo-consent-mode-field'] : 'disabled',
+        'enableFormTracking'     => isset($options['omsk-matomo-enable-form-tracking-field']) ? (bool) $options['omsk-matomo-enable-form-tracking-field'] : false,
+        'trackFormInteractions'  => isset($options['omsk-matomo-track-form-interactions-field']) ? (bool) $options['omsk-matomo-track-form-interactions-field'] : false,
+        'formNameAttribute'      => isset($options['omsk-matomo-form-name-attribute-field']) ? $options['omsk-matomo-form-name-attribute-field'] : 'data-matomo-name',
+        'enableEcommerceTracking' => isset($options['omsk-matomo-enable-ecommerce-tracking-field']) ? (bool) $options['omsk-matomo-enable-ecommerce-tracking-field'] : false,
+        'enableUserIdTracking'   => isset($options['omsk-matomo-enable-userid-tracking-field']) ? (bool) $options['omsk-matomo-enable-userid-tracking-field'] : false,
+        'enableHeartBeatTimer'   => isset($options['omsk-matomo-enable-heartbeat-timer-field']) ? (bool) $options['omsk-matomo-enable-heartbeat-timer-field'] : false,
+        'heartBeatTimerDelay'    => isset($options['omsk-matomo-heartbeat-timer-delay-field']) ? absint($options['omsk-matomo-heartbeat-timer-delay-field']) : 15,
         'plan'                   => omsk_get_matomo_plan(),
     ));
 }
@@ -184,6 +193,21 @@ function omsk_rest_update_settings($request) {
         }
     }
 
+    // Sanitize consent mode
+    $consent_mode = $request->get_param('consentMode');
+    $valid_consent_modes = array('disabled', 'require_consent', 'require_cookie_consent');
+    if (!in_array($consent_mode, $valid_consent_modes, true)) {
+        $consent_mode = 'disabled';
+    }
+
+    // Sanitize form name attribute
+    $form_name_attribute = $request->get_param('formNameAttribute');
+    if (empty($form_name_attribute)) {
+        $form_name_attribute = 'data-matomo-name';
+    } else {
+        $form_name_attribute = sanitize_text_field($form_name_attribute);
+    }
+
     $options = array(
         'omsk-matomo-host-field'                        => $request->get_param('host'),
         'omsk-matomo-idsite-field'                      => $request->get_param('idSite'),
@@ -191,7 +215,16 @@ function omsk_rest_update_settings($request) {
         'omsk-matomo-token-auth-field'                  => $request->get_param('tokenAuth'),
         'omsk-matomo-enable-classic-tracking-code-field' => $request->get_param('enableClassicTracking') ? 1 : 0,
         'omsk-matomo-enable-mtm-tracking-code-field'     => $request->get_param('enableMtmTracking') ? 1 : 0,
+        'omsk-matomo-enable-mtm-datalayer-field'         => $request->get_param('enableMtmDataLayer') !== false ? 1 : 0,
         'omsk-matomo-excluded-roles-field'              => $sanitized_excluded_roles,
+        'omsk-matomo-consent-mode-field'                => $consent_mode,
+        'omsk-matomo-enable-form-tracking-field'         => $request->get_param('enableFormTracking') ? 1 : 0,
+        'omsk-matomo-track-form-interactions-field'      => $request->get_param('trackFormInteractions') ? 1 : 0,
+        'omsk-matomo-form-name-attribute-field'          => $form_name_attribute,
+        'omsk-matomo-enable-ecommerce-tracking-field'    => $request->get_param('enableEcommerceTracking') ? 1 : 0,
+        'omsk-matomo-enable-userid-tracking-field'       => $request->get_param('enableUserIdTracking') ? 1 : 0,
+        'omsk-matomo-enable-heartbeat-timer-field'       => $request->get_param('enableHeartBeatTimer') ? 1 : 0,
+        'omsk-matomo-heartbeat-timer-delay-field'        => absint($request->get_param('heartBeatTimerDelay')) ?: 15,
     );
 
     update_option('omsk-settings', $options);
