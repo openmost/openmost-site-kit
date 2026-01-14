@@ -2,8 +2,8 @@
 
 Contributors: Openmost
 Requires at least: 6.0
-Tested up to: 6.8
-Stable tag: 2.1.0
+Tested up to: 6.9
+Stable tag: 2.1.1
 Tags: matomo, analytics, tracking, statistics, privacy
 Requires PHP: 8.2
 License: GPL-2.0-or-later
@@ -43,15 +43,6 @@ The token auth (API key) is required to display data in the dashboard menu.
 
 Yes, Matomo Site Kit is an all-in-one Matomo plugin that provides all you need to collect data on WordPress.
 
-= Can I add custom data to Data Layer? =
-
-Yes you can, the data layer provided by this plugin is generic, you can add your own data.
-
-= How to visualize data layer content? =
-
-To visualize data layer content, you may open the developer console in your web browser and type `_mtm`.
-This will allow you to view and navigate in the data layer.
-
 == Screenshots ==
 
 1. Dashboard
@@ -61,6 +52,11 @@ This will allow you to view and navigate in the data layer.
 5. Settings - Privacy
 
 == Changelog ==
+
+= 2.1.1 =
+Release date: 2025-11-24
+
+* Tested on WP 6.9
 
 = 2.1.0 =
 Release date: 2025-11-24
