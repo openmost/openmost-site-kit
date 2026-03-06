@@ -23,7 +23,7 @@ import {
     __experimentalDivider as Divider,
 } from '@wordpress/components';
 import { copy, check } from '@wordpress/icons';
-import { getSettings, updateSettings, testConnection, getRoles } from '../../utils/api';
+import { getSettings, updateSettings, testConnection, getRoles, getPostTypes } from '../../utils/api';
 
 /**
  * Color Picker Button Component
@@ -77,14 +77,15 @@ const OptOutPreview = ({ url }) => {
     const containerRef = useRef(null);
     const scriptRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
-    // Use a counter to generate unique IDs for each URL change
-    const [refreshKey, setRefreshKey] = useState(0);
+    // Generate a stable ID that changes when URL changes
+    const [containerId, setContainerId] = useState(() => `matomo-opt-out-settings-preview-${Date.now()}`);
 
     useEffect(() => {
         if (!url || !containerRef.current) return;
 
-        // Generate unique ID for this render to force Matomo to re-render
-        const containerId = `matomo-opt-out-preview-${Date.now()}`;
+        // Generate new unique ID for this URL change
+        const newContainerId = `matomo-opt-out-settings-preview-${Date.now()}`;
+        setContainerId(newContainerId);
         setIsLoading(true);
 
         // Remove previous script if exists
@@ -98,22 +99,25 @@ const OptOutPreview = ({ url }) => {
             containerRef.current.removeChild(containerRef.current.firstChild);
         }
 
-        // Set the ID on the container
-        containerRef.current.id = containerId;
+        // Set the ID on the container BEFORE loading the script
+        containerRef.current.id = newContainerId;
 
         // Parse URL and update the divId parameter
         const scriptUrl = new URL(url);
-        scriptUrl.searchParams.set('divId', containerId);
+        scriptUrl.searchParams.set('divId', newContainerId);
 
-        // Create and load script
-        const script = document.createElement('script');
-        script.src = scriptUrl.toString();
-        script.async = true;
-        script.onload = () => setIsLoading(false);
-        script.onerror = () => setIsLoading(false);
-        scriptRef.current = script;
+        // Small delay to ensure DOM is updated before script runs
+        setTimeout(() => {
+            // Create and load script
+            const script = document.createElement('script');
+            script.src = scriptUrl.toString();
+            script.async = true;
+            script.onload = () => setIsLoading(false);
+            script.onerror = () => setIsLoading(false);
+            scriptRef.current = script;
 
-        document.body.appendChild(script);
+            document.body.appendChild(script);
+        }, 50);
 
         // Cleanup on unmount or before next effect
         return () => {
@@ -151,7 +155,7 @@ const OptOutPreview = ({ url }) => {
                 </div>
             )}
             {/* This div is controlled entirely by Matomo - NO React children */}
-            <div ref={containerRef} />
+            <div ref={containerRef} id={containerId} />
         </div>
     );
 };
@@ -164,121 +168,6 @@ const FormField = ({ children, marginBottom = '24px' }) => (
         {children}
     </div>
 );
-
-/**
- * General Tab Content - Matomo Configuration
- */
-const GeneralTab = ({ settings, onSettingsChange, onSave, saving, notice }) => {
-    const handleChange = (field, value) => {
-        onSettingsChange({ ...settings, [field]: value });
-    };
-
-    const noTrackingEnabled = !settings.enableClassicTracking && !settings.enableMtmTracking;
-    const hasBasicConfig = settings.host && settings.idSite;
-
-    return (
-        <>
-            {notice && (
-                <Notice
-                    status={notice.type}
-                    onRemove={() => {}}
-                    isDismissible={false}
-                    style={{ marginBottom: '20px' }}
-                >
-                    {notice.message}
-                </Notice>
-            )}
-
-            {noTrackingEnabled && hasBasicConfig && (
-                <Notice
-                    status="error"
-                    isDismissible={false}
-                    style={{ marginBottom: '20px' }}
-                >
-                    {__('No tracking method is enabled. Go to the Tracking tab to enable Classic or Tag Manager tracking, otherwise no analytics data will be collected.', 'openmost-site-kit')}
-                </Notice>
-            )}
-
-            <Card>
-                <CardHeader>
-                    <h2>{__('Matomo Configuration', 'openmost-site-kit')}</h2>
-                </CardHeader>
-                <CardBody>
-                    <p className="description" style={{ marginBottom: '20px' }}>
-                        {__('Configure your Matomo instance connection settings.', 'openmost-site-kit')}
-                    </p>
-
-                    <FormField>
-                        <TextControl
-                            label={
-                                <>
-                                    {__('Host URL', 'openmost-site-kit')}
-                                    <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
-                                </>
-                            }
-                            value={settings.host}
-                            onChange={(value) => handleChange('host', value)}
-                            type="url"
-                            placeholder="https://example.matomo.cloud"
-                            help={__('Your Matomo instance URL (e.g., https://matomo.example.com or https://example.matomo.cloud)', 'openmost-site-kit')}
-                            __nextHasNoMarginBottom
-                            __next40pxDefaultSize
-                        />
-                    </FormField>
-
-                    <FormField>
-                        <TextControl
-                            label={
-                                <>
-                                    {__('Site ID', 'openmost-site-kit')}
-                                    <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
-                                </>
-                            }
-                            value={settings.idSite}
-                            onChange={(value) => handleChange('idSite', value)}
-                            type="number"
-                            min="1"
-                            placeholder="1"
-                            help={__('Your site ID in Matomo. Find this in Matomo under Administration > Websites > Manage.', 'openmost-site-kit')}
-                            __nextHasNoMarginBottom
-                            __next40pxDefaultSize
-                        />
-                    </FormField>
-
-                    <FormField marginBottom="0">
-                        <TextControl
-                            label={
-                                <>
-                                    {__('Container ID', 'openmost-site-kit')}
-                                    <span style={{ color: '#dba617', marginLeft: '4px', fontSize: '12px', fontWeight: 'normal' }}>
-                                        ({__('recommended', 'openmost-site-kit')})
-                                    </span>
-                                </>
-                            }
-                            value={settings.idContainer}
-                            onChange={(value) => handleChange('idContainer', value)}
-                            placeholder="abc123xy"
-                            help={__('Tag Manager container ID. Required if using Tag Manager tracking method.', 'openmost-site-kit')}
-                            __nextHasNoMarginBottom
-                            __next40pxDefaultSize
-                        />
-                    </FormField>
-                </CardBody>
-            </Card>
-
-            <div style={{ marginTop: '20px' }}>
-                <Button
-                    variant="primary"
-                    onClick={onSave}
-                    isBusy={saving}
-                    disabled={saving || !settings.host || !settings.idSite}
-                >
-                    {saving ? __('Saving...', 'openmost-site-kit') : __('Save Settings', 'openmost-site-kit')}
-                </Button>
-            </div>
-        </>
-    );
-};
 
 /**
  * Tracking Method Selector Component
@@ -308,11 +197,21 @@ const TrackingMethodSelector = ({ value, onChange }) => {
         {
             id: 'mtm',
             title: __('Tag Manager', 'openmost-site-kit'),
-            description: __('Matomo Tag Manager (MTM)', 'openmost-site-kit'),
+            description: __('Matomo Tag Manager', 'openmost-site-kit'),
             badge: __('Recommended', 'openmost-site-kit'),
             icon: (
                 <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
                     <path d="M17.63 5.84C17.27 5.33 16.67 5 16 5L5 5.01C3.9 5.01 3 5.9 3 7v10c0 1.1.9 1.99 2 1.99L16 19c.67 0 1.27-.33 1.63-.84L22 12l-4.37-6.16zM16 17H5V7h11l3.55 5L16 17z"/>
+                </svg>
+            ),
+        },
+        {
+            id: 'server',
+            title: __('Server-Side', 'openmost-site-kit'),
+            description: __('PHP tracking (ad-blocker resistant)', 'openmost-site-kit'),
+            icon: (
+                <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor">
+                    <path d="M2 5c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V5zm2 0v4h16V5H4zm-2 8c0-1.1.9-2 2-2h16c1.1 0 2 .9 2 2v4c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2v-4zm2 0v4h16v-4H4zm13 1.5a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3zM17 6a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3z"/>
                 </svg>
             ),
         },
@@ -367,6 +266,7 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
 
     // Determine current tracking method
     const getTrackingMethod = () => {
+        if (settings.enableServerTracking) return 'server';
         if (settings.enableMtmTracking) return 'mtm';
         if (settings.enableClassicTracking) return 'classic';
         return 'none';
@@ -377,6 +277,7 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
             ...settings,
             enableClassicTracking: method === 'classic',
             enableMtmTracking: method === 'mtm',
+            enableServerTracking: method === 'server',
         });
     };
 
@@ -416,14 +317,64 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
             {trackingMethod === 'classic' && (
                 <Card style={{ marginTop: '20px' }}>
                     <CardHeader>
-                        <h2>{__('Classic Tracking Options', 'openmost-site-kit')}</h2>
+                        <h2>{__('Classic Tracking Configuration', 'openmost-site-kit')}</h2>
                     </CardHeader>
                     <CardBody>
-                        <h3>{__('Consent Mode (GDPR)', 'openmost-site-kit')}</h3>
-                        <p className="description" style={{ marginBottom: '15px' }}>
-                            {__('Configure how the tracking code handles user consent for GDPR compliance.', 'openmost-site-kit')}
+                        <p className="description" style={{ marginBottom: '20px' }}>
+                            {__('Configure the required settings for Classic Matomo tracking.', 'openmost-site-kit')}
                         </p>
 
+                        <FormField>
+                            <TextControl
+                                label={
+                                    <>
+                                        {__('Matomo Host', 'openmost-site-kit')}
+                                        <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                    </>
+                                }
+                                value={settings.host || ''}
+                                onChange={(value) => handleChange('host', value)}
+                                placeholder="https://example.matomo.cloud"
+                                help={__('Your Matomo instance URL', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                                __next40pxDefaultSize
+                            />
+                        </FormField>
+
+                        <FormField>
+                            <TextControl
+                                label={
+                                    <>
+                                        {__('Site ID', 'openmost-site-kit')}
+                                        <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                    </>
+                                }
+                                type="number"
+                                value={settings.idSite || ''}
+                                onChange={(value) => handleChange('idSite', value)}
+                                placeholder="1"
+                                help={__('Your site ID in Matomo', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                                __next40pxDefaultSize
+                            />
+                        </FormField>
+
+                        {(!settings.host || !settings.idSite) && (
+                            <Notice status="warning" isDismissible={false}>
+                                {__('Both Matomo Host and Site ID are required for Classic tracking to work.', 'openmost-site-kit')}
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* Classic tracking - Consent Mode (GDPR) */}
+            {trackingMethod === 'classic' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('Consent Mode', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
                         <FormField>
                             <SelectControl
                                 label={__('Consent Mode', 'openmost-site-kit')}
@@ -434,7 +385,7 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                                     { label: __('Require Consent - Wait for consent before tracking', 'openmost-site-kit'), value: 'require_consent' },
                                     { label: __('Require Cookie Consent - Wait for cookie consent', 'openmost-site-kit'), value: 'require_cookie_consent' },
                                 ]}
-                                help={__('Select how to handle user consent before tracking', 'openmost-site-kit')}
+                                help={__('Configure how the tracking code handles user consent for privacy compliance.', 'openmost-site-kit')}
                                 __nextHasNoMarginBottom
                                 __next40pxDefaultSize
                             />
@@ -451,26 +402,29 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                                 </code>
                             </Notice>
                         )}
+                    </CardBody>
+                </Card>
+            )}
 
-                        <Divider style={{ marginTop: '20px', marginBottom: '20px' }} />
-
-                        <h3>{__('Accurate Time Measurement', 'openmost-site-kit')}</h3>
-                        <p className="description" style={{ marginBottom: '15px' }}>
-                            {__('Enable heartbeat timer to accurately measure time spent on page.', 'openmost-site-kit')}
-                        </p>
-
+            {/* Classic tracking - Heartbeat Timer */}
+            {trackingMethod === 'classic' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('Heartbeat Timer', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
                         <FormField>
                             <ToggleControl
                                 label={__('Enable Heartbeat Timer', 'openmost-site-kit')}
                                 checked={settings.enableHeartBeatTimer || false}
                                 onChange={(value) => handleChange('enableHeartBeatTimer', value)}
-                                help={__('Sends periodic pings to Matomo to track actual time on page.', 'openmost-site-kit')}
+                                help={__('Sends periodic pings to Matomo to accurately measure time spent on page.', 'openmost-site-kit')}
                                 __nextHasNoMarginBottom
                             />
                         </FormField>
 
                         {settings.enableHeartBeatTimer && (
-                            <FormField>
+                            <FormField style={{ marginTop: '15px' }}>
                                 <TextControl
                                     label={__('Heartbeat Delay (seconds)', 'openmost-site-kit')}
                                     type="number"
@@ -488,37 +442,110 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                 </Card>
             )}
 
+            {/* Classic tracking - Site Search */}
+            {trackingMethod === 'classic' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('Site Search', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <FormField>
+                            <ToggleControl
+                                label={__('Enable Site Search Tracking', 'openmost-site-kit')}
+                                checked={settings.enableJsSearchTracking || false}
+                                onChange={(value) => handleChange('enableJsSearchTracking', value)}
+                                help={__('Track internal site searches performed by visitors.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableJsSearchTracking && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                {__('WordPress searches will be automatically tracked with search keyword, category, and result count.', 'openmost-site-kit')}
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* Classic tracking - WooCommerce Ecommerce */}
+            {trackingMethod === 'classic' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('WooCommerce Ecommerce', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <FormField>
+                            <ToggleControl
+                                label={__('Enable Ecommerce Tracking', 'openmost-site-kit')}
+                                checked={settings.enableJsEcommerce || false}
+                                onChange={(value) => handleChange('enableJsEcommerce', value)}
+                                help={__('Track product views, cart actions, and purchases via _paq commands.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableJsEcommerce && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                {__('Ecommerce events will be tracked using the Matomo JavaScript tracker. Requires WooCommerce to be active.', 'openmost-site-kit')}
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
             {/* Tag Manager options */}
             {trackingMethod === 'mtm' && (
                 <Card style={{ marginTop: '20px' }}>
                     <CardHeader>
-                        <h2>{__('Tag Manager Options', 'openmost-site-kit')}</h2>
+                        <h2>{__('Tag Manager Configuration', 'openmost-site-kit')}</h2>
                     </CardHeader>
                     <CardBody>
-                        {/* Container ID missing warning with inline form */}
-                        {!settings.idContainer && (
+                        <p className="description" style={{ marginBottom: '20px' }}>
+                            {__('Configure the required settings for Matomo Tag Manager.', 'openmost-site-kit')}
+                        </p>
+
+                        <FormField>
+                            <TextControl
+                                label={
+                                    <>
+                                        {__('Matomo Host', 'openmost-site-kit')}
+                                        <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                    </>
+                                }
+                                value={settings.host || ''}
+                                onChange={(value) => handleChange('host', value)}
+                                placeholder="https://example.matomo.cloud"
+                                help={__('Your Matomo instance URL', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                                __next40pxDefaultSize
+                            />
+                        </FormField>
+
+                        <FormField>
+                            <TextControl
+                                label={
+                                    <>
+                                        {__('Container ID', 'openmost-site-kit')}
+                                        <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                    </>
+                                }
+                                value={settings.idContainer || ''}
+                                onChange={(value) => handleChange('idContainer', value)}
+                                placeholder="abc123xy"
+                                help={__('Your Tag Manager container ID', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                                __next40pxDefaultSize
+                            />
+                        </FormField>
+
+                        {(!settings.host || !settings.idContainer) && (
                             <Notice status="warning" isDismissible={false} style={{ marginBottom: '20px' }}>
-                                <p style={{ marginBottom: '12px' }}>
-                                    <strong>{__('Container ID Required', 'openmost-site-kit')}</strong><br />
-                                    {__('Tag Manager tracking requires a Container ID to function. Please enter your Container ID below or configure it in the General tab.', 'openmost-site-kit')}
-                                </p>
-                                <div style={{ display: 'flex', gap: '10px', alignItems: 'flex-end' }}>
-                                    <TextControl
-                                        label={__('Container ID', 'openmost-site-kit')}
-                                        value={settings.idContainer || ''}
-                                        onChange={(value) => handleChange('idContainer', value)}
-                                        placeholder="abc123xy"
-                                        style={{ marginBottom: 0 }}
-                                        __nextHasNoMarginBottom
-                                        __next40pxDefaultSize
-                                    />
-                                </div>
+                                {__('Both Matomo Host and Container ID are required for Tag Manager to work.', 'openmost-site-kit')}
                             </Notice>
                         )}
 
-                        <p className="description" style={{ marginBottom: '15px' }}>
-                            {__('GDPR consent options are managed directly in the Matomo Tag Manager UI.', 'openmost-site-kit')}
-                        </p>
+                        <Divider style={{ marginTop: '20px', marginBottom: '20px' }} />
 
                         <FormField>
                             <ToggleControl
@@ -530,21 +557,210 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                             />
                         </FormField>
 
-                        <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
-                            <p><strong>{__('Available dataLayer variables:', 'openmost-site-kit')}</strong></p>
-                            <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
-                                <li><code>matomo.host</code> - {__('Your Matomo instance URL', 'openmost-site-kit')}</li>
-                                <li><code>matomo.site_id</code> - {__('Your site ID', 'openmost-site-kit')}</li>
-                                <li><code>matomo.container_id</code> - {__('Your container ID', 'openmost-site-kit')}</li>
-                                <li><code>wordpress.environment</code> - {__('WordPress environment', 'openmost-site-kit')}</li>
-                                <li><code>wordpress.user_id</code> - {__('SHA256 hashed user email (if enabled)', 'openmost-site-kit')}</li>
-                            </ul>
-                        </Notice>
+                        {settings.enableMtmDataLayer !== false && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                <p><strong>{__('Available dataLayer variables:', 'openmost-site-kit')}</strong></p>
+                                <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+                                    <li><code>matomo.host</code> - {__('Your Matomo instance URL', 'openmost-site-kit')}</li>
+                                    <li><code>matomo.site_id</code> - {__('Your site ID', 'openmost-site-kit')}</li>
+                                    <li><code>matomo.container_id</code> - {__('Your container ID', 'openmost-site-kit')}</li>
+                                    <li><code>wordpress.environment</code> - {__('WordPress environment', 'openmost-site-kit')}</li>
+                                    <li><code>wordpress.user_id</code> - {__('SHA256 hashed user email (if enabled)', 'openmost-site-kit')}</li>
+                                </ul>
+                            </Notice>
+                        )}
+
+                        <p className="description" style={{ marginTop: '20px' }}>
+                            {__('Privacy consent options are managed directly in the Matomo Tag Manager UI.', 'openmost-site-kit')}
+                        </p>
                     </CardBody>
                 </Card>
             )}
 
-            {/* User ID Tracking - available for both methods */}
+            {/* Tag Manager - Site Search */}
+            {trackingMethod === 'mtm' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('Site Search', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <FormField>
+                            <ToggleControl
+                                label={__('Enable Site Search Tracking', 'openmost-site-kit')}
+                                checked={settings.enableDataLayerSearchTracking || false}
+                                onChange={(value) => handleChange('enableDataLayerSearchTracking', value)}
+                                help={__('Push site search events to the _mtm dataLayer.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableDataLayerSearchTracking && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                <p>{__('Search events will be pushed to _mtm with:', 'openmost-site-kit')}</p>
+                                <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+                                    <li><code>event: "search"</code></li>
+                                    <li><code>search_keyword</code> - {__('Search keyword', 'openmost-site-kit')}</li>
+                                    <li><code>search_category</code> - {__('Search category (if applicable)', 'openmost-site-kit')}</li>
+                                    <li><code>search_count</code> - {__('Number of results', 'openmost-site-kit')}</li>
+                                </ul>
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* Tag Manager - WooCommerce Ecommerce */}
+            {trackingMethod === 'mtm' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('WooCommerce Ecommerce', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <FormField>
+                            <ToggleControl
+                                label={__('Enable Ecommerce Tracking', 'openmost-site-kit')}
+                                checked={settings.enableDataLayerEcommerce || false}
+                                onChange={(value) => handleChange('enableDataLayerEcommerce', value)}
+                                help={__('Push product views, cart actions, and purchases to _mtm dataLayer (GA4 format).', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableDataLayerEcommerce && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                {__('Ecommerce events will be pushed to the _mtm dataLayer in GA4 format. Requires WooCommerce to be active.', 'openmost-site-kit')}
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* Server-Side PHP options */}
+            {trackingMethod === 'server' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('Server-Side Tracking Configuration', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <p className="description" style={{ marginBottom: '20px' }}>
+                            {__('Configure the required settings for Server-Side PHP tracking.', 'openmost-site-kit')}
+                        </p>
+
+                        <FormField>
+                            <TextControl
+                                label={
+                                    <>
+                                        {__('Matomo Host', 'openmost-site-kit')}
+                                        <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                    </>
+                                }
+                                value={settings.host || ''}
+                                onChange={(value) => handleChange('host', value)}
+                                placeholder="https://example.matomo.cloud"
+                                help={__('Your Matomo instance URL', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                                __next40pxDefaultSize
+                            />
+                        </FormField>
+
+                        <FormField>
+                            <TextControl
+                                label={
+                                    <>
+                                        {__('Site ID', 'openmost-site-kit')}
+                                        <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                    </>
+                                }
+                                type="number"
+                                value={settings.idSite || ''}
+                                onChange={(value) => handleChange('idSite', value)}
+                                placeholder="1"
+                                help={__('Your site ID in Matomo', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                                __next40pxDefaultSize
+                            />
+                        </FormField>
+
+                        <FormField>
+                            <TextControl
+                                label={
+                                    <>
+                                        {__('Auth Token', 'openmost-site-kit')}
+                                        <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                    </>
+                                }
+                                type="password"
+                                value={settings.tokenAuth || ''}
+                                onChange={(value) => handleChange('tokenAuth', value)}
+                                placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                help={__('Required for IP geolocation and visitor recognition.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                                __next40pxDefaultSize
+                            />
+                        </FormField>
+
+                        {(!settings.host || !settings.idSite || !settings.tokenAuth) && (
+                            <Notice status="warning" isDismissible={false}>
+                                {__('Matomo Host, Site ID, and Auth Token are all required for Server-Side tracking to work correctly.', 'openmost-site-kit')}
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* Server-Side - Site Search */}
+            {trackingMethod === 'server' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('Site Search', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <FormField>
+                            <ToggleControl
+                                label={__('Enable Site Search Tracking', 'openmost-site-kit')}
+                                checked={settings.enableServerSearchTracking || false}
+                                onChange={(value) => handleChange('enableServerSearchTracking', value)}
+                                help={__('Track internal site searches server-side. Ad-blocker resistant.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableServerSearchTracking && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                {__('WordPress searches will be tracked server-side with search keyword, category, and result count using the Matomo PHP tracker.', 'openmost-site-kit')}
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* Server-Side - WooCommerce Ecommerce */}
+            {trackingMethod === 'server' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('WooCommerce Ecommerce', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <FormField>
+                            <ToggleControl
+                                label={__('Enable Ecommerce Tracking', 'openmost-site-kit')}
+                                checked={settings.enableServerEcommerce || false}
+                                onChange={(value) => handleChange('enableServerEcommerce', value)}
+                                help={__('Track product views, cart actions, and purchases via PHP. Ad-blocker resistant.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableServerEcommerce && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                {__('Ecommerce events will be tracked server-side using the Matomo PHP tracker. Cannot be blocked by ad blockers. Requires WooCommerce to be active.', 'openmost-site-kit')}
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
+            {/* User ID Tracking - available for all methods */}
             {trackingMethod !== 'none' && (
                 <Card style={{ marginTop: '20px' }}>
                     <CardHeader>
@@ -630,14 +846,24 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
 };
 
 /**
- * Dashboard Tab Content - API Configuration
+ * Features Tab Content - Dashboard API & Annotations
  */
-const DashboardTab = ({ settings, onSettingsChange, onSave, onTestConnection, saving, testing, notice }) => {
+const FeaturesTab = ({ settings, postTypes, onSettingsChange, onSave, onTestConnection, saving, testing, notice }) => {
     const handleChange = (field, value) => {
         onSettingsChange({ ...settings, [field]: value });
     };
 
+    const handlePostTypeToggle = (postType, checked) => {
+        const annotationPostTypes = settings.annotationPostTypes || [];
+        if (checked) {
+            onSettingsChange({ ...settings, annotationPostTypes: [...annotationPostTypes, postType] });
+        } else {
+            onSettingsChange({ ...settings, annotationPostTypes: annotationPostTypes.filter(pt => pt !== postType) });
+        }
+    };
+
     const hasBasicConfig = settings.host && settings.idSite;
+    const hasTokenAuth = settings.tokenAuth;
 
     return (
         <>
@@ -652,41 +878,35 @@ const DashboardTab = ({ settings, onSettingsChange, onSave, onTestConnection, sa
                 </Notice>
             )}
 
-            {!hasBasicConfig && (
-                <Notice status="warning" isDismissible={false} style={{ marginBottom: '20px' }}>
-                    {__('Please configure your Matomo Host URL and Site ID in the General tab first.', 'openmost-site-kit')}
-                </Notice>
-            )}
-
+            {/* Dashboard Card */}
             <Card>
                 <CardHeader>
-                    <h2>{__('API Configuration', 'openmost-site-kit')}</h2>
+                    <h2>{__('WordPress Dashboard', 'openmost-site-kit')}</h2>
                 </CardHeader>
                 <CardBody>
                     <p className="description" style={{ marginBottom: '20px' }}>
-                        {__('Add your API token to enable the analytics dashboard and access your Matomo data.', 'openmost-site-kit')}
+                        {__('Enable the Matomo analytics dashboard within WordPress admin.', 'openmost-site-kit')}
                     </p>
 
-                    <FormField marginBottom="0">
+                    <FormField>
                         <TextControl
                             label={__('Auth Token', 'openmost-site-kit')}
-                            value={settings.tokenAuth}
+                            value={settings.tokenAuth || ''}
                             onChange={(value) => handleChange('tokenAuth', value)}
                             type="password"
-                            disabled={!hasBasicConfig}
-                            help={__('Find this in Matomo under Administration > Personal > Security > Auth tokens.', 'openmost-site-kit')}
+                            help={__('Required to fetch analytics data. Find this in Matomo under Administration > Personal > Security > Auth tokens.', 'openmost-site-kit')}
                             __nextHasNoMarginBottom
                             __next40pxDefaultSize
                         />
                     </FormField>
 
-                    <Flex style={{ marginTop: '24px' }}>
+                    <Flex>
                         <FlexItem>
                             <Button
                                 variant="secondary"
                                 onClick={onTestConnection}
                                 isBusy={testing}
-                                disabled={!hasBasicConfig || saving}
+                                disabled={!hasBasicConfig || !hasTokenAuth || saving}
                             >
                                 {testing ? __('Testing...', 'openmost-site-kit') : __('Test Connection', 'openmost-site-kit')}
                             </Button>
@@ -695,12 +915,99 @@ const DashboardTab = ({ settings, onSettingsChange, onSave, onTestConnection, sa
                 </CardBody>
             </Card>
 
+            {/* Automatic Annotations Card */}
+            <Card style={{ marginTop: '20px' }}>
+                <CardHeader>
+                    <h2>{__('Automatic Annotations', 'openmost-site-kit')}</h2>
+                </CardHeader>
+                <CardBody>
+                    <FormField>
+                        <ToggleControl
+                            label={__('Enable Automatic Annotations', 'openmost-site-kit')}
+                            checked={settings.enableAutoAnnotations || false}
+                            onChange={(value) => handleChange('enableAutoAnnotations', value)}
+                            help={__('Automatically create annotations in Matomo when content is published.', 'openmost-site-kit')}
+                            __nextHasNoMarginBottom
+                        />
+                    </FormField>
+
+                    {settings.enableAutoAnnotations && (
+                        <>
+                            {!hasTokenAuth && (
+                                <Notice status="warning" isDismissible={false} style={{ marginTop: '15px', marginBottom: '15px' }}>
+                                    {__('An Auth Token is required for automatic annotations to work.', 'openmost-site-kit')}
+                                </Notice>
+                            )}
+
+                            <div style={{ marginTop: '20px' }}>
+                                <p className="description" style={{ marginBottom: '15px' }}>
+                                    {__('Select which post types should create annotations when published:', 'openmost-site-kit')}
+                                </p>
+
+                                {postTypes.length > 0 ? (
+                                    <div style={{
+                                        display: 'flex',
+                                        flexDirection: 'column',
+                                        gap: '8px',
+                                        padding: '15px',
+                                        backgroundColor: '#f0f0f1',
+                                        borderRadius: '4px'
+                                    }}>
+                                        {postTypes.map((postType) => (
+                                            <CheckboxControl
+                                                key={postType.name}
+                                                label={postType.label}
+                                                checked={(settings.annotationPostTypes || []).includes(postType.name)}
+                                                onChange={(checked) => handlePostTypeToggle(postType.name, checked)}
+                                                __nextHasNoMarginBottom
+                                            />
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <Spinner />
+                                )}
+
+                                <Divider style={{ marginTop: '20px', marginBottom: '20px' }} />
+
+                                <FormField>
+                                    <TextControl
+                                        label={__('Annotation Format', 'openmost-site-kit')}
+                                        value={settings.annotationFormat || 'New {post_type} published: "{title}"'}
+                                        onChange={(value) => handleChange('annotationFormat', value)}
+                                        help={__('Customize the annotation message using variables.', 'openmost-site-kit')}
+                                        __nextHasNoMarginBottom
+                                        __next40pxDefaultSize
+                                    />
+                                </FormField>
+
+                                <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                    <p><strong>{__('Available variables:', 'openmost-site-kit')}</strong></p>
+                                    <ul style={{ marginLeft: '20px', marginTop: '10px', marginBottom: '10px' }}>
+                                        <li><code>{'{post_type}'}</code> - {__('Post type name (e.g., Post, Page, Product)', 'openmost-site-kit')}</li>
+                                        <li><code>{'{title}'}</code> - {__('Post title', 'openmost-site-kit')}</li>
+                                        <li><code>{'{url}'}</code> - {__('Post URL', 'openmost-site-kit')}</li>
+                                        <li><code>{'{author}'}</code> - {__('Author display name', 'openmost-site-kit')}</li>
+                                    </ul>
+                                    <p style={{ fontStyle: 'italic' }}>
+                                        {__('Example:', 'openmost-site-kit')} {(settings.annotationFormat || 'New {post_type} published: "{title}"')
+                                            .replace('{post_type}', 'Post')
+                                            .replace('{title}', 'How to boost your SEO')
+                                            .replace('{url}', 'https://example.com/how-to-boost-seo')
+                                            .replace('{author}', 'John Doe')}
+                                    </p>
+                                </Notice>
+                            </div>
+                        </>
+                    )}
+                </CardBody>
+            </Card>
+
             <div style={{ marginTop: '20px' }}>
                 <Button
                     variant="primary"
                     onClick={onSave}
                     isBusy={saving}
-                    disabled={saving || testing || !hasBasicConfig}
+                    disabled={saving || testing}
                 >
                     {saving ? __('Saving...', 'openmost-site-kit') : __('Save Settings', 'openmost-site-kit')}
                 </Button>
@@ -1000,6 +1307,7 @@ const Settings = () => {
     const [testing, setTesting] = useState(false);
     const [notice, setNotice] = useState(null);
     const [roles, setRoles] = useState([]);
+    const [postTypes, setPostTypes] = useState([]);
     const [settings, setSettings] = useState({
         host: '',
         idSite: '',
@@ -1007,9 +1315,19 @@ const Settings = () => {
         tokenAuth: '',
         enableClassicTracking: false,
         enableMtmTracking: false,
+        enableServerTracking: false,
         enableMtmDataLayer: true,
         excludedRoles: [],
         consentMode: 'disabled',
+        enableServerEcommerce: false,
+        enableJsEcommerce: false,
+        enableDataLayerEcommerce: false,
+        enableAutoAnnotations: false,
+        annotationPostTypes: [],
+        annotationFormat: 'New {post_type} published: "{title}"',
+        enableJsSearchTracking: false,
+        enableDataLayerSearchTracking: false,
+        enableServerSearchTracking: false,
     });
 
     useEffect(() => {
@@ -1018,12 +1336,14 @@ const Settings = () => {
 
     const loadData = async () => {
         try {
-            const [settingsData, rolesData] = await Promise.all([
+            const [settingsData, rolesData, postTypesData] = await Promise.all([
                 getSettings(),
                 getRoles(),
+                getPostTypes(),
             ]);
             setSettings({ ...settings, ...settingsData });
             setRoles(rolesData);
+            setPostTypes(postTypesData);
         } catch (error) {
             setNotice({
                 type: 'error',
@@ -1086,25 +1406,22 @@ const Settings = () => {
         );
     }
 
+    // Determine if we have enough config to show additional tabs
+    const hasTrackingMethod = settings.enableClassicTracking || settings.enableMtmTracking || settings.enableServerTracking;
     const hasBasicConfig = settings.host && settings.idSite;
 
     const tabs = [
         {
-            name: 'general',
-            title: __('General', 'openmost-site-kit'),
-            className: 'omsk-tab-general',
+            name: 'tracking',
+            title: __('Tracking', 'openmost-site-kit'),
+            className: 'omsk-tab-tracking',
         },
-        // Only show other tabs if host and site ID are configured
-        ...(hasBasicConfig ? [
+        // Only show other tabs if a tracking method is enabled and configured
+        ...(hasTrackingMethod && hasBasicConfig ? [
             {
-                name: 'tracking',
-                title: __('Tracking', 'openmost-site-kit'),
-                className: 'omsk-tab-tracking',
-            },
-            {
-                name: 'dashboard',
-                title: __('Dashboard', 'openmost-site-kit'),
-                className: 'omsk-tab-dashboard',
+                name: 'features',
+                title: __('Features', 'openmost-site-kit'),
+                className: 'omsk-tab-features',
             },
             {
                 name: 'privacy',
@@ -1125,15 +1442,6 @@ const Settings = () => {
             >
                 {(tab) => (
                     <div className="omsk-tab-content" style={{ marginTop: '20px' }}>
-                        {tab.name === 'general' && (
-                            <GeneralTab
-                                settings={settings}
-                                onSettingsChange={setSettings}
-                                onSave={handleSave}
-                                saving={saving}
-                                notice={notice}
-                            />
-                        )}
                         {tab.name === 'tracking' && (
                             <TrackingTab
                                 settings={settings}
@@ -1144,9 +1452,10 @@ const Settings = () => {
                                 notice={notice}
                             />
                         )}
-                        {tab.name === 'dashboard' && (
-                            <DashboardTab
+                        {tab.name === 'features' && (
+                            <FeaturesTab
                                 settings={settings}
+                                postTypes={postTypes}
                                 onSettingsChange={setSettings}
                                 onSave={handleSave}
                                 onTestConnection={handleTestConnection}

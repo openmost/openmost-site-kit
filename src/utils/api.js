@@ -62,3 +62,13 @@ export const getRoles = async () => {
         method: 'GET',
     });
 };
+
+/**
+ * Get public post types
+ */
+export const getPostTypes = async () => {
+    return await apiFetch({
+        path: `${API_NAMESPACE}/post-types`,
+        method: 'GET',
+    });
+};

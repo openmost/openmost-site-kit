@@ -51,6 +51,10 @@ function omsk_register_rest_routes() {
                     'type'              => 'boolean',
                     'sanitize_callback' => 'rest_sanitize_boolean',
                 ),
+                'enableServerTracking' => array(
+                    'type'              => 'boolean',
+                    'sanitize_callback' => 'rest_sanitize_boolean',
+                ),
             ),
         ),
     ));
@@ -133,6 +137,13 @@ function omsk_register_rest_routes() {
         'callback'            => 'omsk_rest_get_roles',
         'permission_callback' => 'omsk_rest_permission_check',
     ));
+
+    // Post types endpoint
+    register_rest_route('openmost-site-kit/v1', '/post-types', array(
+        'methods'             => 'GET',
+        'callback'            => 'omsk_rest_get_post_types',
+        'permission_callback' => 'omsk_rest_permission_check',
+    ));
 }
 
 /**
@@ -162,6 +173,10 @@ function omsk_rest_get_settings() {
         'tokenAuth'              => isset($options['omsk-matomo-token-auth-field']) ? $options['omsk-matomo-token-auth-field'] : '',
         'enableClassicTracking'  => isset($options['omsk-matomo-enable-classic-tracking-code-field']) ? (bool) $options['omsk-matomo-enable-classic-tracking-code-field'] : false,
         'enableMtmTracking'      => isset($options['omsk-matomo-enable-mtm-tracking-code-field']) ? (bool) $options['omsk-matomo-enable-mtm-tracking-code-field'] : false,
+        'enableServerTracking'   => isset($options['omsk-matomo-enable-server-tracking-field']) ? (bool) $options['omsk-matomo-enable-server-tracking-field'] : false,
+        'enableServerEcommerce'  => isset($options['omsk-matomo-enable-server-ecommerce-field']) ? (bool) $options['omsk-matomo-enable-server-ecommerce-field'] : false,
+        'enableJsEcommerce'      => isset($options['omsk-matomo-enable-js-ecommerce-field']) ? (bool) $options['omsk-matomo-enable-js-ecommerce-field'] : false,
+        'enableDataLayerEcommerce' => isset($options['omsk-matomo-enable-datalayer-ecommerce-field']) ? (bool) $options['omsk-matomo-enable-datalayer-ecommerce-field'] : false,
         'enableMtmDataLayer'     => isset($options['omsk-matomo-enable-mtm-datalayer-field']) ? (bool) $options['omsk-matomo-enable-mtm-datalayer-field'] : true,
         'excludedRoles'          => isset($options['omsk-matomo-excluded-roles-field']) ? (array) $options['omsk-matomo-excluded-roles-field'] : array(),
         'consentMode'            => isset($options['omsk-matomo-consent-mode-field']) ? $options['omsk-matomo-consent-mode-field'] : 'disabled',
@@ -172,6 +187,12 @@ function omsk_rest_get_settings() {
         'enableUserIdTracking'   => isset($options['omsk-matomo-enable-userid-tracking-field']) ? (bool) $options['omsk-matomo-enable-userid-tracking-field'] : false,
         'enableHeartBeatTimer'   => isset($options['omsk-matomo-enable-heartbeat-timer-field']) ? (bool) $options['omsk-matomo-enable-heartbeat-timer-field'] : false,
         'heartBeatTimerDelay'    => isset($options['omsk-matomo-heartbeat-timer-delay-field']) ? absint($options['omsk-matomo-heartbeat-timer-delay-field']) : 15,
+        'enableAutoAnnotations'  => isset($options['omsk-matomo-enable-auto-annotations-field']) ? (bool) $options['omsk-matomo-enable-auto-annotations-field'] : false,
+        'annotationPostTypes'    => isset($options['omsk-matomo-annotation-post-types-field']) ? (array) $options['omsk-matomo-annotation-post-types-field'] : array(),
+        'annotationFormat'       => isset($options['omsk-matomo-annotation-format-field']) ? $options['omsk-matomo-annotation-format-field'] : 'New {post_type} published: "{title}"',
+        'enableJsSearchTracking'        => isset($options['omsk-matomo-enable-js-search-tracking-field']) ? (bool) $options['omsk-matomo-enable-js-search-tracking-field'] : false,
+        'enableDataLayerSearchTracking' => isset($options['omsk-matomo-enable-datalayer-search-tracking-field']) ? (bool) $options['omsk-matomo-enable-datalayer-search-tracking-field'] : false,
+        'enableServerSearchTracking'    => isset($options['omsk-matomo-enable-server-search-tracking-field']) ? (bool) $options['omsk-matomo-enable-server-search-tracking-field'] : false,
         'plan'                   => omsk_get_matomo_plan(),
     ));
 }
@@ -215,6 +236,10 @@ function omsk_rest_update_settings($request) {
         'omsk-matomo-token-auth-field'                  => $request->get_param('tokenAuth'),
         'omsk-matomo-enable-classic-tracking-code-field' => $request->get_param('enableClassicTracking') ? 1 : 0,
         'omsk-matomo-enable-mtm-tracking-code-field'     => $request->get_param('enableMtmTracking') ? 1 : 0,
+        'omsk-matomo-enable-server-tracking-field'       => $request->get_param('enableServerTracking') ? 1 : 0,
+        'omsk-matomo-enable-server-ecommerce-field'      => $request->get_param('enableServerEcommerce') ? 1 : 0,
+        'omsk-matomo-enable-js-ecommerce-field'          => $request->get_param('enableJsEcommerce') ? 1 : 0,
+        'omsk-matomo-enable-datalayer-ecommerce-field'   => $request->get_param('enableDataLayerEcommerce') ? 1 : 0,
         'omsk-matomo-enable-mtm-datalayer-field'         => $request->get_param('enableMtmDataLayer') !== false ? 1 : 0,
         'omsk-matomo-excluded-roles-field'              => $sanitized_excluded_roles,
         'omsk-matomo-consent-mode-field'                => $consent_mode,
@@ -225,6 +250,12 @@ function omsk_rest_update_settings($request) {
         'omsk-matomo-enable-userid-tracking-field'       => $request->get_param('enableUserIdTracking') ? 1 : 0,
         'omsk-matomo-enable-heartbeat-timer-field'       => $request->get_param('enableHeartBeatTimer') ? 1 : 0,
         'omsk-matomo-heartbeat-timer-delay-field'        => absint($request->get_param('heartBeatTimerDelay')) ?: 15,
+        'omsk-matomo-enable-auto-annotations-field'      => $request->get_param('enableAutoAnnotations') ? 1 : 0,
+        'omsk-matomo-annotation-post-types-field'        => omsk_sanitize_annotation_post_types($request->get_param('annotationPostTypes')),
+        'omsk-matomo-annotation-format-field'            => sanitize_text_field($request->get_param('annotationFormat')) ?: 'New {post_type} published: "{title}"',
+        'omsk-matomo-enable-js-search-tracking-field'        => $request->get_param('enableJsSearchTracking') ? 1 : 0,
+        'omsk-matomo-enable-datalayer-search-tracking-field' => $request->get_param('enableDataLayerSearchTracking') ? 1 : 0,
+        'omsk-matomo-enable-server-search-tracking-field'    => $request->get_param('enableServerSearchTracking') ? 1 : 0,
     );
 
     update_option('omsk-settings', $options);
@@ -250,6 +281,48 @@ function omsk_rest_get_roles() {
     }
 
     return rest_ensure_response($roles);
+}
+
+/**
+ * Get public post types
+ */
+function omsk_rest_get_post_types() {
+    $post_types = get_post_types(array('public' => true), 'objects');
+    $result = array();
+
+    foreach ($post_types as $post_type) {
+        // Skip attachments
+        if ($post_type->name === 'attachment') {
+            continue;
+        }
+
+        $result[] = array(
+            'name'  => $post_type->name,
+            'label' => $post_type->labels->singular_name,
+        );
+    }
+
+    return rest_ensure_response($result);
+}
+
+/**
+ * Sanitize annotation post types
+ */
+function omsk_sanitize_annotation_post_types($post_types) {
+    if (!is_array($post_types)) {
+        return array();
+    }
+
+    $valid_post_types = array_keys(get_post_types(array('public' => true)));
+    $sanitized = array();
+
+    foreach ($post_types as $post_type) {
+        if (in_array($post_type, $valid_post_types, true)) {
+            $sanitized[] = sanitize_text_field($post_type);
+        }
+    }
+
+    return $sanitized;
 }
 
 /**

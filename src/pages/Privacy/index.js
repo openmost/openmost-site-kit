@@ -30,12 +30,15 @@ const OptOutPreview = ({ url }) => {
     const containerRef = useRef(null);
     const scriptRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
+    // Generate a stable ID that changes when URL changes
+    const [containerId, setContainerId] = useState(() => `matomo-opt-out-preview-${Date.now()}`);
 
     useEffect(() => {
         if (!url || !containerRef.current) return;
 
-        // Generate unique ID for this render to force Matomo to re-render
-        const containerId = `matomo-opt-out-preview-${Date.now()}`;
+        // Generate new unique ID for this URL change
+        const newContainerId = `matomo-opt-out-preview-${Date.now()}`;
+        setContainerId(newContainerId);
         setIsLoading(true);
 
         // Remove previous script if exists
@@ -49,22 +52,25 @@ const OptOutPreview = ({ url }) => {
             containerRef.current.removeChild(containerRef.current.firstChild);
         }
 
-        // Set the ID on the container
-        containerRef.current.id = containerId;
+        // Set the ID on the container BEFORE loading the script
+        containerRef.current.id = newContainerId;
 
         // Parse URL and update the divId parameter
         const scriptUrl = new URL(url);
-        scriptUrl.searchParams.set('divId', containerId);
+        scriptUrl.searchParams.set('divId', newContainerId);
 
-        // Create and load script
-        const script = document.createElement('script');
-        script.src = scriptUrl.toString();
-        script.async = true;
-        script.onload = () => setIsLoading(false);
-        script.onerror = () => setIsLoading(false);
-        scriptRef.current = script;
+        // Small delay to ensure DOM is updated before script runs
+        setTimeout(() => {
+            // Create and load script
+            const script = document.createElement('script');
+            script.src = scriptUrl.toString();
+            script.async = true;
+            script.onload = () => setIsLoading(false);
+            script.onerror = () => setIsLoading(false);
+            scriptRef.current = script;
 
-        document.body.appendChild(script);
+            document.body.appendChild(script);
+        }, 50);
 
         // Cleanup on unmount or before next effect
         return () => {
@@ -96,7 +102,7 @@ const OptOutPreview = ({ url }) => {
                 </div>
             )}
             {/* This div is controlled entirely by Matomo - NO React children */}
-            <div ref={containerRef} />
+            <div ref={containerRef} id={containerId} />
         </div>
     );
 };
@@ -368,7 +374,7 @@ const Privacy = () => {
 
                     <Notice status="info" isDismissible={false} style={{ marginTop: '20px' }}>
                         <p>
-                            <strong>{__('GDPR Compliance:', 'openmost-site-kit')}</strong><br />
+                            <strong>{__('Privacy:', 'openmost-site-kit')}</strong><br />
                             {__('Adding an opt-out form to your privacy policy page helps you comply with GDPR and other privacy regulations by giving users control over their data.', 'openmost-site-kit')}
                         </p>
                     </Notice>

@@ -1,96 +1,164 @@
 <?php
+/**
+ * Helper Functions
+ *
+ * @package Openmost_Site_Kit
+ * @since 1.0.0
+ */
 
-function omsk_get_value(&$value)
-{
-    return isset($value) && !empty($value) && $value ? $value : false;
+// Exit if accessed directly.
+if ( ! defined( 'ABSPATH' ) ) {
+    exit;
+}
+
+/**
+ * Safely get a value from an array or variable.
+ *
+ * @param mixed $value Value to check.
+ * @return mixed|false The value if set and not empty, false otherwise.
+ */
+function omsk_get_value( &$value ) {
+    return isset( $value ) && ! empty( $value ) && $value ? $value : false;
+}
+
+/**
+ * Get Matomo host URL from settings.
+ *
+ * @return string Matomo host URL or empty string.
+ */
+function omsk_get_matomo_host() {
+    $options = get_option( 'omsk-settings', array() );
+    $value   = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
+
+    return esc_url_raw( $value );
+}
+
+/**
+ * Get Matomo site ID from settings.
+ *
+ * @return int Matomo site ID or 0.
+ */
+function omsk_get_matomo_idsite() {
+    $options = get_option( 'omsk-settings', array() );
+    $value   = isset( $options['omsk-matomo-idsite-field'] ) ? $options['omsk-matomo-idsite-field'] : '';
+
+    return absint( $value );
+}
+
+/**
+ * Get Matomo container ID from settings.
+ *
+ * @return string Matomo container ID or empty string.
+ */
+function omsk_get_matomo_idcontainer() {
+    $options = get_option( 'omsk-settings', array() );
+    $value   = isset( $options['omsk-matomo-idcontainer-field'] ) ? $options['omsk-matomo-idcontainer-field'] : '';
+
+    return sanitize_text_field( $value );
+}
+
+/**
+ * Get Matomo auth token from settings.
+ *
+ * @return string Matomo auth token or empty string.
+ */
+function omsk_get_matomo_token_auth() {
+    $options = get_option( 'omsk-settings', array() );
+    $value   = isset( $options['omsk-matomo-token-auth-field'] ) ? $options['omsk-matomo-token-auth-field'] : '';
+
+    return sanitize_text_field( $value );
 }
 
 
-function omsk_get_matomo_host()
-{
-    $options = get_option('omsk-settings');
-
-    return sanitize_text_field(omsk_get_value($options['omsk-matomo-host-field'])) ?? '';
-}
-
-function omsk_get_matomo_idsite()
-{
-    $options = get_option('omsk-settings');
-
-    return sanitize_text_field(omsk_get_value($options['omsk-matomo-idsite-field'])) ?? '';
-}
-
-function omsk_get_matomo_idcontainer()
-{
-    $options = get_option('omsk-settings');
-
-    return sanitize_text_field(omsk_get_value($options['omsk-matomo-idcontainer-field'])) ?? '';
-}
-
-function omsk_get_matomo_token_auth()
-{
-    $options = get_option('omsk-settings');
-
-    return sanitize_text_field(omsk_get_value($options['omsk-matomo-token-auth-field'])) ?? '';
-}
-
-
-function omsk_fetch_matomo_api($param_string)
-{
-    $host = omsk_get_matomo_host();
-    $idsite = omsk_get_matomo_idsite();
+/**
+ * Fetch data from Matomo API.
+ *
+ * @param string $param_string Query parameters string.
+ * @return array|WP_Error API response or error.
+ */
+function omsk_fetch_matomo_api( $param_string ) {
+    $host       = omsk_get_matomo_host();
+    $idsite     = omsk_get_matomo_idsite();
     $token_auth = omsk_get_matomo_token_auth();
 
-    // Parse parameter string into array
+    if ( empty( $host ) || empty( $idsite ) ) {
+        return new WP_Error( 'missing_config', __( 'Matomo host or site ID not configured.', 'openmost-site-kit' ) );
+    }
+
+    // Parse parameter string into array.
     $params = array();
-    parse_str(ltrim($param_string, '&'), $params);
+    parse_str( ltrim( $param_string, '&' ), $params );
 
-    // Build POST body with all parameters
-    $body_params = array_merge(array(
-        'module' => 'API',
-        'format' => 'JSON',
-        'idSite' => $idsite,
-        'token_auth' => $token_auth,
-    ), $params);
+    // Sanitize all parameters.
+    $sanitized_params = array_map( 'sanitize_text_field', $params );
 
-    // Make POST request with token in body AND as Bearer token
-    $response = wp_remote_post("$host/index.php", array(
-        'timeout' => 15,
-        'headers' => array(
-            'Content-Type' => 'application/x-www-form-urlencoded',
-            'Authorization' => 'Bearer ' . $token_auth,
+    // Build POST body with all parameters.
+    $body_params = array_merge(
+        array(
+            'module'     => 'API',
+            'format'     => 'JSON',
+            'idSite'     => $idsite,
+            'token_auth' => $token_auth,
         ),
-        'body' => $body_params,
-    ));
+        $sanitized_params
+    );
 
-    if (is_wp_error($response)) {
+    $request_url = trailingslashit( $host ) . 'index.php';
+
+    // Make POST request with token in body AND as Bearer token.
+    $response = wp_remote_post(
+        $request_url,
+        array(
+            'timeout' => 15,
+            'headers' => array(
+                'Content-Type'  => 'application/x-www-form-urlencoded',
+                'Authorization' => 'Bearer ' . $token_auth,
+            ),
+            'body'    => $body_params,
+        )
+    );
+
+    if ( is_wp_error( $response ) ) {
         return $response;
     }
 
-    $body = wp_remote_retrieve_body($response);
-    return (array)json_decode($body);
-}
+    $body = wp_remote_retrieve_body( $response );
+    $data = json_decode( $body, true );
 
-function omsk_get_matomo_plan()
-{
-    $host = omsk_get_matomo_host();
-    $plan = 'on_premise';
-
-    if (str_contains($host, '.matomo.cloud')) {
-        $plan = 'cloud';
+    if ( json_last_error() !== JSON_ERROR_NONE ) {
+        return new WP_Error( 'json_error', __( 'Invalid JSON response from Matomo.', 'openmost-site-kit' ) );
     }
 
-    return $plan;
+    return $data;
 }
 
-function omsk_get_matomo_cdn_host()
-{
-    $cdn = omsk_get_matomo_host();
+/**
+ * Get Matomo plan type based on host URL.
+ *
+ * @return string Plan type ('cloud' or 'on_premise').
+ */
+function omsk_get_matomo_plan() {
+    $host = omsk_get_matomo_host();
+
+    if ( ! empty( $host ) && strpos( $host, '.matomo.cloud' ) !== false ) {
+        return 'cloud';
+    }
+
+    return 'on_premise';
+}
+
+/**
+ * Get Matomo CDN host URL.
+ *
+ * @return string CDN host URL.
+ */
+function omsk_get_matomo_cdn_host() {
+    $host = omsk_get_matomo_host();
     $plan = omsk_get_matomo_plan();
 
-    if($plan === 'cloud'){
-        $cdn = str_replace('https://', 'https://cdn.matomo.cloud/', $cdn);
+    if ( 'cloud' === $plan && ! empty( $host ) ) {
+        return str_replace( 'https://', 'https://cdn.matomo.cloud/', $host );
     }
 
-    return $cdn;
+    return $host;
 }

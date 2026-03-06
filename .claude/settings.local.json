@@ -6,7 +6,9 @@
       "Bash(xargs ls:*)",
       "Bash(npm run build:dev:*)",
       "Bash(npm run:*)",
-      "Bash(npm install)"
+      "Bash(npm install)",
+      "Bash(php -l:*)",
+      "WebFetch(domain:raw.githubusercontent.com)"
     ],
     "deny": [],
     "ask": []

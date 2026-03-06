@@ -2,7 +2,7 @@
 msgid ""
 msgstr ""
 "Project-Id-Version: Openmost Site Kit\n"
-"POT-Creation-Date: 2023-04-11 23:41+0200\n"
+"POT-Creation-Date: 2026-03-06 12:12+0100\n"
 "PO-Revision-Date: 2023-04-11 23:21+0200\n"
 "Last-Translator: \n"
 "Language-Team: \n"
@@ -10,194 +10,873 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=INTEGER; plural=EXPRESSION;\n"
-"X-Generator: Poedit 3.2.2\n"
+"X-Generator: Poedit 3.8\n"
 "X-Poedit-Basepath: ..\n"
 "X-Poedit-Flags-xgettext: --add-comments=translators:\n"
 "X-Poedit-WPHeader: openmost-site-kit.php\n"
 "X-Poedit-SourceCharset: UTF-8\n"
-"X-Poedit-KeywordsList: __;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;"
-"esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;"
-"_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
+"X-Poedit-KeywordsList: "
+"__;_e;_n:1,2;_x:1,2c;_ex:1,2c;_nx:4c,1,2;esc_attr__;esc_attr_e;esc_attr_x:1,2c;esc_html__;esc_html_e;esc_html_x:1,2c;_n_noop:1,2;_nx_noop:3c,1,2;__ngettext_noop:1,2\n"
 "X-Poedit-SearchPath-0: .\n"
 "X-Poedit-SearchPathExcluded-0: *.min.js\n"
 "X-Poedit-SearchPathExcluded-1: node_modules\n"
 
-#: modules/dashboard/admin.php:6 modules/dashboard/admin.php:7
+#: includes/rest-api.php:246 src/pages/Settings/index.js:1123
+msgid "Settings saved successfully"
+msgstr ""
+
+#: includes/rest-api.php:295 includes/rest-api.php:397
+msgid "Failed to fetch data from Matomo"
+msgstr ""
+
+#: includes/rest-api.php:343 src/pages/Settings/index.js:1152
+msgid "Failed to connect to Matomo"
+msgstr ""
+
+#: includes/rest-api.php:354
+msgid "Matomo returned an error"
+msgstr ""
+
+#: includes/rest-api.php:362
+msgid "Successfully connected to Matomo"
+msgstr ""
+
+#: includes/rest-api.php:380
+msgid "Invalid post ID"
+msgstr ""
+
+#: modules/dashboard/index.php:23 modules/dashboard/index.php:24 modules/dashboard/index.php:47
+#: src/pages/Dashboard/index.js:67 src/pages/Dashboard/index.js:92
+#: src/pages/Settings/index.js:1184
 msgid "Dashboard"
 msgstr ""
 
-#: modules/dashboard/views/index.php:9
-msgid "Date :"
+#: modules/dashboard/index.php:49 modules/post-type-charts/index.php:50
+msgid ""
+"Matomo is not configured. Please configure your Matomo instance in the Site Kit settings."
 msgstr ""
 
-#: modules/dashboard/views/index.php:11
-msgid "Last 7 days"
+#: modules/dashboard/index.php:50 modules/post-type-charts/index.php:51
+msgid "Go to Settings"
 msgstr ""
 
-#: modules/dashboard/views/index.php:12
-msgid "Last 14 days"
-msgstr ""
-
-#: modules/dashboard/views/index.php:13
-msgid "Last 28 days"
-msgstr ""
-
-#: modules/dashboard/views/index.php:14
-msgid "Last 90 days"
-msgstr ""
-
-#: modules/dashboard/views/widgets/pages.php:20
-msgid "URL"
-msgstr ""
-
-#: modules/dashboard/views/widgets/pages.php:21
-#: modules/post-type-charts/views/widgets/visits-summary.php:55
-msgid "Pageviews"
-msgstr ""
-
-#: modules/dashboard/views/widgets/pages.php:22
-msgid "Unique Pageviews"
-msgstr ""
-
-#: modules/dashboard/views/widgets/pages.php:23
-msgid "Bounce Rate"
-msgstr ""
-
-#: modules/dashboard/views/widgets/pages.php:24
-msgid "Session Duration"
-msgstr ""
-
-#: modules/dashboard/views/widgets/visits-summary.php:48
-#: modules/post-type-charts/views/widgets/visits-summary.php:50
-msgid "Visits"
-msgstr ""
-
-#: modules/datalayer/admin.php:6 modules/datalayer/admin.php:24
-msgid "Data Layer Settings"
-msgstr ""
-
-#: modules/datalayer/admin.php:7
-msgid "Data Layer"
-msgstr ""
-
-#: modules/datalayer/admin.php:31
-msgid "Home page informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:39
-msgid "Blog page informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:47
-msgid "Page informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:55
-msgid "Single page informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:63
-msgid "Attachment page informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:71
-msgid "Archive page informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:79
-msgid "Author page informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:87
-msgid "Search page informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:95
-msgid "Error page informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:104
-msgid "User informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:112
-msgid "Search informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:120
-msgid "Pagination informations"
-msgstr ""
-
-#: modules/datalayer/admin.php:135
-msgid "Choose what you want to add to the dataLayer :"
-msgstr ""
-
-#: modules/datalayer/admin.php:141 modules/datalayer/admin.php:147
-#: modules/datalayer/admin.php:153 modules/datalayer/admin.php:159
-#: modules/datalayer/admin.php:165 modules/datalayer/admin.php:171
-#: modules/datalayer/admin.php:177 modules/datalayer/admin.php:183
-#: modules/datalayer/admin.php:189 modules/datalayer/admin.php:196
-#: modules/datalayer/admin.php:203 modules/datalayer/admin.php:209
-msgid "Add to"
-msgstr ""
-
-#: modules/post-type-charts/admin.php:10
+#: modules/post-type-charts/index.php:26
 msgid "Matomo - Visits Summary"
 msgstr ""
 
-#: modules/privacy/admin.php:6 modules/privacy/admin.php:7
-msgid "Privacy"
+#: modules/privacy/index.php:32
+msgid "Matomo is not configured."
 msgstr ""
 
-#: modules/settings/admin.php:6 modules/settings/admin.php:7
-#: modules/settings/admin.php:26
-msgid "General Settings"
+#: modules/settings/index.php:23 modules/settings/index.php:24 src/pages/Settings/index.js:1197
+msgid "Settings"
 msgstr ""
 
-#: modules/settings/admin.php:33
-msgid "Host URL"
+#: modules/wp-dashboard-widget/index.php:37
+msgid "Matomo Analytics"
 msgstr ""
 
-#: modules/settings/admin.php:41
-msgid "ID Site"
-msgstr ""
-
-#: modules/settings/admin.php:49
-msgid "ID Container"
-msgstr ""
-
-#: modules/settings/admin.php:57
-msgid "Token Auth"
-msgstr ""
-
-#: modules/settings/admin.php:65
-msgid "Enable classic tracking code"
-msgstr ""
-
-#: modules/settings/admin.php:73
-msgid "Enable Tag Manager tracking code"
-msgstr ""
-
-#: modules/settings/admin.php:114
-msgid "Enable classic tracking"
-msgstr ""
-
-#: modules/settings/admin.php:120
-msgid "Enable Tag Manager tracking"
-msgstr ""
-
-#: modules/settings/admin.php:132
-msgid ""
-"Both Matomo and Matomo Tag Manager codes are deployed, you should use only "
-"one of them."
-msgstr ""
-
-#: openmost-site-kit.php:33 openmost-site-kit.php:34
+#: openmost-site-kit.php:34 openmost-site-kit.php:35
 msgid "Site Kit"
 msgstr ""
 
+#: src/components/ChannelTypesChart.js:60 src/components/ChannelTypesChart.js:84
+#: src/components/VisitsOverviewChart.js:62 src/components/VisitsOverviewChart.js:102
+#: src/components/VisitsSummaryChart.js:50
+msgid "No data available"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js:74
+msgid "Search Engines"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js:75
+msgid "Social Networks"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js:76
+msgid "Direct Entry"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js:77
+msgid "Websites"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js:78
+msgid "Campaigns"
+msgstr ""
+
+#: src/components/ChannelTypesChart.js:108 src/pages/Dashboard/index.js:128
+msgid "Channel Types"
+msgstr ""
+
+#: src/components/EventsChart.js:69
+msgid "No events data available"
+msgstr ""
+
+#: src/components/EventsChart.js:79
+msgid "Event Name"
+msgstr ""
+
+#: src/components/EventsChart.js:80 src/pages/Dashboard/index.js:149
+msgid "Events"
+msgstr ""
+
+#: src/components/EventsChart.js:81
+msgid "Unique"
+msgstr ""
+
+#: src/components/KPICards.js:80 src/components/PostAnalytics.js:222
+#: src/components/PostAnalytics.js:255 src/components/PostAnalytics.js:334
+#: src/components/TopPagesChart.js:81 src/components/VisitsOverviewChart.js:113
+#: src/components/VisitsOverviewChart.js:135 src/components/VisitsSummaryChart.js:77
+#: src/components/WPDashboardWidget.js:162
+msgid "Visits"
+msgstr ""
+
+#: src/components/KPICards.js:89 src/components/PostAnalytics.js:222
+#: src/components/PostAnalytics.js:275 src/components/PostAnalytics.js:339
+#: src/components/TopPagesChart.js:82 src/components/VisitsOverviewChart.js:114
+#: src/components/VisitsOverviewChart.js:143
+msgid "Page Views"
+msgstr ""
+
+#: src/components/KPICards.js:98 src/components/PostAnalytics.js:344
+#: src/components/WPDashboardWidget.js:184
+msgid "Bounce Rate"
+msgstr ""
+
+#: src/components/PerformanceChart.js:62 src/components/PerformanceChart.js:116
+msgid "No performance data available. Enable PagePerformance tracking in your Matomo instance."
+msgstr ""
+
+#: src/components/PerformanceChart.js:140 src/components/PerformanceChart.js:166
+msgid "Network Time"
+msgstr ""
+
+#: src/components/PerformanceChart.js:141 src/components/PerformanceChart.js:173
+msgid "Server Response"
+msgstr ""
+
+#: src/components/PerformanceChart.js:142 src/components/PerformanceChart.js:180
+msgid "Transfer Time"
+msgstr ""
+
+#: src/components/PerformanceChart.js:143 src/components/PerformanceChart.js:187
+msgid "DOM Processing"
+msgstr ""
+
+#: src/components/PerformanceChart.js:144 src/components/PerformanceChart.js:194
+msgid "DOM Completion"
+msgstr ""
+
+#: src/components/PerformanceChart.js:145 src/components/PerformanceChart.js:201
+msgid "OnLoad Events"
+msgstr ""
+
+#: src/components/PerformanceChart.js:162
+msgid "Time (seconds)"
+msgstr ""
+
+#: src/components/PostAnalytics.js:37
+msgid "Failed to load analytics"
+msgstr ""
+
+#: src/components/PostAnalytics.js:163 src/components/WPDashboardWidget.js:132
+msgid "Loading analytics..."
+msgstr ""
+
+#: src/components/PostAnalytics.js:175 src/components/WPDashboardWidget.js:142
+msgid "Retry"
+msgstr ""
+
+#: src/components/PostAnalytics.js:188 src/components/PostAnalytics.js:315
+msgid "Analytics"
+msgstr ""
+
+#: src/components/PostAnalytics.js:193 src/components/PostAnalytics.js:320
+#: src/components/WPDashboardWidget.js:156 src/pages/Dashboard/index.js:100
+msgid "Last 7 days"
+msgstr ""
+
+#: src/components/PostAnalytics.js:194 src/components/PostAnalytics.js:321
+#: src/pages/Dashboard/index.js:101
+msgid "Last 14 days"
+msgstr ""
+
+#: src/components/PostAnalytics.js:195 src/components/PostAnalytics.js:322
+#: src/pages/Dashboard/index.js:102
+msgid "Last 28 days"
+msgstr ""
+
+#: src/components/PostAnalytics.js:196 src/components/PostAnalytics.js:323
+#: src/pages/Dashboard/index.js:103
+msgid "Last 90 days"
+msgstr ""
+
+#: src/components/PostAnalytics.js:204
+msgid ""
+"No analytics data available for this page yet. Make sure tracking is enabled and the page "
+"has been visited."
+msgstr ""
+
+#: src/components/PostAnalytics.js:348 src/components/WPDashboardWidget.js:189
+msgid "Avg. Time"
+msgstr ""
+
+#: src/components/TopPagesChart.js:70
+msgid "No pages data available"
+msgstr ""
+
+#: src/components/TopPagesChart.js:80
+msgid "Page URL"
+msgstr ""
+
+#: src/components/WPDashboardWidget.js:122
+msgid "Failed to load analytics data"
+msgstr ""
+
+#: src/components/WPDashboardWidget.js:140
+msgid "Unable to load analytics data."
+msgstr ""
+
+#: src/components/WPDashboardWidget.js:168
+msgid "Visitors"
+msgstr ""
+
+#: src/components/WPDashboardWidget.js:174
+msgid "Pageviews"
+msgstr ""
+
+#: src/components/WPDashboardWidget.js:202
+msgid "View Full Dashboard"
+msgstr ""
+
+#: src/pages/Dashboard/index.js:70
+msgid "Take a look at your data."
+msgstr ""
+
+#: src/pages/Dashboard/index.js:75
+msgid "The dashboard requires Matomo configuration to display analytics data."
+msgstr ""
+
+#: src/pages/Dashboard/index.js:79
+msgid "Please configure your Matomo host, site ID, and auth token in the Settings page."
+msgstr ""
+
+#: src/pages/Dashboard/index.js:80
+msgid "Please contact your site administrator to configure Matomo settings."
+msgstr ""
+
+#: src/pages/Dashboard/index.js:97
+msgid "Date Range"
+msgstr ""
+
+#: src/pages/Dashboard/index.js:119
+msgid "Visits Overview"
+msgstr ""
+
+#: src/pages/Dashboard/index.js:140
+msgid "Top Pages"
+msgstr ""
+
+#: src/pages/Dashboard/index.js:161
+msgid "Page Performance"
+msgstr ""
+
+#: src/pages/Privacy/index.js:193
+msgid "Privacy & Opt-Out"
+msgstr ""
+
+#: src/pages/Privacy/index.js:196
+msgid "Allow your visitors to opt-out of Matomo tracking to respect their privacy preferences."
+msgstr ""
+
+#: src/pages/Privacy/index.js:201
+msgid "Matomo is not configured. Please configure your Matomo instance in the settings first."
+msgstr ""
+
+#: src/pages/Privacy/index.js:209 src/pages/Settings/index.js:861
+msgid "Shortcode Builder"
+msgstr ""
+
+#: src/pages/Privacy/index.js:213 src/pages/Settings/index.js:865
+msgid ""
+"Configure your opt-out form and generate the shortcode to add to your privacy policy page."
+msgstr ""
+
+#: src/pages/Privacy/index.js:217 src/pages/Settings/index.js:870
+msgid "Language"
+msgstr ""
+
+#: src/pages/Privacy/index.js:221 src/pages/Settings/index.js:874
+msgid "Auto (detect from Matomo)"
+msgstr ""
+
+#: src/pages/Privacy/index.js:222 src/pages/Settings/index.js:875
+msgid "English"
+msgstr ""
+
+#: src/pages/Privacy/index.js:223 src/pages/Settings/index.js:876
+msgid "French"
+msgstr ""
+
+#: src/pages/Privacy/index.js:224 src/pages/Settings/index.js:877
+msgid "German"
+msgstr ""
+
+#: src/pages/Privacy/index.js:225 src/pages/Settings/index.js:878
+msgid "Spanish"
+msgstr ""
+
+#: src/pages/Privacy/index.js:226 src/pages/Settings/index.js:879
+msgid "Italian"
+msgstr ""
+
+#: src/pages/Privacy/index.js:227 src/pages/Settings/index.js:880
+msgid "Portuguese"
+msgstr ""
+
+#: src/pages/Privacy/index.js:228 src/pages/Settings/index.js:881
+msgid "Dutch"
+msgstr ""
+
+#: src/pages/Privacy/index.js:230 src/pages/Settings/index.js:883
+msgid "Language for the opt-out form text"
+msgstr ""
+
+#: src/pages/Privacy/index.js:234 src/pages/Privacy/index.js:344
+#: src/pages/Settings/index.js:891 src/pages/Settings/index.js:1044
+msgid "Show introduction text"
+msgstr ""
+
+#: src/pages/Privacy/index.js:237 src/pages/Settings/index.js:894
+msgid "Display explanatory text before the opt-out checkbox"
+msgstr ""
+
+#: src/pages/Privacy/index.js:244 src/pages/Settings/index.js:957
+msgid "Generated Shortcode:"
+msgstr ""
+
+#: src/pages/Privacy/index.js:247 src/pages/Privacy/index.js:252
+#: src/pages/Settings/index.js:961 src/pages/Settings/index.js:966
+msgid "Copied!"
+msgstr ""
+
+#: src/pages/Privacy/index.js:247 src/pages/Settings/index.js:961
+msgid "Copy to clipboard"
+msgstr ""
+
+#: src/pages/Privacy/index.js:252 src/pages/Settings/index.js:966
+msgid "Copy"
+msgstr ""
+
+#: src/pages/Privacy/index.js:269 src/pages/Settings/index.js:983
+msgid "Copy this shortcode and paste it onto your cookie privacy policy page."
+msgstr ""
+
+#: src/pages/Privacy/index.js:277 src/pages/Settings/index.js:990
+msgid "Live Preview"
+msgstr ""
+
+#: src/pages/Privacy/index.js:283 src/pages/Settings/index.js:996
+msgid "This is how the opt-out form will appear on your site:"
+msgstr ""
+
+#: src/pages/Privacy/index.js:297 src/pages/Settings/index.js:1009
+msgid "The preview above is fully functional. You can test the opt-out functionality here."
+msgstr ""
+
+#: src/pages/Privacy/index.js:302
+msgid "Configure Matomo in the settings to see a live preview."
+msgstr ""
+
+#: src/pages/Privacy/index.js:312
+msgid "Additional Information"
+msgstr ""
+
+#: src/pages/Privacy/index.js:315
+msgid "Available Shortcodes"
+msgstr ""
+
+#: src/pages/Privacy/index.js:318
+msgid "Standard opt-out form"
+msgstr ""
+
+#: src/pages/Privacy/index.js:321
+msgid "Legacy shortcode (backward compatible)"
+msgstr ""
+
+#: src/pages/Privacy/index.js:325 src/pages/Settings/index.js:1023
+msgid "Shortcode Parameters"
+msgstr ""
+
+#: src/pages/Privacy/index.js:329 src/pages/Settings/index.js:1029
+msgid "Parameter"
+msgstr ""
+
+#: src/pages/Privacy/index.js:330 src/pages/Settings/index.js:1030
+msgid "Description"
+msgstr ""
+
+#: src/pages/Privacy/index.js:331 src/pages/Settings/index.js:1031
+msgid "Default"
+msgstr ""
+
+#: src/pages/Privacy/index.js:332 src/pages/Settings/index.js:1032
+msgid "Example"
+msgstr ""
+
+#: src/pages/Privacy/index.js:338 src/pages/Settings/index.js:1038
+msgid "Form language (en, fr, de, es, etc.)"
+msgstr ""
+
+#: src/pages/Privacy/index.js:350 src/pages/Settings/index.js:1050
+msgid "Background color (hex without #)"
+msgstr ""
+
+#: src/pages/Privacy/index.js:356 src/pages/Settings/index.js:1056
+msgid "Text color (hex without #)"
+msgstr ""
+
+#: src/pages/Privacy/index.js:362
+msgid "Font size"
+msgstr ""
+
+#: src/pages/Privacy/index.js:368
+msgid "Font family"
+msgstr ""
+
+#: src/pages/Privacy/index.js:377
+msgid "GDPR Compliance:"
+msgstr ""
+
+#: src/pages/Privacy/index.js:378
+msgid ""
+"Adding an opt-out form to your privacy policy page helps you comply with GDPR and other "
+"privacy regulations by giving users control over their data."
+msgstr ""
+
+#: src/pages/Settings/index.js:134
+msgid "Configure Matomo to see the preview"
+msgstr ""
+
+#: src/pages/Settings/index.js:202
+msgid ""
+"No tracking method is enabled. Go to the Tracking tab to enable a tracking method, otherwise "
+"no analytics data will be collected."
+msgstr ""
+
+#: src/pages/Settings/index.js:208
+msgid "Matomo Configuration"
+msgstr ""
+
+#: src/pages/Settings/index.js:212
+msgid "Configure your Matomo instance connection settings."
+msgstr ""
+
+#: src/pages/Settings/index.js:219
+msgid "Host URL"
+msgstr ""
+
+#: src/pages/Settings/index.js:227
+msgid ""
+"Your Matomo instance URL (e.g., https://matomo.example.com or https://example.matomo.cloud)"
+msgstr ""
+
+#: src/pages/Settings/index.js:237
+msgid "Site ID"
+msgstr ""
+
+#: src/pages/Settings/index.js:246
+msgid "Your site ID in Matomo. Find this in Matomo under Administration > Websites > Manage."
+msgstr ""
+
+#: src/pages/Settings/index.js:256 src/pages/Settings/index.js:540
+msgid "Container ID"
+msgstr ""
+
+#: src/pages/Settings/index.js:258
+msgid "recommended"
+msgstr ""
+
+#: src/pages/Settings/index.js:265
+msgid "Tag Manager container ID. Required if using Tag Manager tracking method."
+msgstr ""
+
+#: src/pages/Settings/index.js:280 src/pages/Settings/index.js:699
+#: src/pages/Settings/index.js:779
+msgid "Saving..."
+msgstr ""
+
+#: src/pages/Settings/index.js:280 src/pages/Settings/index.js:699
+#: src/pages/Settings/index.js:779
+msgid "Save Settings"
+msgstr ""
+
+#: src/pages/Settings/index.js:294
+msgid "Disabled"
+msgstr ""
+
+#: src/pages/Settings/index.js:295
+msgid "No tracking code injected"
+msgstr ""
+
+#: src/pages/Settings/index.js:304
+msgid "Classic Tracking"
+msgstr ""
+
+#: src/pages/Settings/index.js:305
+msgid "Standard Matomo JavaScript tracker"
+msgstr ""
+
+#: src/pages/Settings/index.js:314
+msgid "Tag Manager"
+msgstr ""
+
+#: src/pages/Settings/index.js:315
+msgid "Matomo Tag Manager"
+msgstr ""
+
+#: src/pages/Settings/index.js:316
+msgid "Recommended"
+msgstr ""
+
+#: src/pages/Settings/index.js:325
+msgid "Server-Side PHP"
+msgstr ""
+
+#: src/pages/Settings/index.js:326
+msgid "PHP tracking (ad-blocker resistant)"
+msgstr ""
+
+#: src/pages/Settings/index.js:417
+msgid "Tracking Method"
+msgstr ""
+
+#: src/pages/Settings/index.js:421
+msgid "Choose how you want to inject Matomo tracking code on your site."
+msgstr ""
+
+#: src/pages/Settings/index.js:435
+msgid "Classic Tracking Options"
+msgstr ""
+
+#: src/pages/Settings/index.js:438
+msgid "Consent Mode (GDPR)"
+msgstr ""
+
+#: src/pages/Settings/index.js:440
+msgid "Configure how the tracking code handles user consent for GDPR compliance."
+msgstr ""
+
+#: src/pages/Settings/index.js:445
+msgid "Consent Mode"
+msgstr ""
+
+#: src/pages/Settings/index.js:449
+msgid "Disabled - Track all visitors"
+msgstr ""
+
+#: src/pages/Settings/index.js:450
+msgid "Require Consent - Wait for consent before tracking"
+msgstr ""
+
+#: src/pages/Settings/index.js:451
+msgid "Require Cookie Consent - Wait for cookie consent"
+msgstr ""
+
+#: src/pages/Settings/index.js:453
+msgid "Select how to handle user consent before tracking"
+msgstr ""
+
+#: src/pages/Settings/index.js:461
+msgid "How to use consent mode:"
+msgstr ""
+
+#: src/pages/Settings/index.js:462
+msgid "When consent is given, call:"
+msgstr ""
+
+#: src/pages/Settings/index.js:473
+msgid "Accurate Time Measurement"
+msgstr ""
+
+#: src/pages/Settings/index.js:475
+msgid "Enable heartbeat timer to accurately measure time spent on page."
+msgstr ""
+
+#: src/pages/Settings/index.js:480
+msgid "Enable Heartbeat Timer"
+msgstr ""
+
+#: src/pages/Settings/index.js:483
+msgid "Sends periodic pings to Matomo to track actual time on page."
+msgstr ""
+
+#: src/pages/Settings/index.js:491
+msgid "Heartbeat Delay (seconds)"
+msgstr ""
+
+#: src/pages/Settings/index.js:497
+msgid "Time between heartbeat pings (default: 15 seconds)"
+msgstr ""
+
+#: src/pages/Settings/index.js:506
+msgid "WooCommerce Ecommerce"
+msgstr ""
+
+#: src/pages/Settings/index.js:508
+msgid "Track ecommerce events using the Matomo JavaScript tracker."
+msgstr ""
+
+#: src/pages/Settings/index.js:513
+msgid "Enable Ecommerce Tracking"
+msgstr ""
+
+#: src/pages/Settings/index.js:516
+msgid "Track product views, cart actions, and purchases via _paq commands."
+msgstr ""
+
+#: src/pages/Settings/index.js:528
+msgid "Tag Manager Options"
+msgstr ""
+
+#: src/pages/Settings/index.js:535
+msgid "Container ID Required"
+msgstr ""
+
+#: src/pages/Settings/index.js:536
+msgid ""
+"Tag Manager tracking requires a Container ID to function. Please enter your Container ID "
+"below or configure it in the General tab."
+msgstr ""
+
+#: src/pages/Settings/index.js:553
+msgid "GDPR consent options are managed directly in the Matomo Tag Manager UI."
+msgstr ""
+
+#: src/pages/Settings/index.js:558
+msgid "Push context to dataLayer"
+msgstr ""
+
+#: src/pages/Settings/index.js:561
+msgid "Adds Matomo configuration to the dataLayer for use in MTM triggers."
+msgstr ""
+
+#: src/pages/Settings/index.js:567
+msgid "Available dataLayer variables:"
+msgstr ""
+
+#: src/pages/Settings/index.js:569
+msgid "Your Matomo instance URL"
+msgstr ""
+
+#: src/pages/Settings/index.js:570
+msgid "Your site ID"
+msgstr ""
+
+#: src/pages/Settings/index.js:571
+msgid "Your container ID"
+msgstr ""
+
+#: src/pages/Settings/index.js:572
+msgid "WordPress environment"
+msgstr ""
+
+#: src/pages/Settings/index.js:573
+msgid "SHA256 hashed user email (if enabled)"
+msgstr ""
+
+#: src/pages/Settings/index.js:584
+msgid "Server-Side Tracking Options"
+msgstr ""
+
+#: src/pages/Settings/index.js:588
+msgid "About Server-Side Tracking"
+msgstr ""
+
+#: src/pages/Settings/index.js:590
+msgid ""
+"Server-side tracking sends page views directly from your WordPress server to Matomo, "
+"bypassing the visitor's browser entirely."
+msgstr ""
+
+#: src/pages/Settings/index.js:594
+msgid "Benefits"
+msgstr ""
+
+#: src/pages/Settings/index.js:596
+msgid "Cannot be blocked by ad blockers or browser extensions"
+msgstr ""
+
+#: src/pages/Settings/index.js:597
+msgid "Works even when JavaScript is disabled"
+msgstr ""
+
+#: src/pages/Settings/index.js:598
+msgid "More privacy-friendly (no client-side cookies)"
+msgstr ""
+
+#: src/pages/Settings/index.js:599
+msgid "More accurate page view counting"
+msgstr ""
+
+#: src/pages/Settings/index.js:602
+msgid "Limitations"
+msgstr ""
+
+#: src/pages/Settings/index.js:604
+msgid "Only tracks page views (no events, clicks, or interactions)"
+msgstr ""
+
+#: src/pages/Settings/index.js:605
+msgid "Limited visitor recognition across sessions"
+msgstr ""
+
+#: src/pages/Settings/index.js:606
+msgid "No support for heatmaps or session recordings"
+msgstr ""
+
+#: src/pages/Settings/index.js:611
+msgid "Auth Token Recommended"
+msgstr ""
+
+#: src/pages/Settings/index.js:613
+msgid ""
+"For accurate IP geolocation and visitor recognition, configure an Auth Token in the "
+"Dashboard tab."
+msgstr ""
+
+#: src/pages/Settings/index.js:625
+msgid "User ID Tracking"
+msgstr ""
+
+#: src/pages/Settings/index.js:630
+msgid "Enable User ID tracking"
+msgstr ""
+
+#: src/pages/Settings/index.js:633
+msgid "Track logged-in users with a SHA256 hash of their email address."
+msgstr ""
+
+#: src/pages/Settings/index.js:640
+msgid "Cookie consent required"
+msgstr ""
+
+#: src/pages/Settings/index.js:642
+msgid ""
+"User ID tracking requires cookie consent from your visitors. Ensure your consent management "
+"solution is configured to obtain consent before enabling this feature."
+msgstr ""
+
+#: src/pages/Settings/index.js:646
+msgid "The user ID will be available in the dataLayer as"
+msgstr ""
+
+#: src/pages/Settings/index.js:659
+msgid "Exclude Tracking by User Role"
+msgstr ""
+
+#: src/pages/Settings/index.js:663
+msgid "Select user roles that should not be tracked."
+msgstr ""
+
+#: src/pages/Settings/index.js:731
+msgid "Please configure your Matomo Host URL and Site ID in the General tab first."
+msgstr ""
+
+#: src/pages/Settings/index.js:737
+msgid "API Configuration"
+msgstr ""
+
+#: src/pages/Settings/index.js:741
+msgid "Add your API token to enable the analytics dashboard and access your Matomo data."
+msgstr ""
+
+#: src/pages/Settings/index.js:746
+msgid "Auth Token"
+msgstr ""
+
+#: src/pages/Settings/index.js:751
+msgid "Find this in Matomo under Administration > Personal > Security > Auth tokens."
+msgstr ""
+
+#: src/pages/Settings/index.js:765
+msgid "Testing..."
+msgstr ""
+
+#: src/pages/Settings/index.js:765
+msgid "Test Connection"
+msgstr ""
+
+#: src/pages/Settings/index.js:854
+msgid ""
+"Matomo is not configured. Please configure your Matomo instance in the General tab first."
+msgstr ""
+
+#: src/pages/Settings/index.js:901
+msgid "Custom design"
+msgstr ""
+
+#: src/pages/Settings/index.js:904
+msgid "Customize colors and fonts of the opt-out form"
+msgstr ""
+
+#: src/pages/Settings/index.js:919
+msgid "Background Color"
+msgstr ""
+
+#: src/pages/Settings/index.js:924
+msgid "Font Color"
+msgstr ""
+
+#: src/pages/Settings/index.js:932
+msgid "Font Size"
+msgstr ""
+
+#: src/pages/Settings/index.js:936
+msgid "e.g., 12px, 14px, 1rem"
+msgstr ""
+
+#: src/pages/Settings/index.js:941
+msgid "Font Family"
+msgstr ""
+
+#: src/pages/Settings/index.js:945
+msgid "e.g., Arial, Helvetica, inherit"
+msgstr ""
+
+#: src/pages/Settings/index.js:1014
+msgid "Configure Matomo in the General tab to see a live preview."
+msgstr ""
+
+#: src/pages/Settings/index.js:1108
+msgid "Failed to load settings"
+msgstr ""
+
+#: src/pages/Settings/index.js:1128
+msgid "Failed to save settings"
+msgstr ""
+
+#: src/pages/Settings/index.js:1147
+msgid "Version"
+msgstr ""
+
+#: src/pages/Settings/index.js:1172
+msgid "General"
+msgstr ""
+
+#: src/pages/Settings/index.js:1179
+msgid "Tracking"
+msgstr ""
+
+#: src/pages/Settings/index.js:1189
+msgid "Privacy"
+msgstr ""
+
 #. Plugin Name of the plugin/theme
-msgid "Openmost Site Kit"
+msgid "Matomo Site Kit"
 msgstr ""
 
 #. Plugin URI of the plugin/theme
@@ -205,7 +884,8 @@ msgid "https://openmost.io/openmost-site-kit"
 msgstr ""
 
 #. Description of the plugin/theme
-msgid "A site kit plugin for Matomo"
+msgid ""
+"A complete Matomo integration for WordPress with dashboard, data layer and code injection."
 msgstr ""
 
 #. Author of the plugin/theme
@@ -214,129 +894,4 @@ msgstr ""
 
 #. Author URI of the plugin/theme
 msgid "https://openmost.io"
-msgstr ""
-# New React component strings - Added 2025-01-21
-
-#: src/components/KPICards.js
-msgid "Page Views"
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "Take a look at your data."
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "You should define a valid host, site ID, and auth token in the settings."
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "Date Range"
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "Visits Overview"
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "Channel Types"
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "Top Pages"
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "Events"
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "Page Performance"
-msgstr ""
-
-#: src/components/VisitsOverviewChart.js  
-msgid "No data available"
-msgstr ""
-
-#: src/components/ChannelTypesChart.js
-msgid "Search Engines"
-msgstr ""
-
-#: src/components/ChannelTypesChart.js
-msgid "Social Networks"
-msgstr ""
-
-#: src/components/ChannelTypesChart.js
-msgid "Direct Entry"
-msgstr ""
-
-#: src/components/ChannelTypesChart.js
-msgid "Websites"
-msgstr ""
-
-#: src/components/ChannelTypesChart.js
-msgid "Campaigns"
-msgstr ""
-
-#: src/components/TopPagesChart.js
-msgid "Page URL"
-msgstr ""
-
-#: src/components/TopPagesChart.js
-msgid "No pages data available"
-msgstr ""
-
-#: src/components/EventsChart.js
-msgid "Event Name"
-msgstr ""
-
-#: src/components/EventsChart.js
-msgid "Unique"
-msgstr ""
-
-#: src/components/EventsChart.js
-msgid "No events data available"
-msgstr ""
-
-#: src/components/PerformanceChart.js
-msgid "No performance data available. Enable PagePerformance tracking in your Matomo instance."
-msgstr ""
-
-#: src/components/PerformanceChart.js
-msgid "Network Time"
-msgstr ""
-
-#: src/components/PerformanceChart.js
-msgid "Server Response"
-msgstr ""
-
-#: src/components/PerformanceChart.js
-msgid "Transfer Time"
-msgstr ""
-
-#: src/components/PerformanceChart.js
-msgid "DOM Processing"
-msgstr ""
-
-#: src/components/PerformanceChart.js
-msgid "DOM Completion"
-msgstr ""
-
-#: src/components/PerformanceChart.js
-msgid "OnLoad Events"
-msgstr ""
-
-#: src/components/PerformanceChart.js
-msgid "Time (seconds)"
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "The dashboard requires Matomo configuration to display analytics data."
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "Please configure your Matomo host, site ID, and auth token in the Settings page."
-msgstr ""
-
-#: src/pages/Dashboard/index.js
-msgid "Please contact your site administrator to configure Matomo settings."
 msgstr ""
