@@ -113,13 +113,13 @@ const VisitsOverviewChart = ({ date, period }) => {
                 __('Visits', 'openmost-site-kit'),
                 __('Page Views', 'openmost-site-kit'),
             ],
-            top: 10,
+            top: 0,
         },
         grid: {
-            top: 60,
-            left: 50,
-            right: 50,
-            bottom: 30,
+            top: 35,
+            left: 10,
+            right: 15,
+            bottom: 5,
             containLabel: true,
         },
         xAxis: {

@@ -144,13 +144,13 @@ const PerformanceChart = ({ date, period }) => {
                 __('DOM Completion', 'openmost-site-kit'),
                 __('OnLoad Events', 'openmost-site-kit'),
             ],
-            top: 10,
+            top: 0,
         },
         grid: {
-            top: 60,
-            left: 50,
-            right: 50,
-            bottom: 30,
+            top: 35,
+            left: 10,
+            right: 15,
+            bottom: 5,
             containLabel: true,
         },
         xAxis: {

@@ -430,6 +430,111 @@
   }
 }
 
+// DataTable component
+.omsk-datatable {
+  .omsk-table-rank-col {
+    width: 32px;
+    min-width: 32px;
+    text-align: center;
+    color: #757575;
+    font-size: 12px;
+    padding-left: 8px !important;
+    padding-right: 0 !important;
+  }
+
+  thead .omsk-table-rank-col {
+    font-weight: 600;
+    color: #50575e;
+  }
+
+  .omsk-table thead th {
+    &.omsk-table-sortable {
+      cursor: pointer;
+      user-select: none;
+
+      &:hover {
+        background-color: #f6f7f7;
+      }
+    }
+
+    .omsk-table-sort-icon {
+      font-size: 10px;
+      color: #2271b1;
+    }
+  }
+
+  .omsk-datatable-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 16px;
+    border-top: 1px solid #f0f0f1;
+    gap: 12px;
+
+    .omsk-datatable-search {
+      max-width: 200px;
+      margin: 0;
+      flex-shrink: 0;
+
+      .components-base-control__field {
+        margin: 0;
+      }
+
+      .components-text-control__input {
+        height: 30px;
+        min-height: 30px;
+        padding: 0 8px;
+        font-size: 13px;
+      }
+    }
+
+    .omsk-datatable-count {
+      font-size: 12px;
+      color: #757575;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+  }
+
+  .omsk-datatable-pagination {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    .omsk-datatable-page-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border: 1px solid #dcdcde;
+      border-radius: 4px;
+      background: #fff;
+      cursor: pointer;
+      font-size: 14px;
+      color: #2271b1;
+
+      &:hover:not(:disabled) {
+        background: #f6f7f7;
+        border-color: #2271b1;
+      }
+
+      &:disabled {
+        color: #a7aaad;
+        cursor: default;
+        border-color: #dcdcde;
+      }
+    }
+
+    .omsk-datatable-page-info {
+      padding: 0 8px;
+      font-size: 13px;
+      color: #50575e;
+      white-space: nowrap;
+    }
+  }
+}
+
 // Post Analytics Metabox
 .omsk-post-analytics {
   .omsk-post-analytics-header {

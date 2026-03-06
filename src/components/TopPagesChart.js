@@ -2,10 +2,11 @@
  * Top Pages Table Component
  */
 
-import { useState, useEffect } from '@wordpress/element';
+import { useState, useEffect, useMemo } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import { Spinner } from '@wordpress/components';
 import { fetchMatomoData } from '../utils/api';
+import DataTable from './DataTable';
 
 const TopPagesChart = ({ date, period }) => {
     const [loading, setLoading] = useState(true);
@@ -21,27 +22,49 @@ const TopPagesChart = ({ date, period }) => {
         setError(null);
 
         try {
-            console.log('[TopPagesChart] Fetching data with params:', { method: 'Actions.getPageUrls', period, date, flat: 1, filter_limit: 10 });
             const response = await fetchMatomoData('Actions.getPageUrls', {
                 period: 'range',
                 date,
                 flat: 1,
-                filter_limit: 10,
+                filter_limit: -1,
             });
-            console.log('[TopPagesChart] Response received:', response);
-
-            if (!response || !Array.isArray(response) || response.length === 0) {
-                console.error('[TopPagesChart] No data or empty array received');
-            }
-
             setData(response);
         } catch (err) {
-            console.error('[TopPagesChart] Error loading data:', err);
             setError(err.message);
         } finally {
             setLoading(false);
         }
     };
+
+    const pageData = useMemo(() => {
+        if (Array.isArray(data)) return data;
+        if (data && typeof data === 'object') return data.subtable || data.result || [];
+        return [];
+    }, [data]);
+
+    const columns = useMemo(() => [
+        {
+            key: 'label',
+            label: __('Page URL', 'openmost-site-kit'),
+            render: (row) => row.label || row.url || 'Unknown',
+            searchValue: (row) => row.label || row.url || '',
+            sortValue: (row) => (row.label || row.url || '').toLowerCase(),
+        },
+        {
+            key: 'nb_visits',
+            label: __('Visits', 'openmost-site-kit'),
+            numeric: true,
+            render: (row) => new Intl.NumberFormat().format(row.nb_visits || 0),
+            sortValue: (row) => row.nb_visits || 0,
+        },
+        {
+            key: 'nb_hits',
+            label: __('Page Views', 'openmost-site-kit'),
+            numeric: true,
+            render: (row) => new Intl.NumberFormat().format(row.nb_hits || 0),
+            sortValue: (row) => row.nb_hits || 0,
+        },
+    ], []);
 
     if (loading) {
         return (
@@ -55,15 +78,6 @@ const TopPagesChart = ({ date, period }) => {
         return <div className="omsk-chart-error">{error}</div>;
     }
 
-    // Handle both array and object responses from Matomo
-    let pageData = [];
-    if (Array.isArray(data)) {
-        pageData = data;
-    } else if (data && typeof data === 'object') {
-        // If data is an object, try to extract array from common keys
-        pageData = data.subtable || data.result || [];
-    }
-
     if (!pageData || pageData.length === 0) {
         return (
             <div className="omsk-chart-empty">
@@ -73,33 +87,11 @@ const TopPagesChart = ({ date, period }) => {
     }
 
     return (
-        <div className="omsk-table-container">
-            <table className="omsk-table">
-                <thead>
-                    <tr>
-                        <th>{__('Page URL', 'openmost-site-kit')}</th>
-                        <th className="omsk-table-number">{__('Visits', 'openmost-site-kit')}</th>
-                        <th className="omsk-table-number">{__('Page Views', 'openmost-site-kit')}</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {pageData.slice(0, 10).map((item, index) => (
-                        <tr key={index}>
-                            <td className="omsk-table-label">
-                                <span className="omsk-table-rank">{index + 1}</span>
-                                <span className="omsk-table-text">{item.label || item.url || 'Unknown'}</span>
-                            </td>
-                            <td className="omsk-table-number">
-                                {new Intl.NumberFormat().format(item.nb_visits || 0)}
-                            </td>
-                            <td className="omsk-table-number">
-                                {new Intl.NumberFormat().format(item.nb_hits || 0)}
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-            </table>
-        </div>
+        <DataTable
+            columns={columns}
+            data={pageData}
+            defaultSort={{ key: 'nb_visits', dir: 'desc' }}
+        />
     );
 };
 
