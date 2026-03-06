@@ -8,7 +8,8 @@
       "Bash(npm run:*)",
       "Bash(npm install)",
       "Bash(php -l:*)",
-      "WebFetch(domain:raw.githubusercontent.com)"
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "WebFetch(domain:developer.matomo.org)"
     ],
     "deny": [],
     "ask": []

@@ -51,10 +51,11 @@ function omsk_server_side_track_pageview() {
 
     $host                   = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
     $id_site                = isset( $options['omsk-matomo-idsite-field'] ) ? $options['omsk-matomo-idsite-field'] : '';
-    $enable_server_tracking = ! empty( $options['omsk-matomo-enable-server-tracking-field'] );
-    $excluded_roles         = isset( $options['omsk-matomo-excluded-roles-field'] ) ? (array) $options['omsk-matomo-excluded-roles-field'] : array();
-    $token_auth             = isset( $options['omsk-matomo-token-auth-field'] ) ? $options['omsk-matomo-token-auth-field'] : '';
-    $enable_userid_tracking = ! empty( $options['omsk-matomo-enable-userid-tracking-field'] );
+    $enable_server_tracking  = ! empty( $options['omsk-matomo-enable-server-tracking-field'] );
+    $excluded_roles          = isset( $options['omsk-matomo-excluded-roles-field'] ) ? (array) $options['omsk-matomo-excluded-roles-field'] : array();
+    $token_auth              = isset( $options['omsk-matomo-token-auth-field'] ) ? $options['omsk-matomo-token-auth-field'] : '';
+    $enable_userid_tracking  = ! empty( $options['omsk-matomo-enable-userid-tracking-field'] );
+    $enable_ai_bot_tracking  = ! empty( $options['omsk-matomo-enable-ai-bot-tracking-field'] );
 
     // Check if server-side tracking is enabled.
     if ( ! $enable_server_tracking ) {
@@ -71,8 +72,14 @@ function omsk_server_side_track_pageview() {
         return;
     }
 
-    // Don't track bots.
+    // Detect if the request is from an AI assistant bot.
+    $is_ai_bot = omsk_is_ai_bot();
+
+    // Handle bot requests: track AI bots if enabled, discard other bots.
     if ( omsk_is_bot() ) {
+        if ( $is_ai_bot && $enable_ai_bot_tracking ) {
+            omsk_track_ai_bot_request( $host, $id_site, $token_auth );
+        }
         return;
     }
 
@@ -258,4 +265,99 @@ function omsk_is_bot() {
     }
 
     return false;
+}
+
+/**
+ * Check if the request is from a known AI assistant bot.
+ *
+ * These are user-triggered AI assistants that Matomo 5.7+ can track
+ * separately via the recMode=1 bot tracking feature.
+ *
+ * @since 2.3.0
+ * @return bool True if the request is from an AI assistant bot.
+ */
+function omsk_is_ai_bot() {
+    if ( empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+        return false;
+    }
+
+    $user_agent = strtolower( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
+
+    // AI assistant bot patterns (user-triggered AI agents).
+    $ai_bot_patterns = array(
+        'chatgpt-user',
+        'gptbot',
+        'perplexitybot',
+        'perplexity-user',
+        'claudebot',
+        'claude-web',
+        'anthropic-ai',
+        'cohere-ai',
+        'google-extended',
+        'gemini',
+        'meta-externalagent',
+        'bytespider',
+        'amazonbot',
+        'youbot',
+        'applebot-extended',
+        'oai-searchbot',
+    );
+
+    foreach ( $ai_bot_patterns as $pattern ) {
+        if ( false !== strpos( $user_agent, $pattern ) ) {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+/**
+ * Track an AI bot request using Matomo's bot tracking mode (recMode=1).
+ *
+ * Sends only the parameters supported by Matomo's bot tracking API:
+ * url, ua, source, http_status, pf_srv, bw_bytes, cdt.
+ *
+ * @since 2.3.0
+ * @param string $host      Matomo host URL.
+ * @param string $id_site   Site ID.
+ * @param string $token_auth Auth token.
+ * @return void
+ */
+function omsk_track_ai_bot_request( $host, $id_site, $token_auth ) {
+    try {
+        $tracker = new MatomoTracker( absint( $id_site ), $host );
+
+        if ( $token_auth ) {
+            $tracker->setTokenAuth( $token_auth );
+        }
+
+        $tracker->disableCookieSupport();
+
+        // Set bot tracking mode (recMode=1: bot-only).
+        $tracker->setCustomTrackingParameter( 'recMode', '1' );
+
+        // Set the page URL.
+        $tracker->setUrl( omsk_get_current_url() );
+
+        // Set User-Agent (required for Matomo to identify the AI bot).
+        if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+            $tracker->setUserAgent( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
+        }
+
+        // Set source label for identification in Matomo reports.
+        $tracker->setCustomTrackingParameter( 'source', 'WordPress' );
+
+        // Set HTTP status code (200 for normal page loads).
+        $tracker->setCustomTrackingParameter( 'http_status', (string) http_response_code() );
+
+        // Track the request.
+        $tracker->doTrackPageView( wp_get_document_title() );
+
+    } catch ( Exception $e ) {
+        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+            error_log( 'Matomo AI Bot Tracking Error: ' . $e->getMessage() );
+        }
+    }
 }

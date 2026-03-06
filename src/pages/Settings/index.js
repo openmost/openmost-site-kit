@@ -760,6 +760,44 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                 </Card>
             )}
 
+            {/* AI Bot Tracking - available for all methods (requires Matomo 5.7+) */}
+            {trackingMethod !== 'none' && (
+                <Card style={{ marginTop: '20px' }}>
+                    <CardHeader>
+                        <h2>{__('AI Bot Tracking', 'openmost-site-kit')}</h2>
+                    </CardHeader>
+                    <CardBody>
+                        <FormField>
+                            <ToggleControl
+                                label={__('Enable AI Bot Tracking', 'openmost-site-kit')}
+                                checked={settings.enableAiBotTracking || false}
+                                onChange={(value) => handleChange('enableAiBotTracking', value)}
+                                help={__('Track visits from AI assistants (ChatGPT, Perplexity, Claude, etc.) separately in Matomo.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableAiBotTracking && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                <p>
+                                    {__('AI assistant bot visits will be tracked separately using Matomo\'s bot tracking feature (recMode). This requires Matomo 5.7.0 or later.', 'openmost-site-kit')}
+                                </p>
+                                {trackingMethod === 'server' && (
+                                    <p style={{ marginTop: '10px' }}>
+                                        {__('Server-side: AI bots are detected by User-Agent and tracked via recMode=1 (bot-only mode) with source "WordPress".', 'openmost-site-kit')}
+                                    </p>
+                                )}
+                                {(trackingMethod === 'classic' || trackingMethod === 'mtm') && (
+                                    <p style={{ marginTop: '10px' }}>
+                                        {__('Client-side: Tracking requests use recMode=2 (auto mode) so Matomo automatically detects and categorizes AI bots.', 'openmost-site-kit')}
+                                    </p>
+                                )}
+                            </Notice>
+                        )}
+                    </CardBody>
+                </Card>
+            )}
+
             {/* User ID Tracking - available for all methods */}
             {trackingMethod !== 'none' && (
                 <Card style={{ marginTop: '20px' }}>

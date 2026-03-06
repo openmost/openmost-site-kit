@@ -193,6 +193,7 @@ function omsk_rest_get_settings() {
         'enableJsSearchTracking'        => isset($options['omsk-matomo-enable-js-search-tracking-field']) ? (bool) $options['omsk-matomo-enable-js-search-tracking-field'] : false,
         'enableDataLayerSearchTracking' => isset($options['omsk-matomo-enable-datalayer-search-tracking-field']) ? (bool) $options['omsk-matomo-enable-datalayer-search-tracking-field'] : false,
         'enableServerSearchTracking'    => isset($options['omsk-matomo-enable-server-search-tracking-field']) ? (bool) $options['omsk-matomo-enable-server-search-tracking-field'] : false,
+        'enableAiBotTracking'    => isset($options['omsk-matomo-enable-ai-bot-tracking-field']) ? (bool) $options['omsk-matomo-enable-ai-bot-tracking-field'] : false,
         'plan'                   => omsk_get_matomo_plan(),
     ));
 }
@@ -256,6 +257,7 @@ function omsk_rest_update_settings($request) {
         'omsk-matomo-enable-js-search-tracking-field'        => $request->get_param('enableJsSearchTracking') ? 1 : 0,
         'omsk-matomo-enable-datalayer-search-tracking-field' => $request->get_param('enableDataLayerSearchTracking') ? 1 : 0,
         'omsk-matomo-enable-server-search-tracking-field'    => $request->get_param('enableServerSearchTracking') ? 1 : 0,
+        'omsk-matomo-enable-ai-bot-tracking-field'           => $request->get_param('enableAiBotTracking') ? 1 : 0,
     );
 
     update_option('omsk-settings', $options);

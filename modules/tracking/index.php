@@ -35,12 +35,13 @@ function omsk_inject_noscript_tracker() {
         return;
     }
 
-    $host           = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
-    $id_site        = isset( $options['omsk-matomo-idsite-field'] ) ? $options['omsk-matomo-idsite-field'] : '';
-    $enable_classic = ! empty( $options['omsk-matomo-enable-classic-tracking-code-field'] );
-    $enable_mtm     = ! empty( $options['omsk-matomo-enable-mtm-tracking-code-field'] );
-    $id_container   = isset( $options['omsk-matomo-idcontainer-field'] ) ? $options['omsk-matomo-idcontainer-field'] : '';
-    $excluded_roles = isset( $options['omsk-matomo-excluded-roles-field'] ) ? (array) $options['omsk-matomo-excluded-roles-field'] : array();
+    $host                   = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
+    $id_site                = isset( $options['omsk-matomo-idsite-field'] ) ? $options['omsk-matomo-idsite-field'] : '';
+    $enable_classic         = ! empty( $options['omsk-matomo-enable-classic-tracking-code-field'] );
+    $enable_mtm             = ! empty( $options['omsk-matomo-enable-mtm-tracking-code-field'] );
+    $id_container           = isset( $options['omsk-matomo-idcontainer-field'] ) ? $options['omsk-matomo-idcontainer-field'] : '';
+    $excluded_roles         = isset( $options['omsk-matomo-excluded-roles-field'] ) ? (array) $options['omsk-matomo-excluded-roles-field'] : array();
+    $enable_ai_bot_tracking = ! empty( $options['omsk-matomo-enable-ai-bot-tracking-field'] );
 
     if ( empty( $host ) || empty( $id_site ) ) {
         return;
@@ -59,7 +60,7 @@ function omsk_inject_noscript_tracker() {
     }
 
     // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Output is escaped in omsk_get_noscript_tracker.
-    echo omsk_get_noscript_tracker( $host, $id_site );
+    echo omsk_get_noscript_tracker( $host, $id_site, $enable_ai_bot_tracking );
 }
 
 /**
@@ -86,6 +87,7 @@ function omsk_inject_tracking_code() {
     $enable_userid_tracking  = ! empty( $options['omsk-matomo-enable-userid-tracking-field'] );
     $enable_heartbeat_timer  = ! empty( $options['omsk-matomo-enable-heartbeat-timer-field'] );
     $heartbeat_timer_delay   = isset( $options['omsk-matomo-heartbeat-timer-delay-field'] ) ? absint( $options['omsk-matomo-heartbeat-timer-delay-field'] ) : 15;
+    $enable_ai_bot_tracking  = ! empty( $options['omsk-matomo-enable-ai-bot-tracking-field'] );
 
     if ( empty( $host ) || empty( $id_site ) ) {
         return;
@@ -108,12 +110,12 @@ function omsk_inject_tracking_code() {
 
     // Inject Tag Manager tracking code (recommended).
     if ( $enable_mtm && $id_container ) {
-        omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_mtm_datalayer, $user_id );
+        omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_mtm_datalayer, $user_id, $enable_ai_bot_tracking );
     }
 
     // Inject classic tracking code (fallback) - only if MTM is not enabled.
     if ( $enable_classic && ! $enable_mtm ) {
-        omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode, $user_id, $enable_heartbeat_timer, $heartbeat_timer_delay );
+        omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode, $user_id, $enable_heartbeat_timer, $heartbeat_timer_delay, $enable_ai_bot_tracking );
     }
 }
 
@@ -167,15 +169,16 @@ function omsk_get_wp_environment() {
  * push with context information that can be used by MTM triggers.
  *
  * @since 1.0.0
- * @param string      $cdn_host         CDN host URL.
- * @param string      $id_container     Container ID.
- * @param string      $host             Matomo host URL.
- * @param string      $id_site          Site ID.
- * @param bool        $enable_datalayer Whether to push context to dataLayer.
- * @param string|null $user_id          SHA256 hashed user ID or null.
+ * @param string      $cdn_host                CDN host URL.
+ * @param string      $id_container            Container ID.
+ * @param string      $host                    Matomo host URL.
+ * @param string      $id_site                 Site ID.
+ * @param bool        $enable_datalayer        Whether to push context to dataLayer.
+ * @param string|null $user_id                 SHA256 hashed user ID or null.
+ * @param bool        $enable_ai_bot_tracking  Whether AI bot tracking is enabled.
  * @return void
  */
-function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_datalayer = true, $user_id = null ) {
+function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_datalayer = true, $user_id = null, $enable_ai_bot_tracking = false ) {
     $plan = omsk_get_matomo_plan();
 
     // Build script URL based on plan type.
@@ -197,7 +200,8 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
         'matomo': {
             'host': '<?php echo esc_js( trailingslashit( $host ) ); ?>',
             'site_id': '<?php echo esc_js( $id_site ); ?>',
-            'container_id': '<?php echo esc_js( $id_container ); ?>'
+            'container_id': '<?php echo esc_js( $id_container ); ?>'<?php if ( $enable_ai_bot_tracking ) : ?>,
+            'recMode': 2<?php endif; ?>
         },
         'wordpress': {
             'environment': '<?php echo esc_js( $wp_env ); ?>'<?php if ( $user_id ) : ?>,
@@ -221,16 +225,17 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
  * This code supports consent mode options for GDPR compliance.
  *
  * @since 1.0.0
- * @param string      $host                   Matomo host URL.
- * @param string      $id_site                Site ID.
- * @param string      $plan                   Plan type (cloud or on_premise).
- * @param string      $consent_mode           Consent mode (disabled, require_consent, require_cookie_consent).
- * @param string|null $user_id                SHA256 hashed user ID or null.
- * @param bool        $enable_heartbeat_timer Enable heartbeat timer for accurate time tracking.
- * @param int         $heartbeat_timer_delay  Heartbeat timer delay in seconds.
+ * @param string      $host                    Matomo host URL.
+ * @param string      $id_site                 Site ID.
+ * @param string      $plan                    Plan type (cloud or on_premise).
+ * @param string      $consent_mode            Consent mode (disabled, require_consent, require_cookie_consent).
+ * @param string|null $user_id                 SHA256 hashed user ID or null.
+ * @param bool        $enable_heartbeat_timer  Enable heartbeat timer for accurate time tracking.
+ * @param int         $heartbeat_timer_delay   Heartbeat timer delay in seconds.
+ * @param bool        $enable_ai_bot_tracking  Whether AI bot tracking is enabled.
  * @return void
  */
-function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disabled', $user_id = null, $enable_heartbeat_timer = false, $heartbeat_timer_delay = 15 ) {
+function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disabled', $user_id = null, $enable_heartbeat_timer = false, $heartbeat_timer_delay = 15, $enable_ai_bot_tracking = false ) {
     // Determine script URL based on plan type.
     if ( 'cloud' === $plan ) {
         $cdn_host   = omsk_get_matomo_cdn_host();
@@ -260,7 +265,11 @@ function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disa
       _paq.push(['enableLinkTracking']);
       (function() {
         var u="<?php echo esc_js( trailingslashit( $host ) ); ?>";
+        <?php if ( $enable_ai_bot_tracking ) : ?>
+        _paq.push(['setTrackerUrl', u+'matomo.php?recMode=2&source=WordPress']);
+        <?php else : ?>
         _paq.push(['setTrackerUrl', u+'matomo.php']);
+        <?php endif; ?>
         _paq.push(['setSiteId', '<?php echo esc_js( $id_site ); ?>']);
         var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
         g.async=true; g.src='<?php echo esc_url( $script_url ); ?>'; s.parentNode.insertBefore(g,s);
@@ -273,12 +282,16 @@ function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disa
 /**
  * Generate noscript image tracker for users with JavaScript disabled.
  *
+ * When AI bot tracking is enabled, uses recMode=2 (auto mode) so Matomo
+ * automatically detects and categorizes AI bot requests from the pixel.
+ *
  * @since 1.0.0
- * @param string $host    Matomo host URL.
- * @param string $id_site Site ID.
+ * @param string $host                   Matomo host URL.
+ * @param string $id_site                Site ID.
+ * @param bool   $enable_ai_bot_tracking Whether AI bot tracking is enabled.
  * @return string HTML noscript block with image tracker.
  */
-function omsk_get_noscript_tracker( $host, $id_site ) {
+function omsk_get_noscript_tracker( $host, $id_site, $enable_ai_bot_tracking = false ) {
     // Build image tracker URL with parameters.
     $tracker_params = array(
         'idsite'      => absint( $id_site ),
@@ -288,6 +301,13 @@ function omsk_get_noscript_tracker( $host, $id_site ) {
         'apiv'        => 1,
         'rand'        => wp_rand( 100000, 999999 ),
     );
+
+    // Use auto mode (recMode=2) when AI bot tracking is enabled.
+    // Matomo will auto-detect AI bots from User-Agent and track them separately.
+    if ( $enable_ai_bot_tracking ) {
+        $tracker_params['recMode'] = 2;
+        $tracker_params['source']  = 'WordPress';
+    }
 
     // Add referrer if available.
     if ( ! empty( $_SERVER['HTTP_REFERER'] ) ) {

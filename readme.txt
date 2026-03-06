@@ -75,6 +75,7 @@ Choose the tracking method that best fits your needs:
 * User ID tracking with SHA256 hashed email
 * Heartbeat Timer for accurate time-on-page measurement
 * DataLayer integration for Tag Manager
+* AI Bot Tracking - Track visits from AI assistants (ChatGPT, Perplexity, Claude, etc.) separately in Matomo (requires Matomo 5.7+)
 * Bot detection and filtering
 * Noscript fallback for JavaScript-disabled browsers
 * DNS prefetch and script preloading for performance
@@ -220,6 +221,14 @@ Yes, server-side tracking works with both Matomo Cloud and On-Premise installati
 
 Make sure you've enabled the ecommerce tracking option for your active tracking method. Each method (Classic, Tag Manager, Server-Side) has its own toggle.
 
+= What is AI Bot Tracking? =
+
+AI Bot Tracking allows you to track visits from AI assistants like ChatGPT, Perplexity, Claude, and Gemini separately in Matomo. Instead of discarding these visits, Matomo 5.7+ can record them in a dedicated bot tracking report. Enable this feature in Settings to see how AI agents interact with your content.
+
+= Which AI bots are detected? =
+
+The plugin detects user-triggered AI assistants including ChatGPT-User, GPTBot, PerplexityBot, ClaudeBot, Claude-Web, Google-Extended, Gemini, Meta-ExternalAgent, AmazonBot, AppleBot-Extended, OAI-SearchBot, and others. The list is regularly updated.
+
 = Can I use this with other analytics plugins? =
 
 While technically possible, we recommend using only Matomo Site Kit for analytics to avoid conflicts and duplicate tracking.
@@ -243,23 +252,28 @@ Contributions are welcome! Visit our [GitHub repository](https://github.com/open
 == Changelog ==
 
 = 2.2.0 =
-Release date: 2025-03-06
+Release date: 2026-03-06
 
 **New Features:**
 
+* AI Bot Tracking - Track visits from AI assistants (ChatGPT, Perplexity, Claude, Gemini, etc.) separately in Matomo using the bot tracking API (recMode). Requires Matomo 5.7.0+
 * Server-Side PHP Tracking - Track page views server-side for ad-blocker resistance and enhanced privacy
 * WooCommerce Ecommerce Tracking - Complete ecommerce analytics for all three tracking methods
 * Site Search Tracking - Automatically track WordPress searches with keyword, category, and result count
 * Automatic Annotations - Create Matomo annotations when posts are published
 * Customizable annotation format with variables ({post_type}, {title}, {url}, {author})
+* Privacy settings page with robots.txt and .well-known/ai-plugin.json management
 
 **Improvements:**
 
 * Restructured Settings page with intuitive tracking method cards
 * Each tracking method now clearly shows its required fields
-* Separated feature cards for better organization (GDPR, Heartbeat, User ID, Ecommerce, Search)
+* Separated feature cards for better organization (GDPR, Heartbeat, User ID, Ecommerce, Search, AI Bot Tracking)
 * Renamed Dashboard tab to Features tab for clarity
-* Intelligent bot detection for server-side tracking
+* Intelligent bot detection for server-side tracking with AI assistant categorization
+* Server-side AI bot detection sends recMode=1 (bot-only) requests with source label
+* Classic JS and Tag Manager use recMode=2 (auto mode) for automatic AI bot classification
+* Noscript image tracker includes recMode=2 for pixel-based bot detection
 * Privacy opt-out shortcode now uses modern script-based approach
 * Full WordPress Coding Standards compliance
 * Enhanced security with proper escaping and sanitization throughout
@@ -272,6 +286,7 @@ Release date: 2025-03-06
 * Improved internationalization (i18n) support
 * PHP 8.2+ compatibility
 * WordPress 6.0+ required
+* Matomo 5.7.0+ required for AI Bot Tracking feature
 
 = 2.1.1 =
 Release date: 2025-11-24
@@ -323,7 +338,7 @@ Release date: 2023-05-17
 == Upgrade Notice ==
 
 = 2.2.0 =
-Major feature release! New server-side tracking, WooCommerce ecommerce, site search tracking, and automatic annotations. Includes security improvements and WordPress coding standards compliance. Recommended for all users.
+Major feature release! New AI bot tracking (Matomo 5.7+), server-side tracking, WooCommerce ecommerce, site search tracking, automatic annotations, and privacy settings. Includes security improvements and WordPress coding standards compliance. Recommended for all users.
 
 = 2.1.0 =
 New User ID tracking and Heartbeat Timer features. Improved settings interface.
