@@ -33,7 +33,6 @@ const PostAnalytics = ({ postId }) => {
             });
             setData(response);
         } catch (err) {
-            console.error('[PostAnalytics] Error:', err);
             setError(err.message || __('Failed to load analytics', 'openmost-site-kit'));
         } finally {
             setLoading(false);

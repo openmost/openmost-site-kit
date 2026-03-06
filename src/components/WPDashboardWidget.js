@@ -118,7 +118,6 @@ const WPDashboardWidget = () => {
                 nb_pageviews: previousActions?.nb_pageviews || 0,
             });
         } catch (err) {
-            console.error('[WPDashboardWidget] Error loading data:', err);
             setError(err.message || __('Failed to load analytics data', 'openmost-site-kit'));
         } finally {
             setLoading(false);

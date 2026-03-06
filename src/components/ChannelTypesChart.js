@@ -22,20 +22,12 @@ const ChannelTypesChart = ({ date, period }) => {
         setError(null);
 
         try {
-            console.log('[ChannelTypesChart] Fetching data with params:', { method: 'Referrers.get', period: 'range', date });
             const response = await fetchMatomoData('Referrers.get', {
                 period: 'range',
                 date,
             });
-            console.log('[ChannelTypesChart] Response received:', response);
-
-            if (!response) {
-                console.error('[ChannelTypesChart] No data received');
-            }
-
             setData(response);
         } catch (err) {
-            console.error('[ChannelTypesChart] Error loading data:', err);
             setError(err.message);
         } finally {
             setLoading(false);

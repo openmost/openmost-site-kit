@@ -23,21 +23,13 @@ const VisitsOverviewChart = ({ date, period }) => {
         setError(null);
 
         try {
-            console.log('[VisitsOverviewChart] Fetching data with params:', { method: 'API.get', period, date });
             const response = await fetchMatomoData('API.get', {
                 period,
                 date,
                 showColumns: 'nb_visits,nb_pageviews',
             });
-            console.log('[VisitsOverviewChart] Response received:', response);
-
-            if (!response || (Array.isArray(response) && response.length === 0) || (typeof response === 'object' && Object.keys(response).length === 0)) {
-                console.error('[VisitsOverviewChart] No data or empty data received');
-            }
-
             setData(response);
         } catch (err) {
-            console.error('[VisitsOverviewChart] Error loading data:', err);
             setError(err.message);
         } finally {
             setLoading(false);
@@ -77,14 +69,6 @@ const VisitsOverviewChart = ({ date, period }) => {
             dates.push(date);
             visits.push(values.nb_visits || 0);
             pageviews.push(values.nb_pageviews || 0);
-
-            // Debug logging for first entry
-            if (dates.length === 1) {
-                console.log('[VisitsOverviewChart] Sample data for', date, ':', {
-                    nb_visits: values.nb_visits,
-                    nb_pageviews: values.nb_pageviews,
-                });
-            }
         });
 
         return { dates, visits, pageviews };

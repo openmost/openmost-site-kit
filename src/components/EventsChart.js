@@ -56,13 +56,6 @@ const EventsChart = ({ date, period }) => {
             render: (row) => new Intl.NumberFormat().format(row.nb_events || 0),
             sortValue: (row) => row.nb_events || 0,
         },
-        {
-            key: 'nb_uniq_visitors',
-            label: __('Unique', 'openmost-site-kit'),
-            numeric: true,
-            render: (row) => new Intl.NumberFormat().format(row.nb_events_with_value || row.nb_uniq_visitors || 0),
-            sortValue: (row) => row.nb_events_with_value || row.nb_uniq_visitors || 0,
-        },
     ], []);
 
     if (loading) {

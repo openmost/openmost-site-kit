@@ -29,7 +29,6 @@ const KPICards = ({ date, period }) => {
             });
             setData(response);
         } catch (err) {
-            console.error('[KPICards] Error loading data:', err);
             setError(err.message);
         } finally {
             setLoading(false);

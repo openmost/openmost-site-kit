@@ -432,17 +432,18 @@
 
 // DataTable component
 .omsk-datatable {
-  .omsk-table-rank-col {
+  .omsk-table th.omsk-table-rank-col,
+  .omsk-table td.omsk-table-rank-col {
     width: 32px;
     min-width: 32px;
-    text-align: center;
+    text-align: left !important;
     color: #757575;
     font-size: 12px;
-    padding-left: 8px !important;
+    padding-left: 16px !important;
     padding-right: 0 !important;
   }
 
-  thead .omsk-table-rank-col {
+  .omsk-table thead th.omsk-table-rank-col {
     font-weight: 600;
     color: #50575e;
   }

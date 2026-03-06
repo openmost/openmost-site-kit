@@ -43,7 +43,7 @@ const Dashboard = () => {
                 // Settings incomplete
             }
         } catch (error) {
-            console.error('Failed to load settings', error);
+            // Settings load failed silently.
         } finally {
             setLoading(false);
         }

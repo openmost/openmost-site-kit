@@ -372,6 +372,14 @@ function omsk_rest_matomo_proxy($request) {
         }
     }
 
+    // Cache responses for 5 minutes to reduce Matomo API load.
+    $cache_key = 'omsk_api_' . md5($param_string);
+    $cached    = get_transient($cache_key);
+
+    if (false !== $cached) {
+        return rest_ensure_response($cached);
+    }
+
     $data = omsk_fetch_matomo_api($param_string);
 
     if (is_wp_error($data)) {
@@ -381,6 +389,8 @@ function omsk_rest_matomo_proxy($request) {
             array('status' => 500)
         );
     }
+
+    set_transient($cache_key, $data, 5 * MINUTE_IN_SECONDS);
 
     return rest_ensure_response($data);
 }

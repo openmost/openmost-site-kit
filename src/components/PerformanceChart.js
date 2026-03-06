@@ -24,20 +24,12 @@ const PerformanceChart = ({ date, period }) => {
         setError(null);
 
         try {
-            console.log('[PerformanceChart] Fetching data with params:', { method: 'PagePerformance.get', period, date });
             const response = await fetchMatomoData('PagePerformance.get', {
                 period,
                 date,
             });
-            console.log('[PerformanceChart] Response received:', response);
-
-            if (!response || (Array.isArray(response) && response.length === 0) || (typeof response === 'object' && Object.keys(response).length === 0)) {
-                console.error('[PerformanceChart] No data or empty data received');
-            }
-
             setData(response);
         } catch (err) {
-            console.error('[PerformanceChart] Error loading data:', err);
             setError(err.message);
         } finally {
             setLoading(false);
