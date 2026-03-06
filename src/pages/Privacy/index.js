@@ -9,14 +9,10 @@ import {
     CardBody,
     CardHeader,
     SelectControl,
-    TextControl,
     ToggleControl,
     Button,
     Notice,
     Spinner,
-    Flex,
-    FlexBlock,
-    FlexItem,
     __experimentalDivider as Divider,
 } from '@wordpress/components';
 import { copy, check } from '@wordpress/icons';
@@ -24,24 +20,22 @@ import { getSettings } from '../../utils/api';
 
 /**
  * OptOut Preview Component
- * Dynamically loads Matomo opt-out script
- * Uses a stable container ID and refs to avoid React DOM conflicts
+ * Dynamically loads Matomo opt-out script with proper refresh on URL change
  *
  * IMPORTANT: The Matomo script modifies DOM directly, so we must:
  * 1. Never render React children inside the container Matomo modifies
  * 2. Use a wrapper div for React state (loading spinner) separate from Matomo's target
  */
-const OptOutPreview = ({ url, width, height }) => {
+const OptOutPreview = ({ url }) => {
     const containerRef = useRef(null);
     const scriptRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
-    // Use a stable ID that doesn't change on every render
-    const stableId = useRef(`matomo-opt-out-preview-${Date.now()}`);
 
     useEffect(() => {
         if (!url || !containerRef.current) return;
 
-        const containerId = stableId.current;
+        // Generate unique ID for this render to force Matomo to re-render
+        const containerId = `matomo-opt-out-preview-${Date.now()}`;
         setIsLoading(true);
 
         // Remove previous script if exists
@@ -72,7 +66,7 @@ const OptOutPreview = ({ url, width, height }) => {
 
         document.body.appendChild(script);
 
-        // Cleanup on unmount
+        // Cleanup on unmount or before next effect
         return () => {
             if (scriptRef.current && scriptRef.current.parentNode) {
                 scriptRef.current.parentNode.removeChild(scriptRef.current);
@@ -84,7 +78,7 @@ const OptOutPreview = ({ url, width, height }) => {
     // Wrapper div for React to control, with Matomo container as empty ref
     // The Spinner is a SIBLING to the Matomo container, not a child
     return (
-        <div style={{ position: 'relative', width: width === '100%' ? '100%' : width, minHeight: height }}>
+        <div style={{ position: 'relative', minHeight: '100px' }}>
             {isLoading && (
                 <div style={{
                     position: 'absolute',
@@ -118,8 +112,6 @@ const Privacy = () => {
     const [config, setConfig] = useState({
         language: 'auto',
         showIntro: true,
-        width: '100%',
-        height: '200px',
     });
 
     useEffect(() => {
@@ -162,14 +154,6 @@ const Privacy = () => {
 
         if (!config.showIntro) {
             parts.push(' show_intro="0"');
-        }
-
-        if (config.width !== '100%') {
-            parts.push(` width="${config.width}"`);
-        }
-
-        if (config.height !== '200px') {
-            parts.push(` height="${config.height}"`);
         }
 
         parts.push(']');
@@ -249,26 +233,6 @@ const Privacy = () => {
 
                         <Divider />
 
-                        <h3 style={{ marginTop: '20px', marginBottom: '10px' }}>
-                            {__('Display Options', 'openmost-site-kit')}
-                        </h3>
-
-                        <TextControl
-                            label={__('Width', 'openmost-site-kit')}
-                            value={config.width}
-                            onChange={(value) => setConfig({ ...config, width: value })}
-                            help={__('Width of the opt-out form (e.g., 100%, 600px)', 'openmost-site-kit')}
-                        />
-
-                        <TextControl
-                            label={__('Height', 'openmost-site-kit')}
-                            value={config.height}
-                            onChange={(value) => setConfig({ ...config, height: value })}
-                            help={__('Minimum height of the opt-out form (e.g., 200px)', 'openmost-site-kit')}
-                        />
-
-                        <Divider />
-
                         <div style={{ marginTop: '20px', padding: '15px', backgroundColor: '#f0f0f1', borderRadius: '4px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '10px' }}>
                                 <strong>{__('Generated Shortcode:', 'openmost-site-kit')}</strong>
@@ -318,13 +282,9 @@ const Privacy = () => {
                                     borderRadius: '4px',
                                     padding: '20px',
                                     backgroundColor: 'white',
-                                    minHeight: config.height,
+                                    minHeight: '150px',
                                 }}>
-                                    <OptOutPreview
-                                        url={debouncedUrl}
-                                        width={config.width}
-                                        height={config.height}
-                                    />
+                                    <OptOutPreview url={debouncedUrl} />
                                 </div>
 
                                 <Notice status="success" isDismissible={false} style={{ marginTop: '15px' }}>
@@ -380,16 +340,28 @@ const Privacy = () => {
                                 <td><code>show_intro="0"</code></td>
                             </tr>
                             <tr>
-                                <td><code>width</code></td>
-                                <td>{__('Form width', 'openmost-site-kit')}</td>
-                                <td><code>100%</code></td>
-                                <td><code>width="600px"</code></td>
+                                <td><code>background_color</code></td>
+                                <td>{__('Background color (hex without #)', 'openmost-site-kit')}</td>
+                                <td><code>-</code></td>
+                                <td><code>background_color="FFFFFF"</code></td>
                             </tr>
                             <tr>
-                                <td><code>height</code></td>
-                                <td>{__('Minimum form height', 'openmost-site-kit')}</td>
-                                <td><code>200px</code></td>
-                                <td><code>height="250px"</code></td>
+                                <td><code>font_color</code></td>
+                                <td>{__('Text color (hex without #)', 'openmost-site-kit')}</td>
+                                <td><code>-</code></td>
+                                <td><code>font_color="000000"</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>font_size</code></td>
+                                <td>{__('Font size', 'openmost-site-kit')}</td>
+                                <td><code>-</code></td>
+                                <td><code>font_size="12px"</code></td>
+                            </tr>
+                            <tr>
+                                <td><code>font_family</code></td>
+                                <td>{__('Font family', 'openmost-site-kit')}</td>
+                                <td><code>-</code></td>
+                                <td><code>font_family="Arial"</code></td>
                             </tr>
                         </tbody>
                     </table>

@@ -19,7 +19,7 @@ add_shortcode('omsk_matomo_opt_out', 'omsk_matomo_opt_out_shortcode');
 
 /**
  * Render opt-out shortcode
- * Uses iframe approach to comply with WordPress coding standards
+ * Uses modern script-based approach (optOutJS) instead of iframe
  *
  * @param array $params Shortcode attributes
  * @return string HTML output
@@ -32,48 +32,50 @@ function omsk_matomo_opt_out_shortcode($params)
         return '<p>' . esc_html__('Matomo is not configured.', 'openmost-site-kit') . '</p>';
     }
 
+    // Generate unique div ID for multiple shortcodes on same page
+    static $instance = 0;
+    $instance++;
+    $div_id = 'matomo-opt-out-' . $instance;
+
     // Parse shortcode attributes
     $atts = shortcode_atts(array(
         'language'         => 'auto',
         'show_intro'       => '1',
-        'width'            => '100%',
-        'height'           => '200px',
         'background_color' => '',
         'font_color'       => '',
         'font_size'        => '',
         'font_family'      => '',
     ), $params);
 
-    // Build opt-out iframe URL (using optOut action for iframe embedding)
-    $iframe_params = array(
+    // Build opt-out script URL (using optOutJS action for script embedding)
+    $script_params = array(
         'module'    => 'CoreAdminHome',
-        'action'    => 'optOut',
+        'action'    => 'optOutJS',
+        'divId'     => $div_id,
         'language'  => esc_attr($atts['language']),
         'showIntro' => esc_attr($atts['show_intro']),
     );
 
     // Add optional style parameters if provided
     if (!empty($atts['background_color'])) {
-        $iframe_params['backgroundColor'] = omsk_sanitize_hex_color_no_hash($atts['background_color']);
+        $script_params['backgroundColor'] = omsk_sanitize_hex_color_no_hash($atts['background_color']);
     }
     if (!empty($atts['font_color'])) {
-        $iframe_params['fontColor'] = omsk_sanitize_hex_color_no_hash($atts['font_color']);
+        $script_params['fontColor'] = omsk_sanitize_hex_color_no_hash($atts['font_color']);
     }
     if (!empty($atts['font_size'])) {
-        $iframe_params['fontSize'] = esc_attr($atts['font_size']);
+        $script_params['fontSize'] = esc_attr($atts['font_size']);
     }
     if (!empty($atts['font_family'])) {
-        $iframe_params['fontFamily'] = esc_attr($atts['font_family']);
+        $script_params['fontFamily'] = esc_attr($atts['font_family']);
     }
 
-    $iframe_url = add_query_arg($iframe_params, trailingslashit($host) . 'index.php');
+    $script_url = add_query_arg($script_params, trailingslashit($host) . 'index.php');
 
     $html = sprintf(
-        '<iframe src="%s" style="border: 0; width: %s; height: %s;" title="%s"></iframe>',
-        esc_url($iframe_url),
-        esc_attr($atts['width']),
-        esc_attr($atts['height']),
-        esc_attr__('Matomo Opt-Out', 'openmost-site-kit')
+        '<div id="%s"></div><script src="%s"></script>',
+        esc_attr($div_id),
+        esc_url($script_url)
     );
 
     return $html;

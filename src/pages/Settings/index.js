@@ -2,7 +2,7 @@
  * Settings Page Component with Tabs
  */
 
-import { useState, useEffect, useRef, useMemo } from '@wordpress/element';
+import { useState, useEffect, useRef } from '@wordpress/element';
 import { __ } from '@wordpress/i18n';
 import {
     Card,
@@ -70,27 +70,61 @@ const ColorPickerButton = ({ label, color, onChange }) => {
 };
 
 /**
- * OptOut Preview Component - Uses iframe with optOut action (not optOutJS)
+ * OptOut Preview Component - Uses script-based approach (optOutJS)
+ * Dynamically loads Matomo opt-out script with proper refresh on URL change
  */
 const OptOutPreview = ({ url }) => {
+    const containerRef = useRef(null);
+    const scriptRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [error, setError] = useState(null);
+    // Use a counter to generate unique IDs for each URL change
+    const [refreshKey, setRefreshKey] = useState(0);
 
-    // Build iframe URL - convert optOutJS to optOut for iframe embedding
-    const iframeUrl = useMemo(() => {
-        if (!url) return null;
-        try {
-            const scriptUrl = new URL(url);
-            // Change action from optOutJS to optOut for iframe
-            scriptUrl.searchParams.set('action', 'optOut');
-            scriptUrl.searchParams.delete('divId');
-            return scriptUrl.toString();
-        } catch {
-            return null;
+    useEffect(() => {
+        if (!url || !containerRef.current) return;
+
+        // Generate unique ID for this render to force Matomo to re-render
+        const containerId = `matomo-opt-out-preview-${Date.now()}`;
+        setIsLoading(true);
+
+        // Remove previous script if exists
+        if (scriptRef.current && scriptRef.current.parentNode) {
+            scriptRef.current.parentNode.removeChild(scriptRef.current);
+            scriptRef.current = null;
         }
+
+        // Clear container content manually (outside React's control)
+        while (containerRef.current.firstChild) {
+            containerRef.current.removeChild(containerRef.current.firstChild);
+        }
+
+        // Set the ID on the container
+        containerRef.current.id = containerId;
+
+        // Parse URL and update the divId parameter
+        const scriptUrl = new URL(url);
+        scriptUrl.searchParams.set('divId', containerId);
+
+        // Create and load script
+        const script = document.createElement('script');
+        script.src = scriptUrl.toString();
+        script.async = true;
+        script.onload = () => setIsLoading(false);
+        script.onerror = () => setIsLoading(false);
+        scriptRef.current = script;
+
+        document.body.appendChild(script);
+
+        // Cleanup on unmount or before next effect
+        return () => {
+            if (scriptRef.current && scriptRef.current.parentNode) {
+                scriptRef.current.parentNode.removeChild(scriptRef.current);
+                scriptRef.current = null;
+            }
+        };
     }, [url]);
 
-    if (!iframeUrl) {
+    if (!url) {
         return (
             <Notice status="warning" isDismissible={false}>
                 {__('Configure Matomo to see the preview', 'openmost-site-kit')}
@@ -99,7 +133,7 @@ const OptOutPreview = ({ url }) => {
     }
 
     return (
-        <div style={{ position: 'relative', minHeight: '120px' }}>
+        <div style={{ position: 'relative', minHeight: '100px' }}>
             {isLoading && (
                 <div style={{
                     position: 'absolute',
@@ -116,27 +150,8 @@ const OptOutPreview = ({ url }) => {
                     <Spinner />
                 </div>
             )}
-            {error && (
-                <Notice status="error" isDismissible={false}>
-                    {error}
-                </Notice>
-            )}
-            <iframe
-                src={iframeUrl}
-                style={{
-                    width: '100%',
-                    minHeight: '120px',
-                    border: 'none',
-                    borderRadius: '4px',
-                    background: '#fff',
-                }}
-                onLoad={() => setIsLoading(false)}
-                onError={() => {
-                    setError(__('Failed to load preview', 'openmost-site-kit'));
-                    setIsLoading(false);
-                }}
-                title={__('Opt-out Preview', 'openmost-site-kit')}
-            />
+            {/* This div is controlled entirely by Matomo - NO React children */}
+            <div ref={containerRef} />
         </div>
     );
 };

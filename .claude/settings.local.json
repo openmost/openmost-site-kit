@@ -5,7 +5,8 @@
       "WebSearch",
       "Bash(xargs ls:*)",
       "Bash(npm run build:dev:*)",
-      "Bash(npm run:*)"
+      "Bash(npm run:*)",
+      "Bash(npm install)"
     ],
     "deny": [],
     "ask": []
