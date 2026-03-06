@@ -174,9 +174,10 @@ function omsk_output_datalayer_search_tracking() {
  * @return void
  */
 function omsk_track_search_server_side( $options ) {
-    $host       = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
-    $id_site    = isset( $options['omsk-matomo-idsite-field'] ) ? $options['omsk-matomo-idsite-field'] : '';
-    $token_auth = isset( $options['omsk-matomo-token-auth-field'] ) ? $options['omsk-matomo-token-auth-field'] : '';
+    $host                  = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
+    $id_site               = isset( $options['omsk-matomo-idsite-field'] ) ? $options['omsk-matomo-idsite-field'] : '';
+    $token_auth            = isset( $options['omsk-matomo-token-auth-field'] ) ? $options['omsk-matomo-token-auth-field'] : '';
+    $enable_userid_tracking = ! empty( $options['omsk-matomo-enable-userid-tracking-field'] );
 
     // Validate required settings.
     if ( empty( $host ) || empty( $id_site ) ) {
@@ -198,32 +199,11 @@ function omsk_track_search_server_side( $options ) {
     try {
         $tracker = new MatomoTracker( absint( $id_site ), $host );
 
-        if ( $token_auth ) {
-            $tracker->setTokenAuth( $token_auth );
-        }
-
-        // Disable cookies for server-side tracking.
-        $tracker->disableCookieSupport();
-
-        // Set visitor IP.
-        $visitor_ip = omsk_get_visitor_ip();
-        if ( $visitor_ip ) {
-            $tracker->setIp( $visitor_ip );
-        }
-
-        // Set User-Agent.
-        if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-            $tracker->setUserAgent( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
-        }
-
-        // Set Accept-Language.
-        if ( ! empty( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) {
-            $tracker->setBrowserLanguage( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) );
-        }
+        // Configure common visitor attributes (visitor ID, IP, UA, referrer, User ID).
+        omsk_configure_tracker( $tracker, $token_auth, $enable_userid_tracking );
 
         // Set page URL.
-        $page_url = omsk_get_current_url();
-        $tracker->setUrl( $page_url );
+        $tracker->setUrl( omsk_get_current_url() );
 
         // Track site search.
         $tracker->doTrackSiteSearch(

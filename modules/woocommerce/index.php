@@ -137,27 +137,20 @@ class OMSK_WooCommerce_Tracking
         }
 
         $tracker = new MatomoTracker((int) $idSite, $host);
+        $enableUserIdTracking = !empty($this->options['omsk-matomo-enable-userid-tracking-field']);
 
-        if ($tokenAuth) {
-            $tracker->setTokenAuth($tokenAuth);
+        // Configure common visitor attributes (visitor ID, IP, UA, referrer, User ID).
+        if (function_exists('omsk_configure_tracker')) {
+            omsk_configure_tracker($tracker, $tokenAuth, $enableUserIdTracking);
+        } else {
+            if ($tokenAuth) {
+                $tracker->setTokenAuth($tokenAuth);
+            }
+            $tracker->disableCookieSupport();
         }
 
-        $tracker->disableCookieSupport();
-
-        // Set visitor info
         if (function_exists('omsk_get_current_url')) {
             $tracker->setUrl(omsk_get_current_url());
-        }
-
-        if (function_exists('omsk_get_visitor_ip')) {
-            $ip = omsk_get_visitor_ip();
-            if ($ip) {
-                $tracker->setIp($ip);
-            }
-        }
-
-        if (!empty($_SERVER['HTTP_USER_AGENT'])) {
-            $tracker->setUserAgent(sanitize_text_field(wp_unslash($_SERVER['HTTP_USER_AGENT'])));
         }
 
         return $tracker;

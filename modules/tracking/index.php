@@ -88,6 +88,7 @@ function omsk_inject_tracking_code() {
     $enable_heartbeat_timer  = ! empty( $options['omsk-matomo-enable-heartbeat-timer-field'] );
     $heartbeat_timer_delay   = isset( $options['omsk-matomo-heartbeat-timer-delay-field'] ) ? absint( $options['omsk-matomo-heartbeat-timer-delay-field'] ) : 15;
     $enable_ai_bot_tracking  = ! empty( $options['omsk-matomo-enable-ai-bot-tracking-field'] );
+    $enable_js_search        = ! empty( $options['omsk-matomo-enable-js-search-tracking-field'] );
 
     if ( empty( $host ) || empty( $id_site ) ) {
         return;
@@ -108,6 +109,10 @@ function omsk_inject_tracking_code() {
         $user_id = omsk_get_hashed_user_id();
     }
 
+    // On search pages with JS search tracking enabled, skip trackPageView
+    // because trackSiteSearch will be called instead (avoids double tracking).
+    $skip_track_pageview = is_search() && $enable_classic && $enable_js_search;
+
     // Inject Tag Manager tracking code (recommended).
     if ( $enable_mtm && $id_container ) {
         omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_mtm_datalayer, $user_id, $enable_ai_bot_tracking );
@@ -115,7 +120,7 @@ function omsk_inject_tracking_code() {
 
     // Inject classic tracking code (fallback) - only if MTM is not enabled.
     if ( $enable_classic && ! $enable_mtm ) {
-        omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode, $user_id, $enable_heartbeat_timer, $heartbeat_timer_delay, $enable_ai_bot_tracking );
+        omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode, $user_id, $enable_heartbeat_timer, $heartbeat_timer_delay, $enable_ai_bot_tracking, $skip_track_pageview );
     }
 }
 
@@ -233,9 +238,10 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
  * @param bool        $enable_heartbeat_timer  Enable heartbeat timer for accurate time tracking.
  * @param int         $heartbeat_timer_delay   Heartbeat timer delay in seconds.
  * @param bool        $enable_ai_bot_tracking  Whether AI bot tracking is enabled.
+ * @param bool        $skip_track_pageview     Skip trackPageView (e.g. on search pages where trackSiteSearch replaces it).
  * @return void
  */
-function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disabled', $user_id = null, $enable_heartbeat_timer = false, $heartbeat_timer_delay = 15, $enable_ai_bot_tracking = false ) {
+function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disabled', $user_id = null, $enable_heartbeat_timer = false, $heartbeat_timer_delay = 15, $enable_ai_bot_tracking = false, $skip_track_pageview = false ) {
     // Determine script URL based on plan type.
     if ( 'cloud' === $plan ) {
         $cdn_host   = omsk_get_matomo_cdn_host();
@@ -261,7 +267,9 @@ function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disa
       <?php if ( $enable_heartbeat_timer ) : ?>
       _paq.push(['enableHeartBeatTimer', <?php echo absint( $heartbeat_timer_delay ); ?>]);
       <?php endif; ?>
+      <?php if ( ! $skip_track_pageview ) : ?>
       _paq.push(['trackPageView']);
+      <?php endif; ?>
       _paq.push(['enableLinkTracking']);
       (function() {
         var u="<?php echo esc_js( trailingslashit( $host ) ); ?>";

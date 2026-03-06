@@ -56,6 +56,7 @@ function omsk_server_side_track_pageview() {
     $token_auth              = isset( $options['omsk-matomo-token-auth-field'] ) ? $options['omsk-matomo-token-auth-field'] : '';
     $enable_userid_tracking  = ! empty( $options['omsk-matomo-enable-userid-tracking-field'] );
     $enable_ai_bot_tracking  = ! empty( $options['omsk-matomo-enable-ai-bot-tracking-field'] );
+    $enable_server_search    = ! empty( $options['omsk-matomo-enable-server-search-tracking-field'] );
 
     // Check if server-side tracking is enabled.
     if ( ! $enable_server_tracking ) {
@@ -83,65 +84,114 @@ function omsk_server_side_track_pageview() {
         return;
     }
 
+    // Skip trackPageView on search pages when server-side search tracking is enabled.
+    // doTrackSiteSearch replaces doTrackPageView (avoids double tracking).
+    if ( is_search() && $enable_server_search ) {
+        return;
+    }
+
     try {
         // Initialize the Matomo Tracker.
         $tracker = new MatomoTracker( absint( $id_site ), $host );
 
-        // Set token auth for accurate IP tracking and visitor recognition.
-        if ( $token_auth ) {
-            $tracker->setTokenAuth( $token_auth );
-        }
-
-        // Disable cookies for server-side tracking (more privacy-friendly).
-        $tracker->disableCookieSupport();
+        // Configure common visitor attributes (visitor ID, IP, UA, referrer, User ID).
+        omsk_configure_tracker( $tracker, $token_auth, $enable_userid_tracking );
 
         // Set the page URL.
-        $page_url = omsk_get_current_url();
-        $tracker->setUrl( $page_url );
-
-        // Set the page title.
-        $page_title = wp_get_document_title();
-
-        // Set referrer if available.
-        if ( ! empty( $_SERVER['HTTP_REFERER'] ) ) {
-            $tracker->setUrlReferrer( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
-        }
-
-        // Set User-Agent.
-        if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
-            $tracker->setUserAgent( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
-        }
-
-        // Set Accept-Language.
-        if ( ! empty( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) {
-            $tracker->setBrowserLanguage( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) );
-        }
-
-        // Set visitor IP (important for geolocation).
-        $visitor_ip = omsk_get_visitor_ip();
-        if ( $visitor_ip ) {
-            $tracker->setIp( $visitor_ip );
-        }
-
-        // Set User ID if enabled and user is logged in.
-        if ( $enable_userid_tracking && is_user_logged_in() ) {
-            $user_id = omsk_get_hashed_user_id();
-            if ( $user_id ) {
-                $tracker->setUserId( $user_id );
-            }
-        }
+        $tracker->setUrl( omsk_get_current_url() );
 
         // Set custom variables for WordPress context.
         $tracker->setCustomTrackingParameter( 'dimension1', omsk_get_wp_environment() );
 
         // Track the page view (async - non-blocking).
-        $tracker->doTrackPageView( $page_title );
+        $tracker->doTrackPageView( wp_get_document_title() );
 
     } catch ( Exception $e ) {
         // Log error but don't break the page.
         if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
             // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
             error_log( 'Matomo Server-Side Tracking Error: ' . $e->getMessage() );
+        }
+    }
+}
+
+/**
+ * Generate a deterministic visitor ID for the current request.
+ *
+ * Creates a consistent 16-character hex ID based on IP + User-Agent so that
+ * all server-side tracking calls within the same request (pageview, search,
+ * ecommerce) are attributed to the same visitor in Matomo.
+ *
+ * @since 2.2.0
+ * @return string 16-character hex visitor ID.
+ */
+function omsk_get_visitor_id() {
+    static $visitor_id = null;
+
+    if ( null !== $visitor_id ) {
+        return $visitor_id;
+    }
+
+    $ip         = omsk_get_visitor_ip() ?: 'unknown';
+    $user_agent = isset( $_SERVER['HTTP_USER_AGENT'] )
+        ? sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) )
+        : 'unknown';
+
+    // Use a hash of IP + User-Agent for a deterministic visitor ID.
+    $visitor_id = substr( md5( $ip . $user_agent ), 0, 16 );
+
+    return $visitor_id;
+}
+
+/**
+ * Configure a MatomoTracker instance with common visitor attributes.
+ *
+ * Sets visitor ID, IP, User-Agent, Accept-Language, referrer, and User ID
+ * so that all server-side tracking requests share the same visitor identity.
+ *
+ * @since 2.2.0
+ * @param MatomoTracker $tracker              The tracker instance to configure.
+ * @param string        $token_auth           Auth token for IP/visitor recognition.
+ * @param bool          $enable_userid_tracking Whether User ID tracking is enabled.
+ * @return void
+ */
+function omsk_configure_tracker( $tracker, $token_auth = '', $enable_userid_tracking = false ) {
+    if ( $token_auth ) {
+        $tracker->setTokenAuth( $token_auth );
+    }
+
+    // Disable cookies for server-side tracking (more privacy-friendly).
+    $tracker->disableCookieSupport();
+
+    // Set a deterministic visitor ID so all hits belong to the same visit.
+    $tracker->setVisitorId( omsk_get_visitor_id() );
+
+    // Set visitor IP (important for geolocation).
+    $visitor_ip = omsk_get_visitor_ip();
+    if ( $visitor_ip ) {
+        $tracker->setIp( $visitor_ip );
+    }
+
+    // Set User-Agent.
+    if ( ! empty( $_SERVER['HTTP_USER_AGENT'] ) ) {
+        $tracker->setUserAgent( sanitize_text_field( wp_unslash( $_SERVER['HTTP_USER_AGENT'] ) ) );
+    }
+
+    // Set Accept-Language.
+    if ( ! empty( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) {
+        $tracker->setBrowserLanguage( sanitize_text_field( wp_unslash( $_SERVER['HTTP_ACCEPT_LANGUAGE'] ) ) );
+    }
+
+    // Set referrer if available.
+    if ( ! empty( $_SERVER['HTTP_REFERER'] ) ) {
+        $tracker->setUrlReferrer( esc_url_raw( wp_unslash( $_SERVER['HTTP_REFERER'] ) ) );
+    }
+
+    // Set User ID if enabled and user is logged in.
+    if ( $enable_userid_tracking && is_user_logged_in() ) {
+        $user_id = omsk_get_hashed_user_id();
+        if ( $user_id ) {
+            $tracker->setUserId( $user_id );
         }
     }
 }
