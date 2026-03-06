@@ -193,10 +193,18 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
         $script_url = $cdn_host . '/js/container_' . $id_container . '.js';
     }
 
-    $wp_env = omsk_get_wp_environment();
+    $wp_env       = omsk_get_wp_environment();
+    $cdn_origin   = wp_parse_url( $cdn_host, PHP_URL_SCHEME ) . '://' . wp_parse_url( $cdn_host, PHP_URL_HOST );
+    $is_cross_origin = ( $cdn_origin !== $host );
     ?>
+    <?php if ( $is_cross_origin ) : ?>
+    <link rel="preconnect" href="<?php echo esc_attr( $cdn_origin ); ?>" crossorigin>
     <link rel="dns-prefetch" href="<?php echo esc_attr( $host ); ?>">
+    <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script" crossorigin>
+    <?php else : ?>
+    <link rel="preconnect" href="<?php echo esc_attr( $host ); ?>">
     <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script">
+    <?php endif; ?>
     <!-- Matomo Tag Manager -->
     <script>
     var _mtm = window._mtm = window._mtm || [];
@@ -244,15 +252,24 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
 function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disabled', $user_id = null, $enable_heartbeat_timer = false, $heartbeat_timer_delay = 15, $enable_ai_bot_tracking = false, $skip_track_pageview = false ) {
     // Determine script URL based on plan type.
     if ( 'cloud' === $plan ) {
-        $cdn_host   = omsk_get_matomo_cdn_host();
-        $script_url = $cdn_host . '/matomo.js';
+        $cdn_host    = omsk_get_matomo_cdn_host();
+        $script_url  = $cdn_host . '/matomo.js';
+        $cdn_origin  = wp_parse_url( $cdn_host, PHP_URL_SCHEME ) . '://' . wp_parse_url( $cdn_host, PHP_URL_HOST );
     } else {
-        $script_url = trailingslashit( $host ) . 'matomo.js';
+        $script_url  = trailingslashit( $host ) . 'matomo.js';
+        $cdn_origin  = null;
     }
 
+    $is_cross_origin = ( null !== $cdn_origin && $cdn_origin !== $host );
     ?>
+    <?php if ( $is_cross_origin ) : ?>
+    <link rel="preconnect" href="<?php echo esc_attr( $cdn_origin ); ?>" crossorigin>
     <link rel="dns-prefetch" href="<?php echo esc_attr( $host ); ?>">
+    <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script" crossorigin>
+    <?php else : ?>
+    <link rel="preconnect" href="<?php echo esc_attr( $host ); ?>">
     <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script">
+    <?php endif; ?>
     <!-- Matomo -->
     <script>
       var _paq = window._paq = window._paq || [];
