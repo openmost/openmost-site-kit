@@ -27,62 +27,66 @@ import { getSettings } from '../../utils/api';
  * 2. Use a wrapper div for React state (loading spinner) separate from Matomo's target
  */
 const OptOutPreview = ({ url }) => {
-    const containerRef = useRef(null);
-    const scriptRef = useRef(null);
+    const wrapperRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
-    // Generate a stable ID that changes when URL changes
-    const [containerId, setContainerId] = useState(() => `matomo-opt-out-preview-${Date.now()}`);
 
     useEffect(() => {
-        if (!url || !containerRef.current) return;
+        if (!url || !wrapperRef.current) return;
 
-        // Generate new unique ID for this URL change
-        const newContainerId = `matomo-opt-out-preview-${Date.now()}`;
-        setContainerId(newContainerId);
+        let cancelled = false;
         setIsLoading(true);
 
-        // Remove previous script if exists
-        if (scriptRef.current && scriptRef.current.parentNode) {
-            scriptRef.current.parentNode.removeChild(scriptRef.current);
-            scriptRef.current = null;
-        }
+        const containerId = `matomo-opt-out-preview-${Date.now()}`;
 
-        // Clear container content manually (outside React's control)
-        while (containerRef.current.firstChild) {
-            containerRef.current.removeChild(containerRef.current.firstChild);
-        }
+        // Create container inside wrapper (React-controlled DOM).
+        const container = document.createElement('div');
+        container.id = containerId;
+        wrapperRef.current.appendChild(container);
 
-        // Set the ID on the container BEFORE loading the script
-        containerRef.current.id = newContainerId;
-
-        // Parse URL and update the divId parameter
+        // Parse URL and set the divId parameter.
         const scriptUrl = new URL(url);
-        scriptUrl.searchParams.set('divId', newContainerId);
+        scriptUrl.searchParams.set('divId', containerId);
 
-        // Small delay to ensure DOM is updated before script runs
-        setTimeout(() => {
-            // Create and load script
-            const script = document.createElement('script');
-            script.src = scriptUrl.toString();
-            script.async = true;
-            script.onload = () => setIsLoading(false);
-            script.onerror = () => setIsLoading(false);
-            scriptRef.current = script;
+        const script = document.createElement('script');
+        script.src = scriptUrl.toString();
+        script.async = true;
+        script.onload = () => { if (!cancelled) setIsLoading(false); };
+        script.onerror = () => { if (!cancelled) setIsLoading(false); };
+        document.body.appendChild(script);
 
-            document.body.appendChild(script);
-        }, 50);
-
-        // Cleanup on unmount or before next effect
         return () => {
-            if (scriptRef.current && scriptRef.current.parentNode) {
-                scriptRef.current.parentNode.removeChild(scriptRef.current);
-                scriptRef.current = null;
-            }
+            cancelled = true;
+
+            // Remove the script tag.
+            if (script.parentNode) script.parentNode.removeChild(script);
+
+            // Remove container from wrapper.
+            if (container.parentNode) container.parentNode.removeChild(container);
+
+            // The Matomo optOutJS script polls for the tracker for up to 10s
+            // then calls showContent() which does getElementById(divId).
+            // To prevent the "Unable to find opt-out content div" error,
+            // place a hidden placeholder in document.body with the same ID
+            // so the deferred lookup succeeds silently.
+            const placeholder = document.createElement('div');
+            placeholder.id = containerId;
+            placeholder.style.display = 'none';
+            document.body.appendChild(placeholder);
+
+            // Also clean up any warning div Matomo may have already inserted.
+            const warning = document.getElementById(containerId + '-warning');
+            if (warning && warning.parentNode) warning.parentNode.removeChild(warning);
+
+            // Remove placeholder after Matomo's 10s tracker poll + margin.
+            setTimeout(() => {
+                if (placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+                // Also clean up any warning div created in the meantime.
+                const w = document.getElementById(containerId + '-warning');
+                if (w && w.parentNode) w.parentNode.removeChild(w);
+            }, 15000);
         };
     }, [url]);
 
-    // Wrapper div for React to control, with Matomo container as empty ref
-    // The Spinner is a SIBLING to the Matomo container, not a child
     return (
         <div style={{ position: 'relative', minHeight: '100px' }}>
             {isLoading && (
@@ -101,8 +105,7 @@ const OptOutPreview = ({ url }) => {
                     <Spinner />
                 </div>
             )}
-            {/* This div is controlled entirely by Matomo - NO React children */}
-            <div ref={containerRef} id={containerId} />
+            <div ref={wrapperRef} />
         </div>
     );
 };

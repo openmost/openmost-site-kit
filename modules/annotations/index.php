@@ -118,12 +118,14 @@ function omsk_create_matomo_annotation( $host, $id_site, $token_auth, $note ) {
         'Authorization' => 'Bearer ' . $token_auth,
     );
 
+    // Non-blocking request: timeout 0.01s so publishing is not delayed.
     $response = wp_remote_post(
         $url,
         array(
-            'timeout' => 10,
-            'headers' => $headers,
-            'body'    => $body_params,
+            'timeout'  => 0.01,
+            'blocking' => false,
+            'headers'  => $headers,
+            'body'     => $body_params,
         )
     );
 
@@ -133,20 +135,6 @@ function omsk_create_matomo_annotation( $host, $id_site, $token_auth, $note ) {
             error_log( 'Matomo Annotation Error: ' . $response->get_error_message() );
         }
         return $response;
-    }
-
-    $body = wp_remote_retrieve_body( $response );
-    $data = json_decode( $body, true );
-
-    if ( isset( $data['result'] ) && 'error' === $data['result'] ) {
-        $error_message = isset( $data['message'] ) ? $data['message'] : __( 'Unknown error', 'openmost-site-kit' );
-
-        if ( defined( 'WP_DEBUG' ) && WP_DEBUG ) {
-            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
-            error_log( 'Matomo Annotation Error: ' . $error_message );
-        }
-
-        return new WP_Error( 'matomo_annotation_error', $error_message );
     }
 
     return true;

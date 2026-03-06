@@ -74,57 +74,63 @@ const ColorPickerButton = ({ label, color, onChange }) => {
  * Dynamically loads Matomo opt-out script with proper refresh on URL change
  */
 const OptOutPreview = ({ url }) => {
-    const containerRef = useRef(null);
-    const scriptRef = useRef(null);
+    const wrapperRef = useRef(null);
     const [isLoading, setIsLoading] = useState(true);
-    // Generate a stable ID that changes when URL changes
-    const [containerId, setContainerId] = useState(() => `matomo-opt-out-settings-preview-${Date.now()}`);
 
     useEffect(() => {
-        if (!url || !containerRef.current) return;
+        if (!url || !wrapperRef.current) return;
 
-        // Generate new unique ID for this URL change
-        const newContainerId = `matomo-opt-out-settings-preview-${Date.now()}`;
-        setContainerId(newContainerId);
+        let cancelled = false;
         setIsLoading(true);
 
-        // Remove previous script if exists
-        if (scriptRef.current && scriptRef.current.parentNode) {
-            scriptRef.current.parentNode.removeChild(scriptRef.current);
-            scriptRef.current = null;
-        }
+        const containerId = `matomo-opt-out-settings-preview-${Date.now()}`;
 
-        // Clear container content manually (outside React's control)
-        while (containerRef.current.firstChild) {
-            containerRef.current.removeChild(containerRef.current.firstChild);
-        }
+        // Create container inside wrapper (React-controlled DOM).
+        const container = document.createElement('div');
+        container.id = containerId;
+        wrapperRef.current.appendChild(container);
 
-        // Set the ID on the container BEFORE loading the script
-        containerRef.current.id = newContainerId;
-
-        // Parse URL and update the divId parameter
+        // Parse URL and set the divId parameter.
         const scriptUrl = new URL(url);
-        scriptUrl.searchParams.set('divId', newContainerId);
+        scriptUrl.searchParams.set('divId', containerId);
 
-        // Small delay to ensure DOM is updated before script runs
-        setTimeout(() => {
-            // Create and load script
-            const script = document.createElement('script');
-            script.src = scriptUrl.toString();
-            script.async = true;
-            script.onload = () => setIsLoading(false);
-            script.onerror = () => setIsLoading(false);
-            scriptRef.current = script;
+        const script = document.createElement('script');
+        script.src = scriptUrl.toString();
+        script.async = true;
+        script.onload = () => { if (!cancelled) setIsLoading(false); };
+        script.onerror = () => { if (!cancelled) setIsLoading(false); };
+        document.body.appendChild(script);
 
-            document.body.appendChild(script);
-        }, 50);
-
-        // Cleanup on unmount or before next effect
         return () => {
-            if (scriptRef.current && scriptRef.current.parentNode) {
-                scriptRef.current.parentNode.removeChild(scriptRef.current);
-                scriptRef.current = null;
-            }
+            cancelled = true;
+
+            // Remove the script tag.
+            if (script.parentNode) script.parentNode.removeChild(script);
+
+            // Remove container from wrapper.
+            if (container.parentNode) container.parentNode.removeChild(container);
+
+            // The Matomo optOutJS script polls for the tracker for up to 10s
+            // then calls showContent() which does getElementById(divId).
+            // To prevent the "Unable to find opt-out content div" error,
+            // place a hidden placeholder in document.body with the same ID
+            // so the deferred lookup succeeds silently.
+            const placeholder = document.createElement('div');
+            placeholder.id = containerId;
+            placeholder.style.display = 'none';
+            document.body.appendChild(placeholder);
+
+            // Also clean up any warning div Matomo may have already inserted.
+            const warning = document.getElementById(containerId + '-warning');
+            if (warning && warning.parentNode) warning.parentNode.removeChild(warning);
+
+            // Remove placeholder after Matomo's 10s tracker poll + margin.
+            setTimeout(() => {
+                if (placeholder.parentNode) placeholder.parentNode.removeChild(placeholder);
+                // Also clean up any warning div created in the meantime.
+                const w = document.getElementById(containerId + '-warning');
+                if (w && w.parentNode) w.parentNode.removeChild(w);
+            }, 15000);
         };
     }, [url]);
 
@@ -154,8 +160,7 @@ const OptOutPreview = ({ url }) => {
                     <Spinner />
                 </div>
             )}
-            {/* This div is controlled entirely by Matomo - NO React children */}
-            <div ref={containerRef} id={containerId} />
+            <div ref={wrapperRef} />
         </div>
     );
 };
@@ -272,7 +277,20 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
         return 'none';
     };
 
+    const [confirmDisable, setConfirmDisable] = useState(false);
+
     const handleTrackingMethodChange = (method) => {
+        // Confirm before disabling tracking entirely.
+        if (method === 'none' && trackingMethod !== 'none') {
+            if (!confirmDisable) {
+                setConfirmDisable(true);
+                return;
+            }
+            setConfirmDisable(false);
+        } else {
+            setConfirmDisable(false);
+        }
+
         onSettingsChange({
             ...settings,
             enableClassicTracking: method === 'classic',
@@ -302,14 +320,24 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                     <h2>{__('Tracking Method', 'openmost-site-kit')}</h2>
                 </CardHeader>
                 <CardBody>
-                    <p className="description" style={{ marginBottom: '20px' }}>
+                    <p className="description" style={{ marginBottom: '10px' }}>
                         {__('Choose how you want to inject Matomo tracking code on your site.', 'openmost-site-kit')}
+                    </p>
+                    <p className="description" style={{ marginBottom: '20px', fontStyle: 'italic' }}>
+                        {__('Classic JS: standard Matomo tracking, easiest setup. Tag Manager: advanced rules via MTM UI. Server-Side PHP: ad-blocker resistant, no client-side JavaScript.', 'openmost-site-kit')}
                     </p>
 
                     <TrackingMethodSelector
                         value={trackingMethod}
                         onChange={handleTrackingMethodChange}
                     />
+
+                    {confirmDisable && (
+                        <Notice status="warning" isDismissible={false} style={{ marginTop: '15px' }}>
+                            <p><strong>{__('Are you sure?', 'openmost-site-kit')}</strong></p>
+                            <p>{__('Disabling tracking will stop all data collection. Click "Disabled" again to confirm.', 'openmost-site-kit')}</p>
+                        </Notice>
+                    )}
                 </CardBody>
             </Card>
 
@@ -687,19 +715,29 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                                     <>
                                         {__('Auth Token', 'openmost-site-kit')}
                                         <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                        {settings.hasTokenAuth && settings.tokenAuth === '••••••••' && (
+                                            <span style={{ color: '#00a32a', marginLeft: '8px', fontWeight: 'normal', fontSize: '12px' }}>
+                                                ✓ {__('Saved', 'openmost-site-kit')}
+                                            </span>
+                                        )}
                                     </>
                                 }
                                 type="password"
                                 value={settings.tokenAuth || ''}
                                 onChange={(value) => handleChange('tokenAuth', value)}
-                                placeholder="xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
+                                placeholder={settings.hasTokenAuth ? __('Token saved — enter a new value to replace', 'openmost-site-kit') : 'xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx'}
                                 help={__('Required for IP geolocation and visitor recognition.', 'openmost-site-kit')}
                                 __nextHasNoMarginBottom
                                 __next40pxDefaultSize
+                                onFocus={(e) => {
+                                    if (e.target.value === '••••••••') {
+                                        handleChange('tokenAuth', '');
+                                    }
+                                }}
                             />
                         </FormField>
 
-                        {(!settings.host || !settings.idSite || !settings.tokenAuth) && (
+                        {(!settings.host || !settings.idSite || (!settings.tokenAuth || settings.tokenAuth === '••••••••') && !settings.hasTokenAuth) && (
                             <Notice status="warning" isDismissible={false}>
                                 {__('Matomo Host, Site ID, and Auth Token are all required for Server-Side tracking to work correctly.', 'openmost-site-kit')}
                             </Notice>
@@ -901,7 +939,7 @@ const FeaturesTab = ({ settings, postTypes, onSettingsChange, onSave, onTestConn
     };
 
     const hasBasicConfig = settings.host && settings.idSite;
-    const hasTokenAuth = settings.tokenAuth;
+    const hasTokenAuth = settings.hasTokenAuth || (settings.tokenAuth && settings.tokenAuth !== '••••••••');
 
     return (
         <>
@@ -928,13 +966,28 @@ const FeaturesTab = ({ settings, postTypes, onSettingsChange, onSave, onTestConn
 
                     <FormField>
                         <TextControl
-                            label={__('Auth Token', 'openmost-site-kit')}
+                            label={
+                                <>
+                                    {__('Auth Token', 'openmost-site-kit')}
+                                    {settings.hasTokenAuth && settings.tokenAuth === '••••••••' && (
+                                        <span style={{ color: '#00a32a', marginLeft: '8px', fontWeight: 'normal', fontSize: '12px' }}>
+                                            ✓ {__('Saved', 'openmost-site-kit')}
+                                        </span>
+                                    )}
+                                </>
+                            }
                             value={settings.tokenAuth || ''}
                             onChange={(value) => handleChange('tokenAuth', value)}
                             type="password"
+                            placeholder={settings.hasTokenAuth ? __('Token saved — enter a new value to replace', 'openmost-site-kit') : ''}
                             help={__('Required to fetch analytics data. Find this in Matomo under Administration > Personal > Security > Auth tokens.', 'openmost-site-kit')}
                             __nextHasNoMarginBottom
                             __next40pxDefaultSize
+                            onFocus={(e) => {
+                                if (e.target.value === '••••••••') {
+                                    handleChange('tokenAuth', '');
+                                }
+                            }}
                         />
                     </FormField>
 

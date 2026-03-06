@@ -237,12 +237,7 @@ function omsk_get_visitor_ip() {
                 $ip  = trim( $ips[0] );
             }
 
-            // Validate IP address.
-            if ( filter_var( $ip, FILTER_VALIDATE_IP, FILTER_FLAG_NO_PRIV_RANGE | FILTER_FLAG_NO_RES_RANGE ) ) {
-                return $ip;
-            }
-
-            // Also accept private IPs for local development.
+            // Validate IP address (accept private/reserved IPs for local dev environments).
             if ( filter_var( $ip, FILTER_VALIDATE_IP ) ) {
                 return $ip;
             }

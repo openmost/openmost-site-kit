@@ -51,6 +51,11 @@ class OMSK_WooCommerce_Tracking
     private $enableDataLayer = false;
 
     /**
+     * @var MatomoTracker|null|false Cached tracker instance (null=not created, false=unavailable).
+     */
+    private $cachedTracker = null;
+
+    /**
      * Constructor
      */
     public function __construct()
@@ -118,7 +123,13 @@ class OMSK_WooCommerce_Tracking
      */
     private function getTracker()
     {
+        // Return cached instance (false means previously determined unavailable).
+        if ($this->cachedTracker !== null) {
+            return $this->cachedTracker ?: null;
+        }
+
         if (!$this->enableServerTracking) {
+            $this->cachedTracker = false;
             return null;
         }
 
@@ -127,12 +138,14 @@ class OMSK_WooCommerce_Tracking
         $tokenAuth = isset($this->options['omsk-matomo-token-auth-field']) ? $this->options['omsk-matomo-token-auth-field'] : '';
 
         if (!$host || !$idSite) {
+            $this->cachedTracker = false;
             return null;
         }
 
         // Check user exclusion
         $excludedRoles = isset($this->options['omsk-matomo-excluded-roles-field']) ? (array) $this->options['omsk-matomo-excluded-roles-field'] : array();
-        if (function_exists('omsk_should_exclude_user') && omsk_should_exclude_user($excludedRoles)) {
+        if (omsk_should_exclude_user($excludedRoles)) {
+            $this->cachedTracker = false;
             return null;
         }
 
@@ -140,20 +153,28 @@ class OMSK_WooCommerce_Tracking
         $enableUserIdTracking = !empty($this->options['omsk-matomo-enable-userid-tracking-field']);
 
         // Configure common visitor attributes (visitor ID, IP, UA, referrer, User ID).
-        if (function_exists('omsk_configure_tracker')) {
-            omsk_configure_tracker($tracker, $tokenAuth, $enableUserIdTracking);
-        } else {
-            if ($tokenAuth) {
-                $tracker->setTokenAuth($tokenAuth);
-            }
-            $tracker->disableCookieSupport();
-        }
+        omsk_configure_tracker($tracker, $tokenAuth, $enableUserIdTracking);
 
         if (function_exists('omsk_get_current_url')) {
             $tracker->setUrl(omsk_get_current_url());
         }
 
+        $this->cachedTracker = $tracker;
         return $tracker;
+    }
+
+    /**
+     * Log a tracking error consistently.
+     *
+     * @param string     $context Error context (e.g. "Order Complete").
+     * @param \Exception $e       The exception.
+     */
+    private function logError($context, $e)
+    {
+        if (defined('WP_DEBUG') && WP_DEBUG) {
+            // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+            error_log('Matomo Ecommerce Tracking Error (' . $context . '): ' . $e->getMessage());
+        }
     }
 
     /**
@@ -243,13 +264,17 @@ class OMSK_WooCommerce_Tracking
         // Server-side tracking - use setEcommerceView then track page view
         $tracker = $this->getTracker();
         if ($tracker) {
-            $tracker->setEcommerceView(
-                $data['sku'],
-                $data['name'],
-                $data['categories'],
-                $data['price']
-            );
-            $tracker->doTrackPageView($data['name']);
+            try {
+                $tracker->setEcommerceView(
+                    $data['sku'],
+                    $data['name'],
+                    $data['categories'],
+                    $data['price']
+                );
+                $tracker->doTrackPageView($data['name']);
+            } catch (\Exception $e) {
+                $this->logError('Product View', $e);
+            }
         }
 
         // Queue for JS/dataLayer output
@@ -280,23 +305,26 @@ class OMSK_WooCommerce_Tracking
         // Server-side tracking - update cart
         $tracker = $this->getTracker();
         if ($tracker) {
-            $cart = WC()->cart;
-            if ($cart) {
-                // Add all cart items
-                foreach ($cart->get_cart() as $item) {
-                    $item_product = $item['data'];
-                    if ($item_product) {
-                        $item_data = $this->getProductData($item_product);
-                        $tracker->addEcommerceItem(
-                            $item_data['sku'],
-                            $item_data['name'],
-                            $item_data['categories'],
-                            $item_data['price'],
-                            $item['quantity']
-                        );
+            try {
+                $cart = WC()->cart;
+                if ($cart) {
+                    foreach ($cart->get_cart() as $item) {
+                        $item_product = $item['data'];
+                        if ($item_product) {
+                            $item_data = $this->getProductData($item_product);
+                            $tracker->addEcommerceItem(
+                                $item_data['sku'],
+                                $item_data['name'],
+                                $item_data['categories'],
+                                $item_data['price'],
+                                $item['quantity']
+                            );
+                        }
                     }
+                    $tracker->doTrackEcommerceCartUpdate((float) $cart->get_total('edit'));
                 }
-                $tracker->doTrackEcommerceCartUpdate((float) $cart->get_total('edit'));
+            } catch (\Exception $e) {
+                $this->logError('Add to Cart', $e);
             }
         }
 
@@ -341,25 +369,26 @@ class OMSK_WooCommerce_Tracking
     public function trackCartUpdate($cart_item_key, $quantity, $old_quantity, $cart)
     {
         // Server-side cart update
-        // Note: Each call to doTrackEcommerceCartUpdate automatically clears ecommerceItems
-        // So we need a fresh tracker instance for each update
         $tracker = $this->getTracker();
         if ($tracker) {
-            foreach ($cart->get_cart() as $item) {
-                $product = $item['data'];
-                if ($product) {
-                    $item_data = $this->getProductData($product);
-                    $tracker->addEcommerceItem(
-                        $item_data['sku'],
-                        $item_data['name'],
-                        $item_data['categories'],
-                        $item_data['price'],
-                        $item['quantity']
-                    );
+            try {
+                foreach ($cart->get_cart() as $item) {
+                    $product = $item['data'];
+                    if ($product) {
+                        $item_data = $this->getProductData($product);
+                        $tracker->addEcommerceItem(
+                            $item_data['sku'],
+                            $item_data['name'],
+                            $item_data['categories'],
+                            $item_data['price'],
+                            $item['quantity']
+                        );
+                    }
                 }
+                $tracker->doTrackEcommerceCartUpdate((float) $cart->get_total('edit'));
+            } catch (\Exception $e) {
+                $this->logError('Cart Update', $e);
             }
-
-            $tracker->doTrackEcommerceCartUpdate((float) $cart->get_total('edit'));
         }
     }
 
@@ -370,14 +399,19 @@ class OMSK_WooCommerce_Tracking
      */
     public function trackOrderComplete($order_id)
     {
-        // Check if already tracked (avoid duplicate tracking on page refresh)
-        $tracked = get_post_meta($order_id, '_omsk_tracked', true);
+        $order = wc_get_order($order_id);
+        if (!$order) {
+            return;
+        }
+
+        // Check if already tracked (avoid duplicate tracking on page refresh or order copy).
+        $tracked = $order->get_meta('_omsk_tracked');
         if ($tracked) {
             return;
         }
 
-        $order = wc_get_order($order_id);
-        if (!$order) {
+        // Only track orders in valid paid/processing statuses.
+        if (!in_array($order->get_status(), array('processing', 'completed', 'on-hold'), true)) {
             return;
         }
 
@@ -406,31 +440,36 @@ class OMSK_WooCommerce_Tracking
         // Server-side tracking
         $tracker = $this->getTracker();
         if ($tracker) {
-            foreach ($items as $item) {
-                $tracker->addEcommerceItem(
-                    $item['sku'],
-                    $item['name'],
-                    $item['categories'],
-                    $item['price'],
-                    $item['quantity']
-                );
-            }
+            try {
+                foreach ($items as $item) {
+                    $tracker->addEcommerceItem(
+                        $item['sku'],
+                        $item['name'],
+                        $item['categories'],
+                        $item['price'],
+                        $item['quantity']
+                    );
+                }
 
-            $tracker->doTrackEcommerceOrder(
-                $order_data['transaction_id'],
-                $order_data['value'],
-                $order_data['subtotal'],
-                $order_data['tax'],
-                $order_data['shipping'],
-                $order_data['discount']
-            );
+                $tracker->doTrackEcommerceOrder(
+                    $order_data['transaction_id'],
+                    $order_data['value'],
+                    $order_data['subtotal'],
+                    $order_data['tax'],
+                    $order_data['shipping'],
+                    $order_data['discount']
+                );
+            } catch (\Exception $e) {
+                $this->logError('Order Complete', $e);
+            }
         }
 
         // Queue for JS/dataLayer
         $this->queueEvent('purchase', $order_data);
 
-        // Mark as tracked
-        update_post_meta($order_id, '_omsk_tracked', 1);
+        // Mark as tracked.
+        $order->update_meta_data('_omsk_tracked', 1);
+        $order->save();
     }
 
     /**
@@ -448,11 +487,14 @@ class OMSK_WooCommerce_Tracking
         }
 
         // Server-side tracking
-        // For category views, use setEcommerceView with only category (SKU and name empty)
         $tracker = $this->getTracker();
         if ($tracker) {
-            $tracker->setEcommerceView('', '', $term->name);
-            $tracker->doTrackPageView($term->name);
+            try {
+                $tracker->setEcommerceView('', '', $term->name);
+                $tracker->doTrackPageView($term->name);
+            } catch (\Exception $e) {
+                $this->logError('Category View', $e);
+            }
         }
 
         // Queue for JS/dataLayer
@@ -474,15 +516,21 @@ class OMSK_WooCommerce_Tracking
             return;
         }
 
-        $queue = WC()->session ? WC()->session->get('omsk_ecommerce_events', array()) : array();
+        if (!WC()->session) {
+            if (defined('WP_DEBUG') && WP_DEBUG) {
+                // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_error_log -- Debug logging.
+                error_log('Matomo Ecommerce: WooCommerce session not available, event "' . $event . '" could not be queued.');
+            }
+            return;
+        }
+
+        $queue = WC()->session->get('omsk_ecommerce_events', array());
         $queue[] = array(
             'event' => $event,
             'data'  => $data,
         );
 
-        if (WC()->session) {
-            WC()->session->set('omsk_ecommerce_events', $queue);
-        }
+        WC()->session->set('omsk_ecommerce_events', $queue);
     }
 
     /**

@@ -170,7 +170,8 @@ function omsk_rest_get_settings() {
         'host'                   => isset($options['omsk-matomo-host-field']) ? $options['omsk-matomo-host-field'] : '',
         'idSite'                 => isset($options['omsk-matomo-idsite-field']) ? absint($options['omsk-matomo-idsite-field']) : '',
         'idContainer'            => isset($options['omsk-matomo-idcontainer-field']) ? $options['omsk-matomo-idcontainer-field'] : '',
-        'tokenAuth'              => isset($options['omsk-matomo-token-auth-field']) ? $options['omsk-matomo-token-auth-field'] : '',
+        'tokenAuth'              => isset($options['omsk-matomo-token-auth-field']) && $options['omsk-matomo-token-auth-field'] !== '' ? '••••••••' : '',
+        'hasTokenAuth'           => isset($options['omsk-matomo-token-auth-field']) && $options['omsk-matomo-token-auth-field'] !== '',
         'enableClassicTracking'  => isset($options['omsk-matomo-enable-classic-tracking-code-field']) ? (bool) $options['omsk-matomo-enable-classic-tracking-code-field'] : false,
         'enableMtmTracking'      => isset($options['omsk-matomo-enable-mtm-tracking-code-field']) ? (bool) $options['omsk-matomo-enable-mtm-tracking-code-field'] : false,
         'enableServerTracking'   => isset($options['omsk-matomo-enable-server-tracking-field']) ? (bool) $options['omsk-matomo-enable-server-tracking-field'] : false,
@@ -230,11 +231,18 @@ function omsk_rest_update_settings($request) {
         $form_name_attribute = sanitize_text_field($form_name_attribute);
     }
 
+    // Preserve existing token auth if the masked placeholder is sent back.
+    $token_auth = $request->get_param('tokenAuth');
+    $existing_options = get_option('omsk-settings', array());
+    if ($token_auth === '••••••••' || $token_auth === null) {
+        $token_auth = isset($existing_options['omsk-matomo-token-auth-field']) ? $existing_options['omsk-matomo-token-auth-field'] : '';
+    }
+
     $options = array(
         'omsk-matomo-host-field'                        => $request->get_param('host'),
         'omsk-matomo-idsite-field'                      => $request->get_param('idSite'),
         'omsk-matomo-idcontainer-field'                 => $request->get_param('idContainer'),
-        'omsk-matomo-token-auth-field'                  => $request->get_param('tokenAuth'),
+        'omsk-matomo-token-auth-field'                  => $token_auth,
         'omsk-matomo-enable-classic-tracking-code-field' => $request->get_param('enableClassicTracking') ? 1 : 0,
         'omsk-matomo-enable-mtm-tracking-code-field'     => $request->get_param('enableMtmTracking') ? 1 : 0,
         'omsk-matomo-enable-server-tracking-field'       => $request->get_param('enableServerTracking') ? 1 : 0,
@@ -334,6 +342,20 @@ function omsk_rest_matomo_proxy($request) {
     $method = $request->get_param('method');
     $period = $request->get_param('period');
     $date = $request->get_param('date');
+
+    // Validate period against allowed values.
+    $valid_periods = array('day', 'week', 'month', 'year', 'range');
+    if (!in_array($period, $valid_periods, true)) {
+        $period = 'day';
+    }
+
+    // Validate date against allowed patterns (last/previousN, YYYY-MM-DD, today, yesterday, ranges).
+    if (!preg_match('/^(last|previous)\d+$/', $date)
+        && !preg_match('/^\d{4}-\d{2}-\d{2}(,\d{4}-\d{2}-\d{2})?$/', $date)
+        && !in_array($date, array('today', 'yesterday'), true)
+    ) {
+        $date = 'last7';
+    }
 
     // Get additional parameters from request body
     $params = $request->get_json_params();

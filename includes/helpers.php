@@ -12,13 +12,18 @@ if ( ! defined( 'ABSPATH' ) ) {
 }
 
 /**
- * Safely get a value from an array or variable.
+ * Get cached plugin options. Avoids repeated get_option calls.
  *
- * @param mixed $value Value to check.
- * @return mixed|false The value if set and not empty, false otherwise.
+ * @return array Plugin options.
  */
-function omsk_get_value( &$value ) {
-    return isset( $value ) && ! empty( $value ) && $value ? $value : false;
+function omsk_get_options() {
+    static $options = null;
+
+    if ( null === $options ) {
+        $options = get_option( 'omsk-settings', array() );
+    }
+
+    return $options;
 }
 
 /**
@@ -27,7 +32,7 @@ function omsk_get_value( &$value ) {
  * @return string Matomo host URL or empty string.
  */
 function omsk_get_matomo_host() {
-    $options = get_option( 'omsk-settings', array() );
+    $options = omsk_get_options();
     $value   = isset( $options['omsk-matomo-host-field'] ) ? $options['omsk-matomo-host-field'] : '';
 
     return esc_url_raw( $value );
@@ -39,7 +44,7 @@ function omsk_get_matomo_host() {
  * @return int Matomo site ID or 0.
  */
 function omsk_get_matomo_idsite() {
-    $options = get_option( 'omsk-settings', array() );
+    $options = omsk_get_options();
     $value   = isset( $options['omsk-matomo-idsite-field'] ) ? $options['omsk-matomo-idsite-field'] : '';
 
     return absint( $value );
@@ -51,7 +56,7 @@ function omsk_get_matomo_idsite() {
  * @return string Matomo container ID or empty string.
  */
 function omsk_get_matomo_idcontainer() {
-    $options = get_option( 'omsk-settings', array() );
+    $options = omsk_get_options();
     $value   = isset( $options['omsk-matomo-idcontainer-field'] ) ? $options['omsk-matomo-idcontainer-field'] : '';
 
     return sanitize_text_field( $value );
@@ -63,7 +68,7 @@ function omsk_get_matomo_idcontainer() {
  * @return string Matomo auth token or empty string.
  */
 function omsk_get_matomo_token_auth() {
-    $options = get_option( 'omsk-settings', array() );
+    $options = omsk_get_options();
     $value   = isset( $options['omsk-matomo-token-auth-field'] ) ? $options['omsk-matomo-token-auth-field'] : '';
 
     return sanitize_text_field( $value );
