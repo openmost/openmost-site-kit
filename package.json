@@ -1,6 +1,6 @@
 {
   "name": "openmost-site-kit",
-  "version": "2.2.0",
+  "version": "2.3.0",
   "description": "Matomo Site Kit - Modern WordPress plugin with React and Tag Manager integration",
   "scripts": {
     "build": "wp-scripts build",

@@ -577,9 +577,15 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
 
                         <FormField>
                             <ToggleControl
-                                label={__('Push context to dataLayer', 'openmost-site-kit')}
+                                label={__('Push config context to dataLayer', 'openmost-site-kit')}
                                 checked={settings.enableMtmDataLayer !== false}
-                                onChange={(value) => handleChange('enableMtmDataLayer', value)}
+                                onChange={(value) => {
+                                    setSettings((prev) => ({
+                                        ...prev,
+                                        enableMtmDataLayer: value,
+                                        ...(value ? { enableMtmPageContext: true } : {}),
+                                    }));
+                                }}
                                 help={__('Adds Matomo configuration to the dataLayer for use in MTM triggers.', 'openmost-site-kit')}
                                 __nextHasNoMarginBottom
                             />
@@ -593,7 +599,37 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                                     <li><code>matomo.site_id</code> - {__('Your site ID', 'openmost-site-kit')}</li>
                                     <li><code>matomo.container_id</code> - {__('Your container ID', 'openmost-site-kit')}</li>
                                     <li><code>wordpress.environment</code> - {__('WordPress environment', 'openmost-site-kit')}</li>
-                                    <li><code>wordpress.user_id</code> - {__('SHA256 hashed user email (if enabled)', 'openmost-site-kit')}</li>
+                                </ul>
+                            </Notice>
+                        )}
+
+                        <Divider style={{ marginTop: '20px', marginBottom: '20px' }} />
+
+                        <FormField>
+                            <ToggleControl
+                                label={__('Push page context to dataLayer', 'openmost-site-kit')}
+                                checked={settings.enableMtmPageContext || false}
+                                onChange={(value) => handleChange('enableMtmPageContext', value)}
+                                help={__('Adds the current page type and taxonomy terms to the dataLayer for use in MTM triggers.', 'openmost-site-kit')}
+                                __nextHasNoMarginBottom
+                            />
+                        </FormField>
+
+                        {settings.enableMtmPageContext && (
+                            <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
+                                <p><strong>{__('Available dataLayer variables:', 'openmost-site-kit')}</strong></p>
+                                <ul style={{ marginLeft: '20px', marginTop: '10px' }}>
+                                    <li><code>page_type</code> - {__('Current page type: home, blog, search, error_404, author, <post_type>, archive_<post_type>, archive_<taxonomy>, archive_date, archive', 'openmost-site-kit')}</li>
+                                    <li><code>post_type</code> - {__('Singular human-readable label of the current post type (e.g. "Article", "Page")', 'openmost-site-kit')}</li>
+                                    <li><code>post_id</code> - {__('Post ID on singular pages', 'openmost-site-kit')}</li>
+                                    <li><code>locale</code> - {__('Current WordPress locale (e.g. fr_FR)', 'openmost-site-kit')}</li>
+                                    <li><code>user_login_status</code> - {__('"logged_in" or "logged_out"', 'openmost-site-kit')}</li>
+                                    <li><code>category</code> - {__('Category name(s) on posts or the category archive', 'openmost-site-kit')}</li>
+                                    <li><code>tag</code> - {__('Tag name(s) on posts or the tag archive', 'openmost-site-kit')}</li>
+                                    <li><code>&lt;taxonomy&gt;</code> - {__('Custom taxonomy slug with the term name(s) (comma separated)', 'openmost-site-kit')}</li>
+                                    <li><code>author</code> - {__('Author display name on author archives', 'openmost-site-kit')}</li>
+                                    <li><code>user_id</code> - {__('SHA256 hashed user email (if User ID tracking is enabled)', 'openmost-site-kit')}</li>
+                                    <li><code>user_role</code> - {__('Primary role of the logged-in user (if User ID tracking is enabled)', 'openmost-site-kit')}</li>
                                 </ul>
                             </Notice>
                         )}
@@ -968,6 +1004,24 @@ const FeaturesTab = ({ settings, postTypes, onSettingsChange, onSave, onTestConn
                         <TextControl
                             label={
                                 <>
+                                    {__('Site ID', 'openmost-site-kit')}
+                                    <span style={{ color: '#d63638', marginLeft: '4px' }}>*</span>
+                                </>
+                            }
+                            type="number"
+                            value={settings.idSite || ''}
+                            onChange={(value) => handleChange('idSite', value)}
+                            placeholder="1"
+                            help={__('Your site ID in Matomo. Shared with the Tracking configuration — editing it here updates it there too.', 'openmost-site-kit')}
+                            __nextHasNoMarginBottom
+                            __next40pxDefaultSize
+                        />
+                    </FormField>
+
+                    <FormField>
+                        <TextControl
+                            label={
+                                <>
                                     {__('Auth Token', 'openmost-site-kit')}
                                     {settings.hasTokenAuth && settings.tokenAuth === '••••••••' && (
                                         <span style={{ color: '#00a32a', marginLeft: '8px', fontWeight: 'normal', fontSize: '12px' }}>
@@ -990,6 +1044,12 @@ const FeaturesTab = ({ settings, postTypes, onSettingsChange, onSave, onTestConn
                             }}
                         />
                     </FormField>
+
+                    {!settings.idSite && (
+                        <Notice status="warning" isDismissible={false} style={{ marginBottom: '15px' }}>
+                            {__('A Site ID is required for the dashboard to fetch analytics data.', 'openmost-site-kit')}
+                        </Notice>
+                    )}
 
                     <Flex>
                         <FlexItem>
@@ -1408,6 +1468,7 @@ const Settings = () => {
         enableMtmTracking: false,
         enableServerTracking: false,
         enableMtmDataLayer: true,
+        enableMtmPageContext: false,
         excludedRoles: [],
         consentMode: 'disabled',
         enableServerEcommerce: false,
@@ -1497,18 +1558,15 @@ const Settings = () => {
         );
     }
 
-    // Determine if we have enough config to show additional tabs
-    const hasTrackingMethod = settings.enableClassicTracking || settings.enableMtmTracking || settings.enableServerTracking;
-    const hasBasicConfig = settings.host && settings.idSite;
-
+    // Show Features/Privacy tabs as soon as a Matomo host is set, so users can
+    // configure dashboard-only setups (Site ID can be provided from the Dashboard card).
     const tabs = [
         {
             name: 'tracking',
             title: __('Tracking', 'openmost-site-kit'),
             className: 'omsk-tab-tracking',
         },
-        // Only show other tabs if a tracking method is enabled and configured
-        ...(hasTrackingMethod && hasBasicConfig ? [
+        ...(settings.host ? [
             {
                 name: 'features',
                 title: __('Features', 'openmost-site-kit'),

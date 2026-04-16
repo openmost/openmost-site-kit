@@ -3,9 +3,13 @@
  * Tracking Code Injection Module
  *
  * Handles both Classic Matomo tracking and Tag Manager (MTM) tracking.
- * - Classic tracking: Supports consent mode options (requireConsent, requireCookieConsent)
- * - Tag Manager: GDPR options are managed in MTM UI, so we only provide a dataLayer
- *   initial push with context (host, siteId, container, WP environment)
+ * - Classic tracking: Supports consent mode options (requireConsent, requireCookieConsent).
+ * - Tag Manager: GDPR options are managed in MTM UI. Two optional dataLayer pushes
+ *   are provided for MTM triggers and variables:
+ *     1. Config context: matomo.{host,site_id,container_id} + wordpress.environment.
+ *     2. Page context: page_type, post_type label, post_id, taxonomies (category, tag,
+ *        custom taxonomy slugs), author, locale, user_login_status, and user_id /
+ *        user_role when User ID tracking is enabled.
  *
  * @package Openmost_Site_Kit
  * @since 1.0.0
@@ -84,6 +88,7 @@ function omsk_inject_tracking_code() {
     $excluded_roles          = isset( $options['omsk-matomo-excluded-roles-field'] ) ? (array) $options['omsk-matomo-excluded-roles-field'] : array();
     $consent_mode            = isset( $options['omsk-matomo-consent-mode-field'] ) ? $options['omsk-matomo-consent-mode-field'] : 'disabled';
     $enable_mtm_datalayer    = isset( $options['omsk-matomo-enable-mtm-datalayer-field'] ) ? (bool) $options['omsk-matomo-enable-mtm-datalayer-field'] : true;
+    $enable_mtm_page_context = ! empty( $options['omsk-matomo-enable-mtm-page-context-field'] );
     $enable_userid_tracking  = ! empty( $options['omsk-matomo-enable-userid-tracking-field'] );
     $enable_heartbeat_timer  = ! empty( $options['omsk-matomo-enable-heartbeat-timer-field'] );
     $heartbeat_timer_delay   = isset( $options['omsk-matomo-heartbeat-timer-delay-field'] ) ? absint( $options['omsk-matomo-heartbeat-timer-delay-field'] ) : 15;
@@ -104,9 +109,11 @@ function omsk_inject_tracking_code() {
     $cdn_host = omsk_get_matomo_cdn_host();
 
     // Get User ID if tracking is enabled.
-    $user_id = null;
+    $user_id   = null;
+    $user_role = null;
     if ( $enable_userid_tracking ) {
-        $user_id = omsk_get_hashed_user_id();
+        $user_id   = omsk_get_hashed_user_id();
+        $user_role = omsk_get_current_user_role();
     }
 
     // On search pages with JS search tracking enabled, skip trackPageView
@@ -115,7 +122,7 @@ function omsk_inject_tracking_code() {
 
     // Inject Tag Manager tracking code (recommended).
     if ( $enable_mtm && $id_container ) {
-        omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_mtm_datalayer, $user_id, $enable_ai_bot_tracking );
+        omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_mtm_datalayer, $user_id, $enable_ai_bot_tracking, $enable_mtm_page_context, $user_role );
     }
 
     // Inject classic tracking code (fallback) - only if MTM is not enabled.
@@ -146,6 +153,26 @@ function omsk_get_hashed_user_id() {
 }
 
 /**
+ * Get the primary role of the currently logged-in user.
+ *
+ * @since 1.0.0
+ * @return string|null Role slug or null if not logged in.
+ */
+function omsk_get_current_user_role() {
+    if ( ! is_user_logged_in() ) {
+        return null;
+    }
+
+    $user = wp_get_current_user();
+
+    if ( ! $user || empty( $user->roles ) ) {
+        return null;
+    }
+
+    return (string) reset( $user->roles );
+}
+
+/**
  * Get WordPress environment type.
  *
  * @since 1.0.0
@@ -169,9 +196,14 @@ function omsk_get_wp_environment() {
 /**
  * Inject Matomo Tag Manager (MTM) code.
  *
- * Note: Consent mode is NOT included here because GDPR options are managed
- * directly in the Tag Manager UI. Instead, we provide a dataLayer initial
- * push with context information that can be used by MTM triggers.
+ * Consent mode is NOT included here because GDPR options are managed directly
+ * in the Tag Manager UI. Two optional dataLayer pushes are emitted before
+ * mtm.Start so MTM triggers and variables can read them:
+ *   - Config context ($enable_datalayer): matomo.{host,site_id,container_id}
+ *     and wordpress.environment.
+ *   - Page context ($enable_page_context): page_type, post_type label, post_id,
+ *     taxonomies, locale, user_login_status, plus user_id/user_role when
+ *     provided.
  *
  * @since 1.0.0
  * @param string      $cdn_host                CDN host URL.
@@ -181,9 +213,11 @@ function omsk_get_wp_environment() {
  * @param bool        $enable_datalayer        Whether to push context to dataLayer.
  * @param string|null $user_id                 SHA256 hashed user ID or null.
  * @param bool        $enable_ai_bot_tracking  Whether AI bot tracking is enabled.
+ * @param bool        $enable_page_context     Whether to push page context (page_type, taxonomies) to the dataLayer.
+ * @param string|null $user_role               Primary role of the logged-in user or null.
  * @return void
  */
-function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_datalayer = true, $user_id = null, $enable_ai_bot_tracking = false ) {
+function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_datalayer = true, $user_id = null, $enable_ai_bot_tracking = false, $enable_page_context = false, $user_role = null ) {
     $plan = omsk_get_matomo_plan();
 
     // Build script URL based on plan type.
@@ -211,17 +245,23 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
     <?php if ( $enable_datalayer ) : ?>
     _mtm.push({
         'matomo': {
-            'host': '<?php echo esc_js( trailingslashit( $host ) ); ?>',
-            'site_id': '<?php echo esc_js( $id_site ); ?>',
-            'container_id': '<?php echo esc_js( $id_container ); ?>'<?php if ( $enable_ai_bot_tracking ) : ?>,
-            'recMode': 2<?php endif; ?>
+            'host': '<?php echo esc_js( untrailingslashit( $host ) ); ?>',
+            'site_id': <?php echo absint( $id_site ); ?>,
+            'container_id': '<?php echo esc_js( $id_container ); ?>'
         },
         'wordpress': {
-            'environment': '<?php echo esc_js( $wp_env ); ?>'<?php if ( $user_id ) : ?>,
-            'user_id': '<?php echo esc_js( $user_id ); ?>'<?php endif; ?>
+            'environment': '<?php echo esc_js( $wp_env ); ?>'
         }
     });
     <?php endif; ?>
+    <?php
+    if ( $enable_page_context ) {
+        $page_context = omsk_get_page_context( $user_id, $user_role );
+        if ( ! empty( $page_context ) ) {
+            echo '    _mtm.push(' . wp_json_encode( $page_context ) . ");\n";
+        }
+    }
+    ?>
     _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
     (function() {
       var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
@@ -382,4 +422,131 @@ function omsk_should_exclude_user( $excluded_roles ) {
     }
 
     return false;
+}
+
+/**
+ * Get the singular human-readable label of a post type.
+ *
+ * Falls back to the post type slug if no label is set.
+ *
+ * @since 1.0.0
+ * @param string $post_type Post type slug.
+ * @return string|null Singular label or null if the post type is unknown.
+ */
+function omsk_get_post_type_label( $post_type ) {
+    if ( empty( $post_type ) ) {
+        return null;
+    }
+
+    $obj = get_post_type_object( $post_type );
+    if ( ! $obj ) {
+        return null;
+    }
+
+    if ( ! empty( $obj->labels->singular_name ) ) {
+        return $obj->labels->singular_name;
+    }
+
+    return $post_type;
+}
+
+/**
+ * Build the page context to push in the MTM dataLayer.
+ *
+ * Returns a flat associative array with page_type, any taxonomy terms
+ * relevant to the current request (category, tag, custom taxonomies, author),
+ * plus the current user_id/user_role when User ID tracking is enabled.
+ *
+ * @since 1.0.0
+ * @param string|null $user_id   SHA256 hashed user email or null.
+ * @param string|null $user_role Primary role of the logged-in user or null.
+ * @return array Page context to push in _mtm.
+ */
+function omsk_get_page_context( $user_id = null, $user_role = null ) {
+    $context = array();
+
+    $context['locale']            = get_locale();
+    $context['user_login_status'] = is_user_logged_in() ? 'logged_in' : 'logged_out';
+
+    if ( is_front_page() ) {
+        $context['page_type'] = 'home';
+    } elseif ( is_home() ) {
+        $context['page_type'] = 'blog';
+    } elseif ( is_search() ) {
+        $context['page_type'] = 'search';
+    } elseif ( is_404() ) {
+        $context['page_type'] = 'error_404';
+    } elseif ( is_author() ) {
+        $context['page_type'] = 'author';
+        $author = get_queried_object();
+        if ( $author && ! empty( $author->display_name ) ) {
+            $context['author'] = $author->display_name;
+        }
+    } elseif ( is_post_type_archive() ) {
+        $post_type = get_query_var( 'post_type' );
+        if ( is_array( $post_type ) ) {
+            $post_type = reset( $post_type );
+        }
+        $context['page_type'] = 'archive_' . sanitize_key( $post_type );
+        $label = omsk_get_post_type_label( $post_type );
+        if ( $label ) {
+            $context['post_type'] = $label;
+        }
+    } elseif ( is_tax() || is_category() || is_tag() ) {
+        $term = get_queried_object();
+        if ( $term && ! empty( $term->taxonomy ) ) {
+            $tax_key              = ( 'post_tag' === $term->taxonomy ) ? 'tag' : $term->taxonomy;
+            $context['page_type'] = 'archive_' . sanitize_key( $tax_key );
+            if ( ! empty( $term->name ) ) {
+                $context[ $tax_key ] = $term->name;
+            }
+        }
+    } elseif ( is_date() ) {
+        $context['page_type'] = 'archive_date';
+    } elseif ( is_archive() ) {
+        $context['page_type'] = 'archive';
+    } elseif ( is_singular() ) {
+        $post_type = get_post_type();
+        if ( $post_type ) {
+            $context['page_type'] = $post_type;
+            $label = omsk_get_post_type_label( $post_type );
+            if ( $label ) {
+                $context['post_type'] = $label;
+            }
+
+            $post_id = get_queried_object_id();
+            if ( ! $post_id ) {
+                $post_id = get_the_ID();
+            }
+
+            if ( $post_id ) {
+                $context['post_id'] = (int) $post_id;
+
+                $taxonomies = get_object_taxonomies( $post_type, 'objects' );
+                foreach ( $taxonomies as $tax_slug => $tax_obj ) {
+                    if ( 'post_format' === $tax_slug ) {
+                        continue;
+                    }
+                    if ( empty( $tax_obj->public ) && empty( $tax_obj->publicly_queryable ) && empty( $tax_obj->show_ui ) ) {
+                        continue;
+                    }
+                    $terms = wp_get_post_terms( $post_id, $tax_slug, array( 'fields' => 'names' ) );
+                    if ( is_wp_error( $terms ) || empty( $terms ) ) {
+                        continue;
+                    }
+                    $key = ( 'post_tag' === $tax_slug ) ? 'tag' : $tax_slug;
+                    $context[ $key ] = implode( ', ', $terms );
+                }
+            }
+        }
+    }
+
+    if ( $user_id ) {
+        $context['user_id'] = $user_id;
+    }
+    if ( $user_role ) {
+        $context['user_role'] = $user_role;
+    }
+
+    return $context;
 }

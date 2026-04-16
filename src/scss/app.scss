@@ -223,10 +223,40 @@
 // Content charts row: Top Pages (50%) + Events (50%)
 .omsk-content-charts {
   grid-template-columns: 1fr 1fr;
+  align-items: stretch;
 
   .omsk-chart-pages,
   .omsk-chart-events {
     min-width: 0;
+    height: 100% !important;
+    display: flex !important;
+    flex-direction: column !important;
+
+    // Inner Emotion wrapper that holds CardHeader + CardBody
+    > div:first-child {
+      flex: 1 1 auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 0;
+    }
+
+    .components-card__body {
+      flex: 1 1 auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 0;
+    }
+
+    .omsk-datatable {
+      flex: 1 1 auto !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 0;
+    }
+
+    .omsk-datatable-footer {
+      margin-top: auto !important;
+    }
   }
 }
 
@@ -360,6 +390,7 @@
   padding: 0 !important;
 }
 
+
 // Table styling - Simple, clean, and responsive
 .omsk-table-container {
   width: 100%;
@@ -432,6 +463,15 @@
 
 // DataTable component
 .omsk-datatable {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+
+  .omsk-table-container {
+    flex: 1;
+  }
+
   .omsk-table th.omsk-table-rank-col,
   .omsk-table td.omsk-table-rank-col {
     width: 32px;
@@ -466,11 +506,13 @@
 
   .omsk-datatable-footer {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     justify-content: space-between;
     padding: 12px 16px;
     border-top: 1px solid #f0f0f1;
     gap: 12px;
+    margin-top: auto;
 
     .omsk-datatable-search {
       max-width: 200px;

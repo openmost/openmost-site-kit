@@ -179,6 +179,7 @@ function omsk_rest_get_settings() {
         'enableJsEcommerce'      => isset($options['omsk-matomo-enable-js-ecommerce-field']) ? (bool) $options['omsk-matomo-enable-js-ecommerce-field'] : false,
         'enableDataLayerEcommerce' => isset($options['omsk-matomo-enable-datalayer-ecommerce-field']) ? (bool) $options['omsk-matomo-enable-datalayer-ecommerce-field'] : false,
         'enableMtmDataLayer'     => isset($options['omsk-matomo-enable-mtm-datalayer-field']) ? (bool) $options['omsk-matomo-enable-mtm-datalayer-field'] : true,
+        'enableMtmPageContext'   => isset($options['omsk-matomo-enable-mtm-page-context-field']) ? (bool) $options['omsk-matomo-enable-mtm-page-context-field'] : false,
         'excludedRoles'          => isset($options['omsk-matomo-excluded-roles-field']) ? (array) $options['omsk-matomo-excluded-roles-field'] : array(),
         'consentMode'            => isset($options['omsk-matomo-consent-mode-field']) ? $options['omsk-matomo-consent-mode-field'] : 'disabled',
         'enableFormTracking'     => isset($options['omsk-matomo-enable-form-tracking-field']) ? (bool) $options['omsk-matomo-enable-form-tracking-field'] : false,
@@ -239,7 +240,7 @@ function omsk_rest_update_settings($request) {
     }
 
     $options = array(
-        'omsk-matomo-host-field'                        => $request->get_param('host'),
+        'omsk-matomo-host-field'                        => untrailingslashit( trim( (string) $request->get_param('host') ) ),
         'omsk-matomo-idsite-field'                      => $request->get_param('idSite'),
         'omsk-matomo-idcontainer-field'                 => $request->get_param('idContainer'),
         'omsk-matomo-token-auth-field'                  => $token_auth,
@@ -250,6 +251,7 @@ function omsk_rest_update_settings($request) {
         'omsk-matomo-enable-js-ecommerce-field'          => $request->get_param('enableJsEcommerce') ? 1 : 0,
         'omsk-matomo-enable-datalayer-ecommerce-field'   => $request->get_param('enableDataLayerEcommerce') ? 1 : 0,
         'omsk-matomo-enable-mtm-datalayer-field'         => $request->get_param('enableMtmDataLayer') !== false ? 1 : 0,
+        'omsk-matomo-enable-mtm-page-context-field'      => $request->get_param('enableMtmPageContext') ? 1 : 0,
         'omsk-matomo-excluded-roles-field'              => $sanitized_excluded_roles,
         'omsk-matomo-consent-mode-field'                => $consent_mode,
         'omsk-matomo-enable-form-tracking-field'         => $request->get_param('enableFormTracking') ? 1 : 0,
@@ -399,7 +401,7 @@ function omsk_rest_matomo_proxy($request) {
  * Test Matomo connection
  */
 function omsk_rest_test_connection($request) {
-    $host = $request->get_param('host');
+    $host = untrailingslashit( trim( (string) $request->get_param('host') ) );
     $token_auth = $request->get_param('tokenAuth');
     $id_site = $request->get_param('idSite');
 

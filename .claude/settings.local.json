@@ -1,18 +1,8 @@
 {
   "permissions": {
     "allow": [
-      "Bash(npm run build:*)",
-      "WebSearch",
-      "Bash(xargs ls:*)",
-      "Bash(npm run build:dev:*)",
-      "Bash(npm run:*)",
-      "Bash(npm install)",
-      "Bash(php -l:*)",
-      "WebFetch(domain:raw.githubusercontent.com)",
-      "WebFetch(domain:developer.matomo.org)",
-      "WebFetch(domain:demo.ronan-hello.fr)"
-    ],
-    "deny": [],
-    "ask": []
+      "Bash(npm run *)",
+      "Bash(npm install *)"
+    ]
   }
 }

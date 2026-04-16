@@ -3,7 +3,7 @@
 Contributors: Openmost
 Requires at least: 6.0
 Tested up to: 6.9.1
-Stable tag: 2.2.0
+Stable tag: 2.3.0
 Tags: matomo, connect, analytics, tracking, ecommerce, gdpr, google analytics alternative, web analytics
 Requires PHP: 8.2
 License: GPL-2.0-or-later
@@ -74,7 +74,7 @@ Choose the tracking method that best fits your needs:
 **Advanced Features**
 * User ID tracking with SHA256 hashed email
 * Heartbeat Timer for accurate time-on-page measurement
-* DataLayer integration for Tag Manager
+* DataLayer integration for Tag Manager (Matomo config + page context: page_type, post_type label, taxonomies, locale, login status, post_id)
 * AI Bot Tracking - Track visits from AI assistants (ChatGPT, Perplexity, Claude, etc.) separately in Matomo (requires Matomo 5.7+)
 * Bot detection and filtering
 * Noscript fallback for JavaScript-disabled browsers
@@ -233,6 +233,15 @@ The plugin detects user-triggered AI assistants including ChatGPT-User, GPTBot, 
 
 While technically possible, we recommend using only Matomo Site Kit for analytics to avoid conflicts and duplicate tracking.
 
+= Which dataLayer variables are pushed when I use Matomo Tag Manager? =
+
+Two independent toggles control what is pushed to `_mtm`:
+
+* **Push config context to dataLayer** - Pushes `matomo.host`, `matomo.site_id`, `matomo.container_id` and `wordpress.environment`. Used by MTM triggers that need to know which Matomo instance / environment the page runs on.
+* **Push page context to dataLayer** - Pushes ready-to-use variables for page-level triggers: `page_type` (slug: home, blog, search, error_404, author, `<post_type>`, `archive_<post_type>`, `archive_<taxonomy>`, `archive_date`, `archive`), `post_type` (singular human-readable label, e.g. "Article"), `post_id` on singular pages, taxonomy term names (`category`, `tag` or any custom taxonomy slug), `author` on author archives, `locale` (e.g. fr_FR), `user_login_status` ("logged_in" / "logged_out"), plus `user_id` (SHA256 hashed email) and `user_role` if User ID tracking is enabled.
+
+Both toggles are independent - enable only what your MTM setup actually uses.
+
 = How do I get support? =
 
 For support, please visit our [GitHub repository](https://github.com/openmost/openmost-site-kit) or contact us through [openmost.io](https://openmost.io).
@@ -244,12 +253,35 @@ Contributions are welcome! Visit our [GitHub repository](https://github.com/open
 == Screenshots ==
 
 1. Dashboard
-2. Settings - General
-3. Settings - Tracking
-4. Settings - Dashboard
-5. Settings - Privacy
+2. Settings - Tracking
+3. Settings - Features
+4. Settings - Privacy
 
 == Changelog ==
+
+= 2.3.0 =
+Release date: 2026-04-16
+
+**New Features:**
+
+* Page context dataLayer - New optional toggle "Push page context to dataLayer" that enriches `_mtm` with ready-to-use variables for Tag Manager triggers and variables
+* Pushed variables include: `page_type` (home, blog, search, error_404, author, `<post_type>`, `archive_<post_type>`, `archive_<taxonomy>`, `archive_date`, `archive`), `post_type` (singular human-readable label), `post_id` on singular pages, taxonomies (`category`, `tag`, any custom taxonomy slug with term names), `author` on author archives, `locale`, and `user_login_status`
+* `user_id` (SHA256) and `user_role` are now pushed in the page context when User ID tracking is enabled (previously in the Matomo config object)
+
+**Improvements:**
+
+* Renamed the Tag Manager "Push context to dataLayer" toggle to "Push config context to dataLayer" to clearly distinguish it from the new page context toggle
+* Enabling the config context toggle now pre-checks the page context toggle
+* Config context push now only carries `matomo.*` and `wordpress.environment` - keeps the initial payload minimal
+* `matomo.site_id` is now pushed as an integer (was a string)
+* Removed `recMode` from the dataLayer push (kept on the actual tracker requests where it is needed)
+* Matomo Host is now trimmed and stripped of any trailing slash on save and in the dataLayer payload
+* Custom taxonomies registered with `publicly_queryable` or `show_ui` (but not `public`) are now included
+
+**Technical:**
+
+* New helpers: `omsk_get_page_context()`, `omsk_get_post_type_label()`, `omsk_get_current_user_role()`
+* REST settings add `enableMtmPageContext` flag (`omsk-matomo-enable-mtm-page-context-field` option)
 
 = 2.2.0 =
 Release date: 2026-03-06
@@ -336,6 +368,9 @@ Release date: 2023-05-17
 * Initial plugin release
 
 == Upgrade Notice ==
+
+= 2.3.0 =
+New "Push page context to dataLayer" option for Tag Manager: adds page_type, post_type label, post_id, taxonomies, locale and login status to `_mtm`. Host URL is now auto-trimmed. User ID / role moved to the page context payload.
 
 = 2.2.0 =
 Major feature release! New AI bot tracking (Matomo 5.7+), server-side tracking, WooCommerce ecommerce, site search tracking, automatic annotations, and privacy settings. Includes security improvements and WordPress coding standards compliance. Recommended for all users.
