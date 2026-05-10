@@ -3,7 +3,7 @@
 Contributors: Openmost
 Requires at least: 6.0
 Tested up to: 6.9.4
-Stable tag: 2.3.0
+Stable tag: 2.3.1
 Tags: matomo, connect, analytics, tracking, ecommerce, gdpr, google analytics alternative, web analytics
 Requires PHP: 8.2
 License: GPL-2.0-or-later
@@ -259,6 +259,19 @@ Contributions are welcome! Visit our [GitHub repository](https://github.com/open
 
 == Changelog ==
 
+= 2.3.1 =
+Release date: 2026-05-10
+
+**Fixed:**
+
+* Tag Manager dataLayer (`_mtm`) is now preserved for users whose role is in the tracking exclusion list. The `_mtm` array is still initialized and the config / page-context pushes are still emitted, so site code that relies on `_mtm.push(...)` keeps working and the dataLayer stays inspectable from devtools. Only the actual tracker payloads (MTM container script, classic `matomo.js`, server-side PHP tracker, noscript pixel) are suppressed for excluded roles
+
+**Security:**
+
+* Resolved all open Dependabot advisories (1 critical, 29 high, 13 moderate, 11 low) by upgrading `@wordpress/scripts` from `^27.0.0` to `^32.1.0` and pinning patched transitive versions via `overrides`: `@babel/runtime ^7.29.2`, `serialize-javascript ^7.0.5`, `webpack-dev-server ^5.2.3`, `markdownlint-cli ^0.48.0`
+* Patches affect `axios`, `lodash`, `node-forge`, `fast-uri`, `basic-ftp`, `cross-spawn`, `tar-fs`, `ws`, `path-to-regexp`, `picomatch`, `brace-expansion`, `follow-redirects`, `@babel/runtime`, `serialize-javascript`, and others. All affected packages are build-time / dev dependencies except `@babel/runtime`, which is bundled into the admin UI
+* Admin UI bundle rebuilt against the upgraded toolchain
+
 = 2.3.0 =
 Release date: 2026-04-16
 
@@ -368,6 +381,9 @@ Release date: 2023-05-17
 * Initial plugin release
 
 == Upgrade Notice ==
+
+= 2.3.1 =
+Maintenance release: keeps the Tag Manager `_mtm` dataLayer initialized and inspectable for users whose role is excluded from tracking (only the tracker scripts themselves are suppressed). Bundles a major build-tooling upgrade that resolves all open dependency security advisories.
 
 = 2.3.0 =
 New "Push page context to dataLayer" option for Tag Manager: adds page_type, post_type label, post_id, taxonomies, locale and login status to `_mtm`. Host URL is now auto-trimmed. User ID / role moved to the page context payload.

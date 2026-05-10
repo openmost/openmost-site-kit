@@ -2,7 +2,12 @@
   "permissions": {
     "allow": [
       "Bash(npm run *)",
-      "Bash(npm install *)"
+      "Bash(npm install *)",
+      "Bash(gh api *)",
+      "Bash(npm audit *)",
+      "Bash(node -e \"const d=JSON.parse\\(require\\('fs'\\).readFileSync\\(0,'utf8'\\)\\);const v=d.vulnerabilities||{};const rows=Object.values\\(v\\).map\\(x=>\\({name:x.name,severity:x.severity,direct:x.isDirect,via:Array.isArray\\(x.via\\)?x.via.map\\(a=>typeof a==='string'?a:a.name\\).slice\\(0,2\\):x.via,fix:x.fixAvailable&&typeof x.fixAvailable==='object'?x.fixAvailable.name+'@'+x.fixAvailable.version+\\(x.fixAvailable.isSemVerMajor?' \\(MAJOR\\)':''\\):x.fixAvailable}\\)\\);console.log\\(JSON.stringify\\(rows,null,2\\)\\);console.log\\('--- meta ---'\\);console.log\\(JSON.stringify\\(d.metadata,null,2\\)\\);\")",
+      "Bash(npm view *)",
+      "Bash(npm ls *)"
     ]
   }
 }
