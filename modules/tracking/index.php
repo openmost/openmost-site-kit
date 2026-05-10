@@ -11,6 +11,13 @@
  *        custom taxonomy slugs), author, locale, user_login_status, and user_id /
  *        user_role when User ID tracking is enabled.
  *
+ * Role exclusion: when the current user's role is in the exclusion list, the
+ * actual tracker payloads are suppressed (MTM container script, classic
+ * matomo.js, server-side PHP, noscript pixel) but the MTM `_mtm` dataLayer is
+ * still initialized and the config/page-context pushes are still emitted, so
+ * site code that relies on `_mtm.push(...)` keeps working and the array stays
+ * inspectable from devtools.
+ *
  * @package Openmost_Site_Kit
  * @since 1.0.0
  */
@@ -100,9 +107,12 @@ function omsk_inject_tracking_code() {
     }
 
     // Check if current user should be excluded from tracking.
-    if ( omsk_should_exclude_user( $excluded_roles ) ) {
-        return;
-    }
+    // Excluded users still get the MTM dataLayer (`_mtm`) initialized and the
+    // config/page-context pushes emitted, so site code that relies on
+    // `_mtm.push(...)` keeps working and the array stays visible in devtools.
+    // Only the actual tracker payloads (MTM container script, classic
+    // matomo.js, noscript pixel) are suppressed for excluded users.
+    $is_excluded = omsk_should_exclude_user( $excluded_roles );
 
     // Get plan type (cloud or on-premise).
     $plan     = omsk_get_matomo_plan();
@@ -122,11 +132,13 @@ function omsk_inject_tracking_code() {
 
     // Inject Tag Manager tracking code (recommended).
     if ( $enable_mtm && $id_container ) {
-        omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_mtm_datalayer, $user_id, $enable_ai_bot_tracking, $enable_mtm_page_context, $user_role );
+        omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_mtm_datalayer, $user_id, $enable_ai_bot_tracking, $enable_mtm_page_context, $user_role, $is_excluded );
     }
 
     // Inject classic tracking code (fallback) - only if MTM is not enabled.
-    if ( $enable_classic && ! $enable_mtm ) {
+    // Classic Matomo has no dataLayer concept (only the `_paq` command queue),
+    // so excluded users get nothing here.
+    if ( $enable_classic && ! $enable_mtm && ! $is_excluded ) {
         omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode, $user_id, $enable_heartbeat_timer, $heartbeat_timer_delay, $enable_ai_bot_tracking, $skip_track_pageview );
     }
 }
@@ -215,9 +227,13 @@ function omsk_get_wp_environment() {
  * @param bool        $enable_ai_bot_tracking  Whether AI bot tracking is enabled.
  * @param bool        $enable_page_context     Whether to push page context (page_type, taxonomies) to the dataLayer.
  * @param string|null $user_role               Primary role of the logged-in user or null.
+ * @param bool        $is_excluded             Whether the current user is excluded from tracking.
+ *                                             When true the dataLayer is still initialized and the
+ *                                             config/page-context pushes are emitted, but the MTM
+ *                                             container script and the `mtm.Start` push are skipped.
  * @return void
  */
-function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_datalayer = true, $user_id = null, $enable_ai_bot_tracking = false, $enable_page_context = false, $user_role = null ) {
+function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enable_datalayer = true, $user_id = null, $enable_ai_bot_tracking = false, $enable_page_context = false, $user_role = null, $is_excluded = false ) {
     $plan = omsk_get_matomo_plan();
 
     // Build script URL based on plan type.
@@ -231,6 +247,7 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
     $cdn_origin   = wp_parse_url( $cdn_host, PHP_URL_SCHEME ) . '://' . wp_parse_url( $cdn_host, PHP_URL_HOST );
     $is_cross_origin = ( $cdn_origin !== $host );
     ?>
+    <?php if ( ! $is_excluded ) : ?>
     <?php if ( $is_cross_origin ) : ?>
     <link rel="preconnect" href="<?php echo esc_attr( $cdn_origin ); ?>" crossorigin>
     <link rel="dns-prefetch" href="<?php echo esc_attr( $host ); ?>">
@@ -239,7 +256,8 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
     <link rel="preconnect" href="<?php echo esc_attr( $host ); ?>">
     <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script">
     <?php endif; ?>
-    <!-- Matomo Tag Manager -->
+    <?php endif; ?>
+    <!-- Matomo Tag Manager<?php echo $is_excluded ? ' (dataLayer only - user role excluded from tracking)' : ''; ?> -->
     <script>
     var _mtm = window._mtm = window._mtm || [];
     <?php if ( $enable_datalayer ) : ?>
@@ -262,11 +280,13 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
         }
     }
     ?>
+    <?php if ( ! $is_excluded ) : ?>
     _mtm.push({'mtm.startTime': (new Date().getTime()), 'event': 'mtm.Start'});
     (function() {
       var d=document, g=d.createElement('script'), s=d.getElementsByTagName('script')[0];
       g.async=true; g.src='<?php echo esc_url( $script_url ); ?>'; s.parentNode.insertBefore(g,s);
     })();
+    <?php endif; ?>
     </script>
     <!-- End Matomo Tag Manager -->
     <?php
