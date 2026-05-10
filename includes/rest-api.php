@@ -385,10 +385,16 @@ function omsk_rest_matomo_proxy($request) {
     $data = omsk_fetch_matomo_api($param_string);
 
     if (is_wp_error($data)) {
+        // Surface the real upstream message and status so production can be debugged
+        // from the network response. The route is `manage_options`-only so this is
+        // not exposed to unauthenticated users.
+        $error_data   = $data->get_error_data();
+        $http_status  = is_array($error_data) && isset($error_data['status']) ? (int) $error_data['status'] : 502;
+
         return new WP_Error(
-            'matomo_api_error',
-            __('Failed to fetch data from Matomo', 'openmost-site-kit'),
-            array('status' => 500)
+            $data->get_error_code() ?: 'matomo_api_error',
+            $data->get_error_message() ?: __('Failed to fetch data from Matomo', 'openmost-site-kit'),
+            array('status' => $http_status)
         );
     }
 
@@ -489,10 +495,13 @@ function omsk_rest_get_post_stats($request) {
     $data = omsk_fetch_matomo_api($param_string);
 
     if (is_wp_error($data)) {
+        $error_data  = $data->get_error_data();
+        $http_status = is_array($error_data) && isset($error_data['status']) ? (int) $error_data['status'] : 502;
+
         return new WP_Error(
-            'matomo_api_error',
-            __('Failed to fetch data from Matomo', 'openmost-site-kit'),
-            array('status' => 500)
+            $data->get_error_code() ?: 'matomo_api_error',
+            $data->get_error_message() ?: __('Failed to fetch data from Matomo', 'openmost-site-kit'),
+            array('status' => $http_status)
         );
     }
 

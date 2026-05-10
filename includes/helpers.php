@@ -110,28 +110,64 @@ function omsk_fetch_matomo_api( $param_string ) {
 
     $request_url = trailingslashit( $host ) . 'index.php';
 
-    // Make POST request with token in body AND as Bearer token.
+    // Make POST request. Send token in body; only add Bearer header when we have a token,
+    // otherwise an empty `Bearer ` header makes some Matomo deployments reject the request.
+    $headers = array(
+        'Content-Type' => 'application/x-www-form-urlencoded',
+    );
+    if ( ! empty( $token_auth ) ) {
+        $headers['Authorization'] = 'Bearer ' . $token_auth;
+    }
+
     $response = wp_remote_post(
         $request_url,
         array(
             'timeout' => 15,
-            'headers' => array(
-                'Content-Type'  => 'application/x-www-form-urlencoded',
-                'Authorization' => 'Bearer ' . $token_auth,
-            ),
+            'headers' => $headers,
             'body'    => $body_params,
         )
     );
 
     if ( is_wp_error( $response ) ) {
+        // Network / DNS / TLS failure - return as-is so the upstream message survives.
         return $response;
     }
 
-    $body = wp_remote_retrieve_body( $response );
+    $status = (int) wp_remote_retrieve_response_code( $response );
+    $body   = wp_remote_retrieve_body( $response );
+
+    if ( $status < 200 || $status >= 300 ) {
+        $excerpt = is_string( $body ) ? substr( wp_strip_all_tags( $body ), 0, 200 ) : '';
+        return new WP_Error(
+            'matomo_http_error',
+            sprintf(
+                /* translators: 1: HTTP status code, 2: response body excerpt. */
+                __( 'Matomo returned HTTP %1$d: %2$s', 'openmost-site-kit' ),
+                $status,
+                $excerpt
+            ),
+            array( 'status' => $status )
+        );
+    }
+
     $data = json_decode( $body, true );
 
     if ( json_last_error() !== JSON_ERROR_NONE ) {
-        return new WP_Error( 'json_error', __( 'Invalid JSON response from Matomo.', 'openmost-site-kit' ) );
+        $excerpt = is_string( $body ) ? substr( wp_strip_all_tags( $body ), 0, 200 ) : '';
+        return new WP_Error(
+            'matomo_json_error',
+            sprintf(
+                /* translators: %s: response body excerpt. */
+                __( 'Invalid JSON response from Matomo: %s', 'openmost-site-kit' ),
+                $excerpt
+            )
+        );
+    }
+
+    // Matomo signals API-level errors as { "result": "error", "message": "..." }.
+    if ( is_array( $data ) && isset( $data['result'] ) && 'error' === $data['result'] ) {
+        $message = isset( $data['message'] ) ? (string) $data['message'] : __( 'Matomo returned an error.', 'openmost-site-kit' );
+        return new WP_Error( 'matomo_api_error', $message );
     }
 
     return $data;
