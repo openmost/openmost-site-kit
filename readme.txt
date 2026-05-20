@@ -2,8 +2,8 @@
 
 Contributors: Openmost
 Requires at least: 6.0
-Tested up to: 6.9.4
-Stable tag: 2.3.1
+Tested up to: 7.0.0
+Stable tag: 2.3.2
 Tags: matomo, connect, analytics, tracking, ecommerce, gdpr, google analytics alternative, web analytics
 Requires PHP: 8.2
 License: GPL-2.0-or-later
