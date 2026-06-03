@@ -248,14 +248,11 @@ function omsk_inject_mtm_code( $cdn_host, $id_container, $host, $id_site, $enabl
     $is_cross_origin = ( $cdn_origin !== $host );
     ?>
     <?php if ( ! $is_excluded ) : ?>
+    <link rel="preconnect" href="<?php echo esc_attr( $is_cross_origin ? $cdn_origin : $host ); ?>">
     <?php if ( $is_cross_origin ) : ?>
-    <link rel="preconnect" href="<?php echo esc_attr( $cdn_origin ); ?>" crossorigin>
     <link rel="dns-prefetch" href="<?php echo esc_attr( $host ); ?>">
-    <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script" crossorigin>
-    <?php else : ?>
-    <link rel="preconnect" href="<?php echo esc_attr( $host ); ?>">
-    <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script">
     <?php endif; ?>
+    <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script">
     <?php endif; ?>
     <!-- Matomo Tag Manager<?php echo $is_excluded ? ' (dataLayer only - user role excluded from tracking)' : ''; ?> -->
     <script>
@@ -322,14 +319,11 @@ function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disa
 
     $is_cross_origin = ( null !== $cdn_origin && $cdn_origin !== $host );
     ?>
+    <link rel="preconnect" href="<?php echo esc_attr( $is_cross_origin ? $cdn_origin : $host ); ?>">
     <?php if ( $is_cross_origin ) : ?>
-    <link rel="preconnect" href="<?php echo esc_attr( $cdn_origin ); ?>" crossorigin>
     <link rel="dns-prefetch" href="<?php echo esc_attr( $host ); ?>">
-    <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script" crossorigin>
-    <?php else : ?>
-    <link rel="preconnect" href="<?php echo esc_attr( $host ); ?>">
-    <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script">
     <?php endif; ?>
+    <link rel="preload" href="<?php echo esc_attr( $script_url ); ?>" as="script">
     <!-- Matomo -->
     <script>
       var _paq = window._paq = window._paq || [];

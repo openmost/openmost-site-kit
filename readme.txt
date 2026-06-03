@@ -3,7 +3,7 @@
 Contributors: Openmost
 Requires at least: 6.0
 Tested up to: 7.0.0
-Stable tag: 2.3.2
+Stable tag: 2.3.3
 Tags: matomo, connect, analytics, tracking, ecommerce, gdpr, google analytics alternative, web analytics
 Requires PHP: 8.2
 License: GPL-2.0-or-later
@@ -258,6 +258,14 @@ Contributions are welcome! Visit our [GitHub repository](https://github.com/open
 4. Settings - Privacy
 
 == Changelog ==
+
+= 2.3.3 =
+Release date: 2026-06-03
+
+**Fixed:**
+
+* Removed the `crossorigin` attribute from the Tag Manager and classic tracking `preload`/`preconnect` hints. The container/`matomo.js` script is injected as a classic (credentialed, no-CORS) script, so the CORS `crossorigin` preload no longer matched its credentials mode - the browser ignored the preload ("request credentials mode does not match") and refetched the script. The hints now match the actual request and are reused
+* Simplified the cross-origin / same-origin resource-hint branches now that the `preload` is identical in both cases
 
 = 2.3.1 =
 Release date: 2026-05-10
