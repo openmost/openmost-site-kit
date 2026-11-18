@@ -1,0 +1,43 @@
+name: Deploy to WordPress.org
+
+# Pushing a version tag (X.Y.Z), or publishing a GitHub release that creates it,
+# copies the plugin into the WordPress.org SVN trunk and creates tags/X.Y.Z.
+# Banners, icons and screenshots stay in SVN /assets, they are not touched.
+
+on:
+  push:
+    tags:
+      - '[0-9]+.[0-9]+.[0-9]+'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: wordpress-org-deploy
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    environment: wordpress-org
+    steps:
+      - name: Checkout
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+
+      - name: Check that the tag matches the plugin version
+        run: |
+          tag="${GITHUB_REF_NAME}"
+          header=$(grep -m1 -E '^[[:space:]]*\*[[:space:]]*Version:' openmost-site-kit.php | sed -E 's/.*Version:[[:space:]]*//' | tr -d '[:space:]')
+          stable=$(grep -m1 -E '^Stable tag:' readme.txt | sed -E 's/^Stable tag:[[:space:]]*//' | tr -d '[:space:]')
+          echo "tag=$tag header=$header stable=$stable"
+          if [ "$tag" != "$header" ] || [ "$tag" != "$stable" ]; then
+            echo "::error::Tag $tag does not match the plugin header Version ($header) and readme Stable tag ($stable)."
+            exit 1
+          fi
+
+      - name: Deploy to WordPress.org SVN
+        uses: 10up/action-wordpress-plugin-deploy@54bd289b8525fd23a5c365ec369185f2966529c2 # 2.3.0
+        env:
+          SVN_USERNAME: ${{ secrets.SVN_USERNAME }}
+          SVN_PASSWORD: ${{ secrets.SVN_PASSWORD }}
+          SLUG: openmost-site-kit

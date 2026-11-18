@@ -1,12 +1,11 @@
-# Files and folders that never ship to WordPress.org SVN or the release zip.
+# Excluded from WordPress.org SVN (used by the deploy workflow).
+# src/ and package*.json ship on purpose: readable source of the minified build.
 /.git
 /.github
 /.claude
 /.gitignore
+/.gitattributes
 /.distignore
 /.DS_Store
 /node_modules
-/src
 /tests
-/package.json
-/package-lock.json
