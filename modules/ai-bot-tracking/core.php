@@ -130,8 +130,36 @@ function omsk_get_ai_bot_tracking_config( $options ) {
     return array(
         'host'    => $host,
         'id_site' => $id_site,
-        'esi'     => ! empty( $options['omsk-matomo-ai-bot-esi-field'] ),
+        'esi'     => ! empty( $options['omsk-matomo-ai-bot-esi-field'] ) && omsk_ai_bot_esi_supported(),
     );
+}
+
+/**
+ * Whether the web server can evaluate <esi:include>. Apache and nginx print it
+ * as is, so a saved ESI setting would silently stop the tracking there.
+ *
+ * Define OMSK_AI_BOT_ESI in wp-config.php to force it, for example behind an
+ * ESI-capable CDN (Fastly, Akamai) or to turn it off on LiteSpeed.
+ *
+ * @since 2.4.0
+ * @return bool
+ */
+function omsk_ai_bot_esi_supported() {
+    if ( defined( 'OMSK_AI_BOT_ESI' ) ) {
+        return (bool) OMSK_AI_BOT_ESI;
+    }
+
+    return isset( $_SERVER['SERVER_SOFTWARE'] ) && false !== stripos( (string) $_SERVER['SERVER_SOFTWARE'], 'litespeed' );
+}
+
+/**
+ * Web server name and version, for the Settings screen.
+ *
+ * @since 2.4.0
+ * @return string
+ */
+function omsk_ai_bot_server_software() {
+    return isset( $_SERVER['SERVER_SOFTWARE'] ) ? trim( (string) preg_replace( '/[^\w\s.\/()\-]/', '', (string) $_SERVER['SERVER_SOFTWARE'] ) ) : '';
 }
 
 /**

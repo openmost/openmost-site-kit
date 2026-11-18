@@ -172,7 +172,7 @@ function omsk_get_ai_bot_js_cookie_snippet() {
  * Cache status shown in Settings.
  *
  * @since 2.4.0
- * @return array{pageCache: bool, dropinLoaded: bool, dropinSnippet: string, liteSpeed: bool}
+ * @return array{pageCache: bool, dropinLoaded: bool, dropinSnippet: string, liteSpeed: bool, esiSupported: bool, esiForced: bool, server: string}
  */
 function omsk_get_ai_bot_cache_status() {
     return array(
@@ -180,6 +180,9 @@ function omsk_get_ai_bot_cache_status() {
         'dropinLoaded'  => function_exists( 'omsk_ai_bot_dropin_shutdown' ),
         'dropinSnippet' => omsk_get_ai_bot_dropin_snippet(),
         'liteSpeed'     => defined( 'LSCWP_V' ) || class_exists( '\LiteSpeed\Core' ),
+        'esiSupported'  => omsk_ai_bot_esi_supported(),
+        'esiForced'     => defined( 'OMSK_AI_BOT_ESI' ),
+        'server'        => omsk_ai_bot_server_software(),
     );
 }
 

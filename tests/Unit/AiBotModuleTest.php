@@ -140,6 +140,9 @@ final class AiBotModuleTest extends TestCase {
         $this->assertFalse( $status['pageCache'] );
         $this->assertFalse( $status['dropinLoaded'] );
         $this->assertFalse( $status['liteSpeed'] );
+        $this->assertFalse( $status['esiSupported'] );
+        $this->assertFalse( $status['esiForced'] );
+        $this->assertSame( 'Apache/2.4.65 (Win64)', $status['server'] );
         $this->assertStringContainsString( 'track.php', $status['dropinSnippet'] );
     }
 }

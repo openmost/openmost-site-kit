@@ -234,7 +234,7 @@ Make sure you've enabled the ecommerce tracking option for your active tracking 
 
 AI chatbots such as ChatGPT, Claude or Perplexity fetch your pages to answer their users, but they do not run JavaScript, so a regular Matomo tracking code never sees them. The plugin detects them by User-Agent when WordPress renders the page and sends a server-side bot request to Matomo (recMode=1), whatever tracking method you use. Matomo 5.7+ shows them in the AI Assistants > AI Chatbots reports. These requests create no visit, set no cookie and need no Auth Token. The feature is on by default and can be switched off in Settings.
 
-Pages served from a page cache never reach the plugin. When the cache is served by advanced-cache.php (WP Super Cache simple mode, W3 Total Cache Disk: Basic), add the lines shown in Settings to wp-config.php, just before the line that loads wp-settings.php. With LiteSpeed Cache, enable the ESI option. Caches served by .htaccess rewrite rules or by a CDN bypass PHP entirely. If you track AI chatbots at the CDN level instead (Matomo Cloudflare Worker or Amazon CloudFront integration), uncheck the option so they are not counted twice.
+Pages served from a page cache never reach the plugin. When the cache is served by advanced-cache.php (WP Super Cache simple mode, W3 Total Cache Disk: Basic), add the lines shown in Settings to wp-config.php, just before the line that loads wp-settings.php. With LiteSpeed Cache, enable the ESI option (only offered on LiteSpeed servers, define `OMSK_AI_BOT_ESI` as true in wp-config.php behind an ESI-capable CDN such as Fastly or Akamai). Caches served by .htaccess rewrite rules or by a CDN bypass PHP entirely. If you track AI chatbots at the CDN level instead (Matomo Cloudflare Worker or Amazon CloudFront integration), uncheck the option so they are not counted twice.
 
 = Which AI chatbots are detected? =
 
@@ -278,7 +278,7 @@ Release date: 2026-11-18
 * AI chatbot tracking now works with every tracking method (Classic, Tag Manager, server-side). Chatbots do not run JavaScript, so WordPress sends the bot request itself when it renders the page, with the HTTP status and the server time
 * AI chatbot tracking is on by default, including on existing sites, and can be switched off with a checkbox in Settings
 * Cached pages: pages served by advanced-cache.php (WP Super Cache simple mode, W3 Total Cache Disk: Basic, WP Rocket PHP fallback) are tracked with a drop-in loaded from wp-config.php, Settings shows the lines to paste and whether the drop-in is loaded
-* Cached pages: LiteSpeed Cache and ESI-capable CDNs are tracked through an ESI include, enabled with a checkbox in Settings
+* Cached pages: LiteSpeed Cache is tracked through an ESI include, enabled with a checkbox in Settings. The option is only available on LiteSpeed servers, Apache and nginx would print the include as is, so a saved ESI setting is ignored there and chatbots are tracked directly. Define `OMSK_AI_BOT_ESI` in wp-config.php to force it behind an ESI-capable CDN
 * Detection list aligned with the official Matomo PHP tracker, filterable with `omsk_ai_bot_user_agents`
 * Classic tracking flags AI agents that run JavaScript with a `matomo_has_js` cookie so they are not counted twice
 * Bot requests no longer send the Auth Token

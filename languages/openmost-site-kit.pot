@@ -9,7 +9,7 @@ msgstr ""
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"POT-Creation-Date: 2026-11-18T20:36:29+00:00\n"
+"POT-Creation-Date: 2026-11-18T20:50:40+00:00\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "X-Generator: WP-CLI 2.13.0-alpha\n"
 "X-Domain: openmost-site-kit\n"
@@ -60,7 +60,7 @@ msgid "Matomo returned an error."
 msgstr ""
 
 #: includes/rest-api.php:280
-#: src/pages/Settings/index.js:1552
+#: src/pages/Settings/index.js:1559
 msgid "Settings saved successfully"
 msgstr ""
 
@@ -70,7 +70,7 @@ msgid "Failed to fetch data from Matomo"
 msgstr ""
 
 #: includes/rest-api.php:449
-#: src/pages/Settings/index.js:1581
+#: src/pages/Settings/index.js:1588
 msgid "Failed to connect to Matomo"
 msgstr ""
 
@@ -114,7 +114,7 @@ msgstr ""
 
 #: modules/settings/index.php:23
 #: modules/settings/index.php:24
-#: src/pages/Settings/index.js:1620
+#: src/pages/Settings/index.js:1627
 msgid "Settings"
 msgstr ""
 
@@ -383,116 +383,116 @@ msgid "Matomo is not configured. Please configure your Matomo instance in the se
 msgstr ""
 
 #: src/pages/Privacy/index.js:212
-#: src/pages/Settings/index.js:1278
+#: src/pages/Settings/index.js:1285
 msgid "Shortcode Builder"
 msgstr ""
 
 #: src/pages/Privacy/index.js:216
-#: src/pages/Settings/index.js:1282
+#: src/pages/Settings/index.js:1289
 msgid "Configure your opt-out form and generate the shortcode to add to your privacy policy page."
 msgstr ""
 
 #: src/pages/Privacy/index.js:220
-#: src/pages/Settings/index.js:1287
+#: src/pages/Settings/index.js:1294
 msgid "Language"
 msgstr ""
 
 #: src/pages/Privacy/index.js:224
-#: src/pages/Settings/index.js:1291
+#: src/pages/Settings/index.js:1298
 msgid "Auto (detect from Matomo)"
 msgstr ""
 
 #: src/pages/Privacy/index.js:225
-#: src/pages/Settings/index.js:1292
+#: src/pages/Settings/index.js:1299
 msgid "English"
 msgstr ""
 
 #: src/pages/Privacy/index.js:226
-#: src/pages/Settings/index.js:1293
+#: src/pages/Settings/index.js:1300
 msgid "French"
 msgstr ""
 
 #: src/pages/Privacy/index.js:227
-#: src/pages/Settings/index.js:1294
+#: src/pages/Settings/index.js:1301
 msgid "German"
 msgstr ""
 
 #: src/pages/Privacy/index.js:228
-#: src/pages/Settings/index.js:1295
+#: src/pages/Settings/index.js:1302
 msgid "Spanish"
 msgstr ""
 
 #: src/pages/Privacy/index.js:229
-#: src/pages/Settings/index.js:1296
+#: src/pages/Settings/index.js:1303
 msgid "Italian"
 msgstr ""
 
 #: src/pages/Privacy/index.js:230
-#: src/pages/Settings/index.js:1297
+#: src/pages/Settings/index.js:1304
 msgid "Portuguese"
 msgstr ""
 
 #: src/pages/Privacy/index.js:231
-#: src/pages/Settings/index.js:1298
+#: src/pages/Settings/index.js:1305
 msgid "Dutch"
 msgstr ""
 
 #: src/pages/Privacy/index.js:233
-#: src/pages/Settings/index.js:1300
+#: src/pages/Settings/index.js:1307
 msgid "Language for the opt-out form text"
 msgstr ""
 
 #: src/pages/Privacy/index.js:237
 #: src/pages/Privacy/index.js:347
-#: src/pages/Settings/index.js:1308
-#: src/pages/Settings/index.js:1461
+#: src/pages/Settings/index.js:1315
+#: src/pages/Settings/index.js:1468
 msgid "Show introduction text"
 msgstr ""
 
 #: src/pages/Privacy/index.js:240
-#: src/pages/Settings/index.js:1311
+#: src/pages/Settings/index.js:1318
 msgid "Display explanatory text before the opt-out checkbox"
 msgstr ""
 
 #: src/pages/Privacy/index.js:247
-#: src/pages/Settings/index.js:1374
+#: src/pages/Settings/index.js:1381
 msgid "Generated Shortcode:"
 msgstr ""
 
 #: src/pages/Privacy/index.js:250
 #: src/pages/Privacy/index.js:255
-#: src/pages/Settings/index.js:1378
-#: src/pages/Settings/index.js:1383
+#: src/pages/Settings/index.js:1385
+#: src/pages/Settings/index.js:1390
 msgid "Copied!"
 msgstr ""
 
 #: src/pages/Privacy/index.js:250
-#: src/pages/Settings/index.js:1378
+#: src/pages/Settings/index.js:1385
 msgid "Copy to clipboard"
 msgstr ""
 
 #: src/pages/Privacy/index.js:255
-#: src/pages/Settings/index.js:1383
+#: src/pages/Settings/index.js:1390
 msgid "Copy"
 msgstr ""
 
 #: src/pages/Privacy/index.js:272
-#: src/pages/Settings/index.js:1400
+#: src/pages/Settings/index.js:1407
 msgid "Copy this shortcode and paste it onto your cookie privacy policy page."
 msgstr ""
 
 #: src/pages/Privacy/index.js:280
-#: src/pages/Settings/index.js:1407
+#: src/pages/Settings/index.js:1414
 msgid "Live Preview"
 msgstr ""
 
 #: src/pages/Privacy/index.js:286
-#: src/pages/Settings/index.js:1413
+#: src/pages/Settings/index.js:1420
 msgid "This is how the opt-out form will appear on your site:"
 msgstr ""
 
 #: src/pages/Privacy/index.js:300
-#: src/pages/Settings/index.js:1426
+#: src/pages/Settings/index.js:1433
 msgid "The preview above is fully functional. You can test the opt-out functionality here."
 msgstr ""
 
@@ -517,42 +517,42 @@ msgid "Legacy shortcode (backward compatible)"
 msgstr ""
 
 #: src/pages/Privacy/index.js:328
-#: src/pages/Settings/index.js:1440
+#: src/pages/Settings/index.js:1447
 msgid "Shortcode Parameters"
 msgstr ""
 
 #: src/pages/Privacy/index.js:332
-#: src/pages/Settings/index.js:1446
+#: src/pages/Settings/index.js:1453
 msgid "Parameter"
 msgstr ""
 
 #: src/pages/Privacy/index.js:333
-#: src/pages/Settings/index.js:1447
+#: src/pages/Settings/index.js:1454
 msgid "Description"
 msgstr ""
 
 #: src/pages/Privacy/index.js:334
-#: src/pages/Settings/index.js:1448
+#: src/pages/Settings/index.js:1455
 msgid "Default"
 msgstr ""
 
 #: src/pages/Privacy/index.js:335
-#: src/pages/Settings/index.js:1449
+#: src/pages/Settings/index.js:1456
 msgid "Example"
 msgstr ""
 
 #: src/pages/Privacy/index.js:341
-#: src/pages/Settings/index.js:1455
+#: src/pages/Settings/index.js:1462
 msgid "Form language (en, fr, de, es, etc.)"
 msgstr ""
 
 #: src/pages/Privacy/index.js:353
-#: src/pages/Settings/index.js:1467
+#: src/pages/Settings/index.js:1474
 msgid "Background color (hex without #)"
 msgstr ""
 
 #: src/pages/Privacy/index.js:359
-#: src/pages/Settings/index.js:1473
+#: src/pages/Settings/index.js:1480
 msgid "Text color (hex without #)"
 msgstr ""
 
@@ -655,7 +655,7 @@ msgstr ""
 
 #: src/pages/Settings/index.js:376
 #: src/pages/Settings/index.js:734
-#: src/pages/Settings/index.js:1040
+#: src/pages/Settings/index.js:1047
 msgid "Site ID"
 msgstr ""
 
@@ -895,17 +895,17 @@ msgid "Configure the required settings for Server-Side PHP tracking."
 msgstr ""
 
 #: src/pages/Settings/index.js:752
-#: src/pages/Settings/index.js:1058
+#: src/pages/Settings/index.js:1065
 msgid "Auth Token"
 msgstr ""
 
 #: src/pages/Settings/index.js:756
-#: src/pages/Settings/index.js:1061
+#: src/pages/Settings/index.js:1068
 msgid "Saved"
 msgstr ""
 
 #: src/pages/Settings/index.js:764
-#: src/pages/Settings/index.js:1069
+#: src/pages/Settings/index.js:1076
 msgid "Token saved — enter a new value to replace"
 msgstr ""
 
@@ -969,196 +969,206 @@ msgstr ""
 msgid "Track cached pages through ESI (LiteSpeed)"
 msgstr ""
 
-#: src/pages/Settings/index.js:893
-msgid "For LiteSpeed Cache or a CDN that supports Edge Side Includes. Pages carry an ESI include evaluated on every request, and the chatbot request is sent from it. Only enable it if your server processes ESI, otherwise AI chatbots are no longer tracked."
+#: src/pages/Settings/index.js:895
+msgid "Pages carry an ESI include evaluated on every request by LiteSpeed, and the chatbot request is sent from it. Use it when LiteSpeed Cache serves your pages."
 msgstr ""
 
-#: src/pages/Settings/index.js:901
+#. translators: %s: web server name, e.g. Apache/2.4.65
+#: src/pages/Settings/index.js:898
+#, js-format
+msgid "Not available: your web server (%s) does not process ESI, only LiteSpeed does. AI chatbots are tracked directly instead. Behind a CDN that evaluates ESI (Fastly, Akamai), add define( 'OMSK_AI_BOT_ESI', true ); to wp-config.php."
+msgstr ""
+
+#: src/pages/Settings/index.js:899
+msgid "unknown"
+msgstr ""
+
+#: src/pages/Settings/index.js:908
 msgid "LiteSpeed Cache is active: enable ESI above so that pages served from its cache are tracked."
 msgstr ""
 
-#: src/pages/Settings/index.js:912
+#: src/pages/Settings/index.js:919
 msgid "User ID Tracking"
 msgstr ""
 
-#: src/pages/Settings/index.js:917
+#: src/pages/Settings/index.js:924
 msgid "Enable User ID tracking"
 msgstr ""
 
-#: src/pages/Settings/index.js:920
+#: src/pages/Settings/index.js:927
 msgid "Track logged-in users with a SHA256 hash of their email address."
 msgstr ""
 
-#: src/pages/Settings/index.js:927
+#: src/pages/Settings/index.js:934
 msgid "Cookie consent required"
 msgstr ""
 
-#: src/pages/Settings/index.js:929
+#: src/pages/Settings/index.js:936
 msgid "User ID tracking requires cookie consent from your visitors. Ensure your consent management solution is configured to obtain consent before enabling this feature."
 msgstr ""
 
-#: src/pages/Settings/index.js:933
+#: src/pages/Settings/index.js:940
 msgid "The user ID will be available in the dataLayer as"
 msgstr ""
 
-#: src/pages/Settings/index.js:946
+#: src/pages/Settings/index.js:953
 msgid "Exclude Tracking by User Role"
 msgstr ""
 
-#: src/pages/Settings/index.js:950
+#: src/pages/Settings/index.js:957
 msgid "Select user roles that should not be tracked."
 msgstr ""
 
-#: src/pages/Settings/index.js:986
-#: src/pages/Settings/index.js:1196
+#: src/pages/Settings/index.js:993
+#: src/pages/Settings/index.js:1203
 msgid "Saving..."
 msgstr ""
 
-#: src/pages/Settings/index.js:986
-#: src/pages/Settings/index.js:1196
+#: src/pages/Settings/index.js:993
+#: src/pages/Settings/index.js:1203
 msgid "Save Settings"
 msgstr ""
 
-#: src/pages/Settings/index.js:1029
+#: src/pages/Settings/index.js:1036
 msgid "WordPress Dashboard"
 msgstr ""
 
-#: src/pages/Settings/index.js:1033
+#: src/pages/Settings/index.js:1040
 msgid "Enable the Matomo analytics dashboard within WordPress admin."
 msgstr ""
 
-#: src/pages/Settings/index.js:1048
+#: src/pages/Settings/index.js:1055
 msgid "Your site ID in Matomo. Shared with the Tracking configuration — editing it here updates it there too."
 msgstr ""
 
-#: src/pages/Settings/index.js:1070
+#: src/pages/Settings/index.js:1077
 msgid "Required to fetch analytics data. Find this in Matomo under Administration > Personal > Security > Auth tokens."
 msgstr ""
 
-#: src/pages/Settings/index.js:1083
+#: src/pages/Settings/index.js:1090
 msgid "A Site ID is required for the dashboard to fetch analytics data."
 msgstr ""
 
-#: src/pages/Settings/index.js:1095
+#: src/pages/Settings/index.js:1102
 msgid "Testing..."
 msgstr ""
 
-#: src/pages/Settings/index.js:1095
+#: src/pages/Settings/index.js:1102
 msgid "Test Connection"
 msgstr ""
 
-#: src/pages/Settings/index.js:1105
+#: src/pages/Settings/index.js:1112
 msgid "Automatic Annotations"
 msgstr ""
 
-#: src/pages/Settings/index.js:1110
+#: src/pages/Settings/index.js:1117
 msgid "Enable Automatic Annotations"
 msgstr ""
 
-#: src/pages/Settings/index.js:1113
+#: src/pages/Settings/index.js:1120
 msgid "Automatically create annotations in Matomo when content is published."
 msgstr ""
 
-#: src/pages/Settings/index.js:1122
+#: src/pages/Settings/index.js:1129
 msgid "An Auth Token is required for automatic annotations to work."
 msgstr ""
 
-#: src/pages/Settings/index.js:1128
+#: src/pages/Settings/index.js:1135
 msgid "Select which post types should create annotations when published:"
 msgstr ""
 
-#: src/pages/Settings/index.js:1158
+#: src/pages/Settings/index.js:1165
 msgid "Annotation Format"
 msgstr ""
 
-#: src/pages/Settings/index.js:1161
+#: src/pages/Settings/index.js:1168
 msgid "Customize the annotation message using variables."
 msgstr ""
 
-#: src/pages/Settings/index.js:1168
+#: src/pages/Settings/index.js:1175
 msgid "Available variables:"
 msgstr ""
 
-#: src/pages/Settings/index.js:1170
+#: src/pages/Settings/index.js:1177
 msgid "Post type name (e.g., Post, Page, Product)"
 msgstr ""
 
-#: src/pages/Settings/index.js:1171
+#: src/pages/Settings/index.js:1178
 msgid "Post title"
 msgstr ""
 
-#: src/pages/Settings/index.js:1172
+#: src/pages/Settings/index.js:1179
 msgid "Post URL"
 msgstr ""
 
-#: src/pages/Settings/index.js:1173
+#: src/pages/Settings/index.js:1180
 msgid "Author display name"
 msgstr ""
 
-#: src/pages/Settings/index.js:1176
+#: src/pages/Settings/index.js:1183
 msgid "Example:"
 msgstr ""
 
-#: src/pages/Settings/index.js:1271
+#: src/pages/Settings/index.js:1278
 msgid "Matomo is not configured. Please configure your Matomo instance in the General tab first."
 msgstr ""
 
-#: src/pages/Settings/index.js:1318
+#: src/pages/Settings/index.js:1325
 msgid "Custom design"
 msgstr ""
 
-#: src/pages/Settings/index.js:1321
+#: src/pages/Settings/index.js:1328
 msgid "Customize colors and fonts of the opt-out form"
 msgstr ""
 
-#: src/pages/Settings/index.js:1336
+#: src/pages/Settings/index.js:1343
 msgid "Background Color"
 msgstr ""
 
-#: src/pages/Settings/index.js:1341
+#: src/pages/Settings/index.js:1348
 msgid "Font Color"
 msgstr ""
 
-#: src/pages/Settings/index.js:1349
+#: src/pages/Settings/index.js:1356
 msgid "Font Size"
 msgstr ""
 
-#: src/pages/Settings/index.js:1353
+#: src/pages/Settings/index.js:1360
 msgid "e.g., 12px, 14px, 1rem"
 msgstr ""
 
-#: src/pages/Settings/index.js:1358
+#: src/pages/Settings/index.js:1365
 msgid "Font Family"
 msgstr ""
 
-#: src/pages/Settings/index.js:1362
+#: src/pages/Settings/index.js:1369
 msgid "e.g., Arial, Helvetica, inherit"
 msgstr ""
 
-#: src/pages/Settings/index.js:1431
+#: src/pages/Settings/index.js:1438
 msgid "Configure Matomo in the General tab to see a live preview."
 msgstr ""
 
-#: src/pages/Settings/index.js:1537
+#: src/pages/Settings/index.js:1544
 msgid "Failed to load settings"
 msgstr ""
 
-#: src/pages/Settings/index.js:1557
+#: src/pages/Settings/index.js:1564
 msgid "Failed to save settings"
 msgstr ""
 
-#: src/pages/Settings/index.js:1576
+#: src/pages/Settings/index.js:1583
 msgid "Version"
 msgstr ""
 
-#: src/pages/Settings/index.js:1601
+#: src/pages/Settings/index.js:1608
 msgid "Tracking"
 msgstr ""
 
-#: src/pages/Settings/index.js:1607
+#: src/pages/Settings/index.js:1614
 msgid "Features"
 msgstr ""
 
-#: src/pages/Settings/index.js:1612
+#: src/pages/Settings/index.js:1619
 msgid "Privacy"
 msgstr ""

@@ -122,8 +122,42 @@ final class AiBotCoreTest extends TestCase {
         $this->assertNull( omsk_get_ai_bot_tracking_config( false ) );
     }
 
-    public function test_config_exposes_esi(): void {
+    public function test_config_enables_esi_on_litespeed(): void {
+        $_SERVER['SERVER_SOFTWARE'] = 'LiteSpeed';
+
         $this->assertTrue( omsk_get_ai_bot_tracking_config( self::options( array( 'omsk-matomo-ai-bot-esi-field' => 1 ) ) )['esi'] );
+    }
+
+    public function test_config_ignores_saved_esi_where_the_server_cannot_process_it(): void {
+        $_SERVER['SERVER_SOFTWARE'] = 'Apache/2.4.65 (Win64) PHP/8.5.0';
+
+        $config = omsk_get_ai_bot_tracking_config( self::options( array( 'omsk-matomo-ai-bot-esi-field' => 1 ) ) );
+
+        $this->assertNotNull( $config );
+        $this->assertFalse( $config['esi'] );
+    }
+
+    public static function servers(): array {
+        return array(
+            'LiteSpeed'     => array( 'LiteSpeed', true ),
+            'OpenLiteSpeed' => array( 'OpenLiteSpeed/1.7.19', true ),
+            'Apache'        => array( 'Apache/2.4.65 (Win64)', false ),
+            'nginx'         => array( 'nginx/1.27.0', false ),
+            'unknown'       => array( '', false ),
+        );
+    }
+
+    #[DataProvider( 'servers' )]
+    public function test_esi_support_follows_the_web_server( string $software, bool $expected ): void {
+        $_SERVER['SERVER_SOFTWARE'] = $software;
+
+        $this->assertSame( $expected, omsk_ai_bot_esi_supported() );
+    }
+
+    public function test_server_software_is_sanitized_for_display(): void {
+        $_SERVER['SERVER_SOFTWARE'] = 'Apache/2.4.65 (Win64) <script>';
+
+        $this->assertSame( 'Apache/2.4.65 (Win64) script', omsk_ai_bot_server_software() );
     }
 
     public function test_current_url_honours_https_and_proxies(): void {

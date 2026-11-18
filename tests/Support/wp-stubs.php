@@ -18,6 +18,7 @@ function omsk_tests_reset_wp(): void {
     $GLOBALS['omsk_ai_bot_tracked'] = false;
     $_COOKIE                        = array();
     $_SERVER['HTTP_USER_AGENT']     = '';
+    $_SERVER['SERVER_SOFTWARE']     = 'Apache/2.4.65 (Win64)';
 }
 
 omsk_tests_reset_wp();

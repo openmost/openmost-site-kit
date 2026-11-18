@@ -34,6 +34,7 @@ final class AiBotTrackingTest extends TestCase {
     protected function setUp(): void {
         self::$site->set_page_cache( false );
         self::$site->set_dropin( false );
+        self::$site->set_esi_forced( false );
         self::$site->set_state(
             array(
                 'settings'       => self::settings(),
@@ -273,6 +274,7 @@ final class AiBotTrackingTest extends TestCase {
     }
 
     public function test_esi_mode_prints_the_include_instead_of_tracking(): void {
+        self::$site->set_esi_forced( true );
         self::$site->set_state( array( 'settings' => self::settings( array( 'omsk-matomo-ai-bot-esi-field' => 1 ) ) ) );
 
         $response = self::$site->get( '/?p=1', self::CHATGPT );
@@ -283,6 +285,7 @@ final class AiBotTrackingTest extends TestCase {
     }
 
     public function test_esi_include_tracks_the_chatbot(): void {
+        self::$site->set_esi_forced( true );
         self::$site->set_state( array( 'settings' => self::settings( array( 'omsk-matomo-ai-bot-esi-field' => 1 ) ) ) );
 
         $page     = self::$site->url( '/?p=1' );
@@ -300,6 +303,7 @@ final class AiBotTrackingTest extends TestCase {
     }
 
     public function test_esi_endpoint_rejects_foreign_urls_humans_and_disabled_sites(): void {
+        self::$site->set_esi_forced( true );
         self::$site->set_state( array( 'settings' => self::settings( array( 'omsk-matomo-ai-bot-esi-field' => 1 ) ) ) );
 
         self::$site->get( self::esi_path( 'https://attacker.test/' ), self::CHATGPT );
@@ -309,6 +313,27 @@ final class AiBotTrackingTest extends TestCase {
         self::$site->set_state( array( 'settings' => self::settings() ) );
         self::$site->get( self::esi_path( self::$site->url( '/' ) ), self::CHATGPT );
         $this->assertSame( array(), self::$matomo->hits() );
+    }
+
+    public function test_saved_esi_is_ignored_when_the_server_cannot_process_it(): void {
+        self::$site->set_state( array( 'settings' => self::settings( array( 'omsk-matomo-ai-bot-esi-field' => 1 ) ) ) );
+
+        $response = self::$site->get( '/', self::CHATGPT );
+
+        $this->assertStringNotContainsString( 'esi:include', $response['body'] );
+        $this->assertCount( 1, self::$matomo->hits( 1 ) );
+
+        $status = self::$site->cache_status();
+        $this->assertFalse( $status['esiSupported'] );
+        $this->assertFalse( $status['esiForced'] );
+    }
+
+    public function test_esi_can_be_forced_for_esi_capable_cdns(): void {
+        self::$site->set_esi_forced( true );
+
+        $status = self::$site->cache_status();
+        $this->assertTrue( $status['esiSupported'] );
+        $this->assertTrue( $status['esiForced'] );
     }
 
     public function test_esi_endpoint_is_inert_without_parameter(): void {

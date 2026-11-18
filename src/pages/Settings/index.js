@@ -3,7 +3,7 @@
  */
 
 import { useState, useEffect, useRef } from '@wordpress/element';
-import { __ } from '@wordpress/i18n';
+import { __, sprintf } from '@wordpress/i18n';
 import {
     Card,
     CardBody,
@@ -888,15 +888,22 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                             <FormField>
                                 <CheckboxControl
                                     label={__('Track cached pages through ESI (LiteSpeed)', 'openmost-site-kit')}
-                                    checked={settings.enableAiBotEsi || false}
+                                    checked={Boolean(settings.enableAiBotEsi && settings.aiBotCacheStatus?.esiSupported)}
+                                    disabled={!settings.aiBotCacheStatus?.esiSupported}
                                     onChange={(value) => handleChange('enableAiBotEsi', value)}
-                                    help={__('For LiteSpeed Cache or a CDN that supports Edge Side Includes. Pages carry an ESI include evaluated on every request, and the chatbot request is sent from it. Only enable it if your server processes ESI, otherwise AI chatbots are no longer tracked.', 'openmost-site-kit')}
+                                    help={settings.aiBotCacheStatus?.esiSupported
+                                        ? __('Pages carry an ESI include evaluated on every request by LiteSpeed, and the chatbot request is sent from it. Use it when LiteSpeed Cache serves your pages.', 'openmost-site-kit')
+                                        : sprintf(
+                                            /* translators: %s: web server name, e.g. Apache/2.4.65 */
+                                            __("Not available: your web server (%s) does not process ESI, only LiteSpeed does. AI chatbots are tracked directly instead. Behind a CDN that evaluates ESI (Fastly, Akamai), add define( 'OMSK_AI_BOT_ESI', true ); to wp-config.php.", 'openmost-site-kit'),
+                                            settings.aiBotCacheStatus?.server || __('unknown', 'openmost-site-kit')
+                                        )}
                                     __nextHasNoMarginBottom
                                 />
                             </FormField>
                         )}
 
-                        {settings.enableAiBotTracking !== false && settings.aiBotCacheStatus?.liteSpeed && !settings.enableAiBotEsi && (
+                        {settings.enableAiBotTracking !== false && settings.aiBotCacheStatus?.liteSpeed && settings.aiBotCacheStatus?.esiSupported && !settings.enableAiBotEsi && (
                             <Notice status="warning" isDismissible={false} style={{ marginTop: '15px' }}>
                                 {__('LiteSpeed Cache is active: enable ESI above so that pages served from its cache are tracked.', 'openmost-site-kit')}
                             </Notice>

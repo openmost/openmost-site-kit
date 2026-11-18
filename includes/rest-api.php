@@ -196,7 +196,7 @@ function omsk_rest_get_settings() {
         'enableDataLayerSearchTracking' => isset($options['omsk-matomo-enable-datalayer-search-tracking-field']) ? (bool) $options['omsk-matomo-enable-datalayer-search-tracking-field'] : false,
         'enableServerSearchTracking'    => isset($options['omsk-matomo-enable-server-search-tracking-field']) ? (bool) $options['omsk-matomo-enable-server-search-tracking-field'] : false,
         'enableAiBotTracking'    => omsk_is_ai_bot_tracking_enabled($options),
-        'enableAiBotEsi'         => ! empty($options['omsk-matomo-ai-bot-esi-field']),
+        'enableAiBotEsi'         => ! empty($options['omsk-matomo-ai-bot-esi-field']) && omsk_ai_bot_esi_supported(),
         'aiBotCacheStatus'       => omsk_get_ai_bot_cache_status(),
         'plan'                   => omsk_get_matomo_plan(),
     ));
@@ -270,7 +270,7 @@ function omsk_rest_update_settings($request) {
         'omsk-matomo-enable-datalayer-search-tracking-field' => $request->get_param('enableDataLayerSearchTracking') ? 1 : 0,
         'omsk-matomo-enable-server-search-tracking-field'    => $request->get_param('enableServerSearchTracking') ? 1 : 0,
         'omsk-matomo-enable-ai-bot-tracking-field'           => $request->get_param('enableAiBotTracking') ? 1 : 0,
-        'omsk-matomo-ai-bot-esi-field'                       => $request->get_param('enableAiBotEsi') ? 1 : 0,
+        'omsk-matomo-ai-bot-esi-field'                       => ($request->get_param('enableAiBotEsi') && omsk_ai_bot_esi_supported()) ? 1 : 0,
     );
 
     update_option('omsk-settings', $options);

@@ -86,6 +86,13 @@ final class WordPressSite {
         $this->flag( 'cache-hit', $cached_html );
     }
 
+    /**
+     * The PHP built-in server cannot evaluate ESI, the tests force it like a site behind an ESI CDN would.
+     */
+    public function set_esi_forced( bool $forced ): void {
+        $this->flag( 'esi-forced', $forced ? '1' : null );
+    }
+
     public function set_dropin( bool $installed ): void {
         $this->flag( 'dropin', $installed ? '1' : null );
     }
@@ -205,6 +212,7 @@ final class WordPressSite {
             . "define( 'WP_DEBUG', false );\n"
             . "define( 'DISABLE_WP_CRON', true );\n"
             . "define( 'AUTOMATIC_UPDATER_DISABLED', true );\n"
+            . "if ( is_file( __DIR__ . '/flags/esi-forced' ) ) {\n\tdefine( 'OMSK_AI_BOT_ESI', true );\n}\n"
             . "if ( ! defined( 'ABSPATH' ) ) {\n\tdefine( 'ABSPATH', " . var_export( $core, true ) . " );\n}\n"
             . "if ( is_file( __DIR__ . '/flags/dropin' ) ) {\n"
             . "\tif ( is_file( " . var_export( $track, true ) . " ) ) {\n\t\trequire_once " . var_export( $track, true ) . ";\n\t}\n"
