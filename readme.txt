@@ -2,14 +2,14 @@
 
 Contributors: Openmost
 Requires at least: 6.0
-Tested up to: 7.0.0
-Stable tag: 2.3.3
+Tested up to: 7.1.5
+Stable tag: 2.4.0
 Tags: matomo, connect, analytics, tracking, ecommerce, gdpr, google analytics alternative, web analytics
 Requires PHP: 8.2
 License: GPL-2.0-or-later
 License URI: https://www.gnu.org/licenses/gpl-2.0.html
 
-The most complete Matomo Analytics plugin for WordPress. Server-side tracking, WooCommerce ecommerce, site search, GDPR compliance, and Tag Manager support.
+Complete Matomo Analytics for WordPress: Tag Manager, server-side tracking, WooCommerce, site search, AI chatbot tracking and GDPR options.
 
 == Description ==
 
@@ -24,6 +24,7 @@ Whether you use Matomo Cloud or self-hosted Matomo On-Premise, this plugin provi
 * **You Own Your Data** - No third-party data sharing
 * **Ad-Blocker Resistant** - Server-side tracking bypasses most ad blockers
 * **WooCommerce Ready** - Complete ecommerce tracking for your online store
+* **AI Chatbot Tracking** - See which pages ChatGPT, Claude, Perplexity or Gemini read to answer their users, on by default
 
 = Three Powerful Tracking Methods =
 
@@ -58,6 +59,13 @@ Choose the tracking method that best fits your needs:
 * Search result count
 * Zero configuration required
 
+**AI Chatbot Tracking (Matomo 5.7+)**
+* On by default, can be switched off in Settings
+* Works with Classic, Tag Manager and server-side tracking: chatbots do not run JavaScript, so WordPress sends the request itself
+* Feeds the AI Assistants > AI Chatbots reports of Matomo, with HTTP status and server time
+* Pages served by a page cache: drop-in for advanced-cache.php caches (WP Super Cache, W3 Total Cache, WP Rocket) and ESI for LiteSpeed Cache
+* No visit created, no cookie, no Auth Token needed
+
 **Automatic Annotations**
 * Create Matomo annotations when content is published
 * Select which post types trigger annotations
@@ -75,7 +83,6 @@ Choose the tracking method that best fits your needs:
 * User ID tracking with SHA256 hashed email
 * Heartbeat Timer for accurate time-on-page measurement
 * DataLayer integration for Tag Manager (Matomo config + page context: page_type, post_type label, taxonomies, locale, login status, post_id)
-* AI Bot Tracking - Track visits from AI assistants (ChatGPT, Perplexity, Claude, etc.) separately in Matomo (requires Matomo 5.7+)
 * Bot detection and filtering
 * Noscript fallback for JavaScript-disabled browsers
 * DNS prefetch and script preloading for performance
@@ -185,7 +192,9 @@ No, the plugin is optimized for performance with DNS prefetch, script preloading
 
 = Does it work with caching plugins? =
 
-Yes, Matomo Site Kit works with all major caching plugins including WP Rocket, W3 Total Cache, WP Super Cache, and LiteSpeed Cache.
+Yes. Classic and Tag Manager tracking run in the browser, so cached pages are tracked normally with WP Rocket, W3 Total Cache, WP Super Cache or LiteSpeed Cache.
+
+AI chatbots are the exception: they do not run JavaScript and cached pages never reach the plugin. See "What is AI Chatbot Tracking?" below for the wp-config.php drop-in and the LiteSpeed ESI option.
 
 = Does it work with page builders? =
 
@@ -221,13 +230,15 @@ Yes, server-side tracking works with both Matomo Cloud and On-Premise installati
 
 Make sure you've enabled the ecommerce tracking option for your active tracking method. Each method (Classic, Tag Manager, Server-Side) has its own toggle.
 
-= What is AI Bot Tracking? =
+= What is AI Chatbot Tracking? =
 
-AI Bot Tracking allows you to track visits from AI assistants like ChatGPT, Perplexity, Claude, and Gemini separately in Matomo. Instead of discarding these visits, Matomo 5.7+ can record them in a dedicated bot tracking report. Enable this feature in Settings to see how AI agents interact with your content.
+AI chatbots such as ChatGPT, Claude or Perplexity fetch your pages to answer their users, but they do not run JavaScript, so a regular Matomo tracking code never sees them. The plugin detects them by User-Agent when WordPress renders the page and sends a server-side bot request to Matomo (recMode=1), whatever tracking method you use. Matomo 5.7+ shows them in the AI Assistants > AI Chatbots reports. These requests create no visit, set no cookie and need no Auth Token. The feature is on by default and can be switched off in Settings.
 
-= Which AI bots are detected? =
+Pages served from a page cache never reach the plugin. When the cache is served by advanced-cache.php (WP Super Cache simple mode, W3 Total Cache Disk: Basic), add the lines shown in Settings to wp-config.php, just before the line that loads wp-settings.php. With LiteSpeed Cache, enable the ESI option. Caches served by .htaccess rewrite rules or by a CDN bypass PHP entirely. If you track AI chatbots at the CDN level instead (Matomo Cloudflare Worker or Amazon CloudFront integration), uncheck the option so they are not counted twice.
 
-The plugin detects user-triggered AI assistants including ChatGPT-User, GPTBot, PerplexityBot, ClaudeBot, Claude-Web, Google-Extended, Gemini, Meta-ExternalAgent, AmazonBot, AppleBot-Extended, OAI-SearchBot, and others. The list is regularly updated.
+= Which AI chatbots are detected? =
+
+GPTBot, ChatGPT-User, MistralAI-User, Gemini-Deep-Research, Claude-User, Perplexity-User, GoogleAgent, Google-NotebookLM, Devin, NovaAct, Google-Extended and Google-CloudVertexBot, the same list as the official Matomo PHP tracker. Developers can change it with the `omsk_ai_bot_user_agents` filter.
 
 = Can I use this with other analytics plugins? =
 
@@ -244,7 +255,7 @@ Both toggles are independent - enable only what your MTM setup actually uses.
 
 = How do I get support? =
 
-For support, please visit our [GitHub repository](https://github.com/openmost/openmost-site-kit) or contact us through [openmost.io](https://openmost.io).
+For support, please visit our [GitHub repository](https://github.com/openmost/openmost-site-kit) or contact us through [openmost.com](https://openmost.com).
 
 = How can I contribute? =
 
@@ -258,6 +269,23 @@ Contributions are welcome! Visit our [GitHub repository](https://github.com/open
 4. Settings - Privacy
 
 == Changelog ==
+
+= 2.4.0 =
+Release date: 2026-11-18
+
+**Changed:**
+
+* AI chatbot tracking now works with every tracking method (Classic, Tag Manager, server-side). Chatbots do not run JavaScript, so WordPress sends the bot request itself when it renders the page, with the HTTP status and the server time
+* AI chatbot tracking is on by default, including on existing sites, and can be switched off with a checkbox in Settings
+* Cached pages: pages served by advanced-cache.php (WP Super Cache simple mode, W3 Total Cache Disk: Basic, WP Rocket PHP fallback) are tracked with a drop-in loaded from wp-config.php, Settings shows the lines to paste and whether the drop-in is loaded
+* Cached pages: LiteSpeed Cache and ESI-capable CDNs are tracked through an ESI include, enabled with a checkbox in Settings
+* Detection list aligned with the official Matomo PHP tracker, filterable with `omsk_ai_bot_user_agents`
+* Classic tracking flags AI agents that run JavaScript with a `matomo_has_js` cookie so they are not counted twice
+* Bot requests no longer send the Auth Token
+
+**Fixed:**
+
+* With server-side tracking, AI chatbots such as ChatGPT-User or Claude-User were also recorded as human visits, including WooCommerce product views and site searches
 
 = 2.3.3 =
 Release date: 2026-06-03
@@ -389,6 +417,9 @@ Release date: 2023-05-17
 * Initial plugin release
 
 == Upgrade Notice ==
+
+= 2.4.0 =
+AI chatbot tracking is now on by default and works with Classic, Tag Manager and server-side tracking. Requires Matomo 5.7.0+ for the AI Chatbots reports, uncheck it in Settings to opt out.
 
 = 2.3.1 =
 Maintenance release: keeps the Tag Manager `_mtm` dataLayer initialized and inspectable for users whose role is excluded from tracking (only the tracker scripts themselves are suppressed). Bundles a major build-tooling upgrade that resolves all open dependency security advisories.

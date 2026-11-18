@@ -189,6 +189,10 @@ function omsk_track_search_server_side( $options ) {
         return;
     }
 
+    if ( omsk_is_bot() || omsk_is_ai_bot() ) {
+        return;
+    }
+
     $search_data = omsk_get_search_data();
 
     // Don't track empty searches.

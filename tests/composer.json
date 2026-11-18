@@ -1,0 +1,22 @@
+{
+    "name": "openmost/openmost-site-kit-tests",
+    "description": "Test suite of Matomo Site Kit, kept out of the plugin root so vendor/ never ships in the release zip.",
+    "type": "project",
+    "license": "GPL-2.0-or-later",
+    "require-dev": {
+        "phpunit/phpunit": "^11.5"
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Openmost\\SiteKit\\Tests\\": ""
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "test:unit": "phpunit --testsuite unit",
+        "test:integration": "phpunit --testsuite integration"
+    },
+    "config": {
+        "sort-packages": true
+    }
+}

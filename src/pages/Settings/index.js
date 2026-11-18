@@ -834,38 +834,71 @@ const TrackingTab = ({ settings, roles, onSettingsChange, onSave, saving, notice
                 </Card>
             )}
 
-            {/* AI Bot Tracking - available for all methods (requires Matomo 5.7+) */}
+            {/* AI chatbot tracking - server-side for every method, chatbots do not run JavaScript */}
             {trackingMethod !== 'none' && (
                 <Card style={{ marginTop: '20px' }}>
                     <CardHeader>
-                        <h2>{__('AI Bot Tracking', 'openmost-site-kit')}</h2>
+                        <h2>{__('AI Chatbot Tracking', 'openmost-site-kit')}</h2>
                     </CardHeader>
                     <CardBody>
                         <FormField>
-                            <ToggleControl
-                                label={__('Enable AI Bot Tracking', 'openmost-site-kit')}
-                                checked={settings.enableAiBotTracking || false}
+                            <CheckboxControl
+                                label={__('Track AI chatbot requests', 'openmost-site-kit')}
+                                checked={settings.enableAiBotTracking !== false}
                                 onChange={(value) => handleChange('enableAiBotTracking', value)}
-                                help={__('Track visits from AI assistants (ChatGPT, Perplexity, Claude, etc.) separately in Matomo.', 'openmost-site-kit')}
+                                help={__('Records pages fetched by AI chatbots (ChatGPT, Claude, Perplexity, Gemini, Mistral...) in the AI Chatbots reports of Matomo. Requires Matomo 5.7.0 or later. Uncheck it if AI chatbots are already tracked at the CDN level (Cloudflare Worker, Amazon CloudFront), otherwise they are counted twice.', 'openmost-site-kit')}
                                 __nextHasNoMarginBottom
                             />
                         </FormField>
 
-                        {settings.enableAiBotTracking && (
+                        {settings.enableAiBotTracking !== false && (
                             <Notice status="info" isDismissible={false} style={{ marginTop: '15px' }}>
                                 <p>
-                                    {__('AI assistant bot visits will be tracked separately using Matomo\'s bot tracking feature (recMode). This requires Matomo 5.7.0 or later.', 'openmost-site-kit')}
+                                    {__('AI chatbots do not run JavaScript, so WordPress detects them by User-Agent and sends a server-side bot request (recMode=1, source "WordPress") whatever tracking method you use. These requests create no visit, no cookie and need no Auth Token.', 'openmost-site-kit')}
                                 </p>
-                                {trackingMethod === 'server' && (
+                                {trackingMethod === 'classic' && (
                                     <p style={{ marginTop: '10px' }}>
-                                        {__('Server-side: AI bots are detected by User-Agent and tracked via recMode=1 (bot-only mode) with source "WordPress".', 'openmost-site-kit')}
+                                        {__('Classic tracking also sends recMode=2, so AI agents that do run JavaScript are classified by Matomo and are not counted twice.', 'openmost-site-kit')}
                                     </p>
                                 )}
-                                {(trackingMethod === 'classic' || trackingMethod === 'mtm') && (
-                                    <p style={{ marginTop: '10px' }}>
-                                        {__('Client-side: Tracking requests use recMode=2 (auto mode) so Matomo automatically detects and categorizes AI bots.', 'openmost-site-kit')}
+                            </Notice>
+                        )}
+
+                        {settings.enableAiBotTracking !== false && settings.aiBotCacheStatus?.pageCache && !settings.enableAiBotEsi && (
+                            settings.aiBotCacheStatus.dropinLoaded ? (
+                                <Notice status="success" isDismissible={false} style={{ marginTop: '15px' }}>
+                                    {__('Page cache detected and the AI chatbot drop-in is loaded from wp-config.php: cached pages are tracked too.', 'openmost-site-kit')}
+                                </Notice>
+                            ) : (
+                                <Notice status="warning" isDismissible={false} style={{ marginTop: '15px' }}>
+                                    <p>
+                                        {__('A page cache is active (WP_CACHE). Pages served from the cache never reach the plugin, so AI chatbots reading them are not tracked. Add these lines to wp-config.php, just before the line that loads wp-settings.php:', 'openmost-site-kit')}
                                     </p>
-                                )}
+                                    <pre style={{ margin: '10px 0', padding: '10px', background: '#f6f7f7', whiteSpace: 'pre-wrap', userSelect: 'all' }}>
+                                        {settings.aiBotCacheStatus.dropinSnippet}
+                                    </pre>
+                                    <p>
+                                        {__('This covers caches served by PHP (WP Super Cache simple mode, W3 Total Cache Disk: Basic, WP Rocket PHP fallback...). Caches served by .htaccess rewrite rules (WP Super Cache expert mode, W3 Total Cache Disk: Enhanced) or by a CDN bypass PHP entirely: use ESI below or the Matomo Cloudflare Worker / CloudFront integration and uncheck this option.', 'openmost-site-kit')}
+                                    </p>
+                                </Notice>
+                            )
+                        )}
+
+                        {settings.enableAiBotTracking !== false && (
+                            <FormField>
+                                <CheckboxControl
+                                    label={__('Track cached pages through ESI (LiteSpeed)', 'openmost-site-kit')}
+                                    checked={settings.enableAiBotEsi || false}
+                                    onChange={(value) => handleChange('enableAiBotEsi', value)}
+                                    help={__('For LiteSpeed Cache or a CDN that supports Edge Side Includes. Pages carry an ESI include evaluated on every request, and the chatbot request is sent from it. Only enable it if your server processes ESI, otherwise AI chatbots are no longer tracked.', 'openmost-site-kit')}
+                                    __nextHasNoMarginBottom
+                                />
+                            </FormField>
+                        )}
+
+                        {settings.enableAiBotTracking !== false && settings.aiBotCacheStatus?.liteSpeed && !settings.enableAiBotEsi && (
+                            <Notice status="warning" isDismissible={false} style={{ marginTop: '15px' }}>
+                                {__('LiteSpeed Cache is active: enable ESI above so that pages served from its cache are tracked.', 'openmost-site-kit')}
                             </Notice>
                         )}
                     </CardBody>
@@ -1480,6 +1513,8 @@ const Settings = () => {
         enableJsSearchTracking: false,
         enableDataLayerSearchTracking: false,
         enableServerSearchTracking: false,
+        enableAiBotTracking: true,
+        enableAiBotEsi: false,
     });
 
     useEffect(() => {

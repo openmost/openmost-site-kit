@@ -255,7 +255,7 @@ class OMSK_WooCommerce_Tracking
     {
         global $product;
 
-        if (!$product instanceof WC_Product) {
+        if (!$product instanceof WC_Product || omsk_is_bot() || omsk_is_ai_bot()) {
             return;
         }
 
@@ -477,7 +477,7 @@ class OMSK_WooCommerce_Tracking
      */
     public function trackCategoryView()
     {
-        if (!is_product_category()) {
+        if (!is_product_category() || omsk_is_bot() || omsk_is_ai_bot()) {
             return;
         }
 

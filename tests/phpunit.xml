@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:noNamespaceSchemaLocation="vendor/phpunit/phpunit/phpunit.xsd"
+         bootstrap="bootstrap.php"
+         colors="true"
+         cacheDirectory=".tmp/phpunit-cache"
+         failOnWarning="true"
+         failOnRisky="true">
+    <testsuites>
+        <testsuite name="unit">
+            <directory>Unit</directory>
+        </testsuite>
+        <testsuite name="integration">
+            <directory>Integration</directory>
+        </testsuite>
+    </testsuites>
+    <php>
+        <!-- Integration suite: throwaway database, dropped and recreated on every run. -->
+        <env name="OMSK_TEST_DB_NAME" value="omsk_site_kit_tests"/>
+        <env name="OMSK_TEST_DB_USER" value="root"/>
+        <env name="OMSK_TEST_DB_PASSWORD" value=""/>
+        <env name="OMSK_TEST_DB_HOST" value="127.0.0.1"/>
+        <!-- WordPress core used by the integration suite, any 6.x+ install works. -->
+        <env name="OMSK_TEST_WP_CORE" value="../../../../"/>
+    </php>
+</phpunit>

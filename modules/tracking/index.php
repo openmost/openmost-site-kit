@@ -52,7 +52,7 @@ function omsk_inject_noscript_tracker() {
     $enable_mtm             = ! empty( $options['omsk-matomo-enable-mtm-tracking-code-field'] );
     $id_container           = isset( $options['omsk-matomo-idcontainer-field'] ) ? $options['omsk-matomo-idcontainer-field'] : '';
     $excluded_roles         = isset( $options['omsk-matomo-excluded-roles-field'] ) ? (array) $options['omsk-matomo-excluded-roles-field'] : array();
-    $enable_ai_bot_tracking = ! empty( $options['omsk-matomo-enable-ai-bot-tracking-field'] );
+    $enable_ai_bot_tracking = omsk_is_ai_bot_tracking_enabled( $options );
 
     if ( empty( $host ) || empty( $id_site ) ) {
         return;
@@ -99,7 +99,7 @@ function omsk_inject_tracking_code() {
     $enable_userid_tracking  = ! empty( $options['omsk-matomo-enable-userid-tracking-field'] );
     $enable_heartbeat_timer  = ! empty( $options['omsk-matomo-enable-heartbeat-timer-field'] );
     $heartbeat_timer_delay   = isset( $options['omsk-matomo-heartbeat-timer-delay-field'] ) ? absint( $options['omsk-matomo-heartbeat-timer-delay-field'] ) : 15;
-    $enable_ai_bot_tracking  = ! empty( $options['omsk-matomo-enable-ai-bot-tracking-field'] );
+    $enable_ai_bot_tracking  = omsk_is_ai_bot_tracking_enabled( $options );
     $enable_js_search        = ! empty( $options['omsk-matomo-enable-js-search-tracking-field'] );
 
     if ( empty( $host ) || empty( $id_site ) ) {
@@ -337,6 +337,9 @@ function omsk_inject_classic_code( $host, $id_site, $plan, $consent_mode = 'disa
       <?php endif; ?>
       <?php if ( $enable_heartbeat_timer ) : ?>
       _paq.push(['enableHeartBeatTimer', <?php echo absint( $heartbeat_timer_delay ); ?>]);
+      <?php endif; ?>
+      <?php if ( $enable_ai_bot_tracking ) : ?>
+      <?php echo omsk_get_ai_bot_js_cookie_snippet(); // phpcs:ignore WordPress.Security.EscapeOutput.OutputNotEscaped -- Static JS, UA list JSON-encoded. ?>
       <?php endif; ?>
       <?php if ( ! $skip_track_pageview ) : ?>
       _paq.push(['trackPageView']);

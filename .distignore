@@ -1,0 +1,12 @@
+# Files and folders that never ship to WordPress.org SVN or the release zip.
+/.git
+/.github
+/.claude
+/.gitignore
+/.distignore
+/.DS_Store
+/node_modules
+/src
+/tests
+/package.json
+/package-lock.json
