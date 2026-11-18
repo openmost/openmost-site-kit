@@ -3,7 +3,7 @@
 Contributors: Openmost
 Requires at least: 6.0
 Tested up to: 7.1.5
-Stable tag: 2.4.0
+Stable tag: 2.4.1
 Tags: matomo, connect, analytics, tracking, ecommerce, gdpr, google analytics alternative, web analytics
 Requires PHP: 8.2
 License: GPL-2.0-or-later
@@ -270,6 +270,13 @@ Contributions are welcome! Visit our [GitHub repository](https://github.com/open
 
 == Changelog ==
 
+= 2.4.1 =
+Release date: 2026-11-18
+
+**Changed:**
+
+* Plugin URI and Author URI now point to openmost.com, the plugin page is openmost.com/matomo/extensions/site-kit
+
 = 2.4.0 =
 Release date: 2026-11-18
 
@@ -417,6 +424,9 @@ Release date: 2023-05-17
 * Initial plugin release
 
 == Upgrade Notice ==
+
+= 2.4.1 =
+Maintenance release: plugin links now point to openmost.com. No functional change.
 
 = 2.4.0 =
 AI chatbot tracking is now on by default and works with Classic, Tag Manager and server-side tracking. Requires Matomo 5.7.0+ for the AI Chatbots reports, uncheck it in Settings to opt out.

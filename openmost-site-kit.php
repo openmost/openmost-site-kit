@@ -11,7 +11,7 @@
  * Plugin Name:       Matomo Site Kit
  * Plugin URI:        https://openmost.com/matomo/extensions/site-kit
  * Description:       A complete Matomo integration for WordPress with dashboard, data layer and code injection.
- * Version:           2.4.0
+ * Version:           2.4.1
  * Requires at least: 6.0
  * Requires PHP:      8.2
  * Author:            Openmost
@@ -29,7 +29,7 @@ if ( ! defined( 'ABSPATH' ) ) {
 
 // Define plugin constants.
 if ( ! defined( 'OPENMOSTSITEKIT_VERSION' ) ) {
-	define( 'OPENMOSTSITEKIT_VERSION', '2.4.0' );
+	define( 'OPENMOSTSITEKIT_VERSION', '2.4.1' );
 }
 if ( ! defined( 'OPENMOSTSITEKIT_PHP_MINIMUM' ) ) {
 	define( 'OPENMOSTSITEKIT_PHP_MINIMUM', '8.2.0' );
