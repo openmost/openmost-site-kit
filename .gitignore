@@ -2,3 +2,5 @@ node_modules
 tests/vendor
 tests/composer.lock
 tests/.tmp
+.claude/settings.local.json
+.DS_Store
