@@ -9,13 +9,13 @@
  *
  * @wordpress-plugin
  * Plugin Name:       Matomo Site Kit
- * Plugin URI:        https://openmost.io/openmost-site-kit
+ * Plugin URI:        https://openmost.com/matomo/extensions/site-kit
  * Description:       A complete Matomo integration for WordPress with dashboard, data layer and code injection.
  * Version:           2.4.0
  * Requires at least: 6.0
  * Requires PHP:      8.2
  * Author:            Openmost
- * Author URI:        https://openmost.io
+ * Author URI:        https://openmost.com
  * Text Domain:       openmost-site-kit
  * Domain Path:       /languages
  * License:           GPL-2.0-or-later
